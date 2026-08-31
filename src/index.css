@@ -1,0 +1,186 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --carbon: #070909;
+    --crema: #f5f0df;
+    --turquesa: #00a8a5;
+    --rosa: #e50058;
+    --amarillo: #f0b323;
+    --naranja: #e87b3a;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 84px;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-carbon text-crema font-body antialiased;
+    overflow-x: hidden;
+  }
+
+  /* Textura sutil de tela diagonal + brillo cálido de fondo */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background-image: url('/assets/textura-tela.webp');
+    background-size: 380px;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(1100px 620px at 12% -5%, rgba(0, 168, 165, 0.16), transparent 65%),
+      radial-gradient(900px 520px at 92% 8%, rgba(229, 0, 88, 0.14), transparent 62%),
+      radial-gradient(1000px 700px at 50% 108%, rgba(240, 179, 35, 0.1), transparent 65%);
+  }
+
+  ::selection {
+    background: var(--rosa);
+    color: #fff;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--amarillo);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+}
+
+@layer components {
+  .contenedor {
+    @apply mx-auto w-full max-w-[1200px] px-5 sm:px-7 lg:px-10;
+  }
+
+  .titulo-display {
+    @apply font-display uppercase leading-[0.86] tracking-[0.01em];
+    text-wrap: balance;
+  }
+
+  /* Texto con contorno tipo rótulo mexicano pintado a mano */
+  .texto-neon {
+    color: var(--crema);
+    text-shadow:
+      0 0 1px rgba(0, 168, 165, 0.9),
+      0 0 14px rgba(0, 168, 165, 0.45),
+      0 6px 18px rgba(0, 0, 0, 0.75);
+  }
+
+  .texto-neon-rosa {
+    color: var(--crema);
+    text-shadow:
+      0 0 1px rgba(229, 0, 88, 0.9),
+      0 0 16px rgba(229, 0, 88, 0.5),
+      0 6px 18px rgba(0, 0, 0, 0.75);
+  }
+
+  .tarjeta {
+    @apply relative rounded-2xl border border-white/10 bg-white/[0.035] backdrop-blur-[2px];
+    box-shadow: 0 18px 40px -28px rgba(0, 0, 0, 0.95);
+  }
+
+  .linea-degradada {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--turquesa),
+      var(--amarillo),
+      var(--rosa),
+      transparent
+    );
+  }
+
+  /* Brillo que recorre los botones principales */
+  .btn-brillo::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 38%;
+    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transform: translateX(-120%);
+    animation: shine 3.4s ease-in-out infinite;
+    pointer-events: none;
+  }
+}
+
+@layer utilities {
+  .revelar {
+    opacity: 0;
+    transform: translateY(28px);
+    transition:
+      opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: var(--retraso, 0ms);
+  }
+
+  .revelar.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  .sombra-plato {
+    filter: drop-shadow(0 26px 26px rgba(0, 0, 0, 0.75));
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  .revelar {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes panelEntra {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.995);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.panel-entra > * {
+  animation: panelEntra 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel-entra > * {
+    animation: none;
+  }
+}
