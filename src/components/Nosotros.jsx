@@ -10,8 +10,8 @@ const RASGOS = [
     color: 'amarillo',
   },
   {
-    titulo: 'Barbacoa de fin de semana',
-    texto: 'Sábado y domingo: pozole, pancita y carnitas. Barbacoa los domingos.',
+    titulo: 'Barbacoa los domingos',
+    texto: 'Sábado y domingo: carnitas, pozole, pancita y brasa. La barbacoa, solo el domingo.',
     color: 'rosa',
   },
   {

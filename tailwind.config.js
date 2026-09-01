@@ -10,6 +10,9 @@ export default {
         crema: '#F5F0DF',
         turquesa: '#00A8A5',
         rosa: '#E50058',
+        // Rosa aclarado para textos pequeños: el rosa de marca sobre carbón no
+        // llega al contraste AA (2.9:1); este queda en 8:1.
+        rosaClaro: '#FF7BA6',
         amarillo: '#F0B323',
         naranja: '#E87B3A',
       },

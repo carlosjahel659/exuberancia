@@ -19,20 +19,40 @@ export const ESTILO_ESTADO = {
     fondo: 'bg-amarillo/[0.06]',
     pastilla: 'border-amarillo/40 bg-amarillo/10 text-amarillo',
   },
+  // Los tonos de texto son más claros que los de marca a propósito: sobre el
+  // fondo carbón, el rosa y el crema tenues no alcanzan contraste AA en textos
+  // pequeños. El punto y el borde sí conservan el color de marca.
   noHoy: {
-    punto: 'bg-crema/35',
-    texto: 'text-crema/45',
+    punto: 'bg-crema/40',
+    texto: 'text-crema/65',
     borde: 'border-white/10',
     fondo: 'bg-white/[0.02]',
-    pastilla: 'border-white/15 bg-white/5 text-crema/50',
+    pastilla: 'border-white/20 bg-white/5 text-crema/70',
   },
   soloDomingos: {
     punto: 'bg-rosa shadow-[0_0_10px_2px_rgba(229,0,88,.7)]',
-    texto: 'text-rosa',
+    texto: 'text-rosaClaro',
     borde: 'border-rosa/45',
     fondo: 'bg-rosa/[0.07]',
-    pastilla: 'border-rosa/40 bg-rosa/10 text-rosa',
+    pastilla: 'border-rosa/45 bg-rosa/10 text-rosaClaro',
   },
+}
+
+/** Candado: marca visualmente lo que hoy no se puede pedir. */
+export function IconoCandado({ className = '' }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden="true"
+    >
+      <rect x="5" y="11" width="14" height="9" rx="2" />
+      <path d="M8 11V8a4 4 0 018 0v3" strokeLinecap="round" />
+    </svg>
+  )
 }
 
 /** Punto de color + texto del estado ("Disponible ahora", "Solo domingos"...). */
@@ -75,12 +95,12 @@ export function AvisoBloqueo({ titulo, disponibilidad, className = '' }) {
 
       <dl className="mt-4 flex flex-wrap gap-x-8 gap-y-2 text-[13px]">
         <div>
-          <dt className="font-alt uppercase tracking-[0.18em] text-crema/45">Horario</dt>
+          <dt className="font-alt uppercase tracking-[0.18em] text-crema/60">Horario</dt>
           <dd className="mt-0.5 text-crema/85">{disponibilidad.resumen}</dd>
         </div>
         {disponibilidad.textoProximo && (
           <div>
-            <dt className="font-alt uppercase tracking-[0.18em] text-crema/45">
+            <dt className="font-alt uppercase tracking-[0.18em] text-crema/60">
               Próxima vez
             </dt>
             <dd className={`mt-0.5 ${estilo.texto}`}>{disponibilidad.textoProximo}</dd>
@@ -88,7 +108,7 @@ export function AvisoBloqueo({ titulo, disponibilidad, className = '' }) {
         )}
       </dl>
 
-      <p className="mt-4 text-[12px] text-crema/45">
+      <p className="mt-4 text-[12px] text-crema/60">
         Puedes verlo en la carta, pero hoy no se puede pedir.
       </p>
     </div>

@@ -1,14 +1,45 @@
+import { IconoCandado } from './EstadoDisponibilidad'
 import { Etiqueta } from './ui'
 
+/** Chips de "Elige tu salsa", "Incluye", "Rinde para"… tal como los trae el PDF. */
+function Detalle({ detalle }) {
+  const incluye = detalle.tipo === 'incluye'
+  return (
+    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1.5">
+      <span
+        className={`font-body text-[12px] font-bold uppercase tracking-[0.06em] ${
+          incluye ? 'text-amarillo' : 'text-turquesa'
+        }`}
+      >
+        {detalle.etiqueta}:
+      </span>
+      <ul className="flex flex-wrap gap-1.5">
+        {detalle.opciones.map((op) => (
+          <li
+            key={op}
+            className={`rounded-full border px-2.5 py-1 text-[12px] leading-none ${
+              incluye
+                ? 'border-amarillo/30 bg-amarillo/10 text-amarillo/90'
+                : 'border-turquesa/30 bg-turquesa/10 text-turquesa/90'
+            }`}
+          >
+            {op}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
 /**
- * Tarjeta de producto del menú. Solo los productos con fotografía o con
- * etiqueta reciben decoración extra, para no saturar la cuadrícula.
+ * Tarjeta de producto del menú. El PDF no incluye precios, así que aquí no se
+ * pinta ninguno.
  *
- * `disponible = false` deja el platillo visible (para que el cliente conozca
- * la carta completa) pero marcado como no pedible en este momento.
+ * `disponible = false` deja el platillo visible (para que se conozca la carta
+ * completa) pero marcado como no pedible en este momento.
  */
 export default function TarjetaProducto({ producto, indice = 0, disponible = true }) {
-  const { nombre, precio, descripcion, opciones, nota, imagen, etiqueta, pendiente } = producto
+  const { nombre, descripcion, detalles, nota, imagen, etiqueta } = producto
 
   return (
     <article
@@ -50,20 +81,9 @@ export default function TarjetaProducto({ producto, indice = 0, disponible = tru
         )}
 
         <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-3">
-            <h4 className="font-alt text-[22px] uppercase leading-[1.05] tracking-[0.04em] text-crema sm:text-2xl">
-              {nombre}
-            </h4>
-            <span
-              className={`shrink-0 font-display text-xl sm:text-2xl ${
-                disponible
-                  ? 'text-amarillo drop-shadow-[0_0_14px_rgba(240,179,35,.35)]'
-                  : 'text-crema/40'
-              }`}
-            >
-              {precio}
-            </span>
-          </div>
+          <h4 className="font-alt text-[22px] uppercase leading-[1.05] tracking-[0.04em] text-crema sm:text-2xl">
+            {nombre}
+          </h4>
 
           {etiqueta && (
             <div className="mt-2">
@@ -71,40 +91,26 @@ export default function TarjetaProducto({ producto, indice = 0, disponible = tru
             </div>
           )}
 
-          <p
-            className={`mt-2.5 text-[13.5px] leading-relaxed sm:text-sm ${
-              pendiente ? 'italic text-crema/45' : 'text-crema/70'
-            }`}
-          >
-            {descripcion}
-          </p>
+          {descripcion && (
+            <p className="mt-2.5 text-[13.5px] leading-relaxed text-crema/70 sm:text-sm">
+              {descripcion}
+            </p>
+          )}
         </div>
       </div>
 
-      {(opciones?.length || nota) && (
-        <div className={`mt-4 border-t border-white/10 pt-4 ${disponible ? '' : 'opacity-60'}`}>
-          {opciones?.length > 0 && (
-            <ul className="flex flex-wrap gap-2">
-              {opciones.map((op) => (
-                <li
-                  key={op}
-                  className="rounded-full border border-turquesa/30 bg-turquesa/10 px-3 py-1 text-[12px] text-turquesa/90"
-                >
-                  {op}
-                </li>
-              ))}
-            </ul>
-          )}
-          {nota && <p className="mt-3 text-[12px] text-crema/50">{nota}</p>}
+      {(detalles?.length || nota) && (
+        <div className={`mt-4 space-y-3 border-t border-white/10 pt-4 ${disponible ? '' : 'opacity-60'}`}>
+          {detalles?.map((detalle) => (
+            <Detalle key={detalle.etiqueta} detalle={detalle} />
+          ))}
+          {nota && <p className="text-[12px] text-crema/50">{nota}</p>}
         </div>
       )}
 
       {!disponible && (
         <p className="mt-4 flex items-center gap-2 border-t border-white/10 pt-3 text-[12px] uppercase tracking-[0.1em] text-crema/45">
-          <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-            <rect x="5" y="11" width="14" height="9" rx="2" />
-            <path d="M8 11V8a4 4 0 018 0v3" strokeLinecap="round" />
-          </svg>
+          <IconoCandado className="h-3.5 w-3.5 shrink-0" />
           No se puede pedir en este momento
         </p>
       )}

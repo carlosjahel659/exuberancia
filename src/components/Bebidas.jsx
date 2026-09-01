@@ -3,20 +3,19 @@ import { Boton, Revelar, Seccion } from './ui'
 import { Chispa, CLASES_COLOR, EsquinaFloral, Filigrana, IlustracionBebida } from './Ornamentos'
 import { recurso } from '../utils/recurso'
 
-function Precios({ precios, color }) {
+/**
+ * Presentaciones disponibles. El PDF no incluye precios, así que aquí solo se
+ * listan las medidas tal como aparecen en la carta.
+ */
+function Medidas({ medidas, color }) {
   return (
-    <ul className="mt-4 space-y-1.5">
-      {precios.map((p) => (
-        <li key={p.medida} className="flex items-baseline gap-3">
-          <span className="font-alt text-base uppercase tracking-[0.18em] text-crema/70">
-            {p.medida}
-          </span>
-          <span className="linea-degradada h-px flex-1 opacity-40" aria-hidden="true" />
-          <span
-            className={`font-display text-2xl ${CLASES_COLOR[color].texto} drop-shadow-[0_0_14px_rgba(255,255,255,.15)] sm:text-[28px]`}
-          >
-            {p.precio}
-          </span>
+    <ul className="mt-4 flex flex-wrap gap-2">
+      {medidas.map((medida) => (
+        <li
+          key={medida}
+          className={`rounded-full border px-3 py-1 font-alt text-[13px] uppercase tracking-[0.12em] ${CLASES_COLOR[color].borde} ${CLASES_COLOR[color].texto}`}
+        >
+          {medida}
         </li>
       ))}
     </ul>
@@ -92,7 +91,7 @@ export default function Bebidas() {
                           <p className="mt-2 text-[13.5px] leading-relaxed text-crema/70">
                             {bebida.descripcion}
                           </p>
-                          <Precios precios={bebida.precios} color={bebida.color} />
+                          <Medidas medidas={bebida.medidas} color={bebida.color} />
                         </div>
 
                         {destacado && (
@@ -106,15 +105,15 @@ export default function Bebidas() {
 
               <div className="mt-10 flex flex-col items-center gap-4 text-center">
                 <p className="max-w-2xl text-[13px] leading-relaxed text-crema/55">
-                  Coctelería, cantaritos, aguas frescas y malteadas también forman parte de la carta.
-                  Consulta la lista completa en el menú.
+                  Coctelería, cantaritos, mezcalitas, botellas con servicio y bebidas sin alcohol
+                  también forman parte de la carta. Consulta la lista completa en el menú.
                 </p>
                 <Boton href="#menu" variante="contorno">
                   Ver todas las bebidas
                 </Boton>
                 <p className="text-[11px] uppercase tracking-[0.16em] text-crema/40">
-                  Venta de alcohol solo a mayores de 18 años · Los precios pueden cambiar sin previo
-                  aviso
+                  Venta de alcohol solo a mayores de 18 años · Consulta precios y disponibilidad con
+                  tu mesero
                 </p>
               </div>
             </div>

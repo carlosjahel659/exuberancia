@@ -11,7 +11,7 @@ export const site = {
   lema: 'Porque un bocado no es suficiente',
   titular: 'Sabor que se vive a lo grande',
   descripcion:
-    'Restaurante mexicano familiar: desayunos, comida mexicana, barbacoa de fin de semana, aguas frescas, micheladas y cantaritos para compartir.',
+    'Restaurante mexicano familiar: desayunos, entradas para compartir, comida mexicana, carnitas y brasa de fin de semana, barbacoa los domingos y bebidas todos los días.',
 
   direccion: '[DIRECCIÓN]',
   telefono: '[TELÉFONO]',

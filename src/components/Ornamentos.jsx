@@ -310,6 +310,15 @@ export function IconoCategoria({ tipo, className = '', color = 'turquesa' }) {
         <path d="M16 12c0-3 3-3 3-6M25 12c0-3 3-3 3-6" {...t} stroke={PALETA.amarillo} />
       </>
     ),
+    // Taco doblado con vapor: la barbacoa de los domingos
+    barbacoa: (
+      <>
+        <path d="M7 32a15 15 0 0130 0z" {...t} />
+        <path d="M5 32h34" {...t} strokeWidth="3" />
+        <path d="M14 26c3-4 9-5 13-1" {...t} stroke={PALETA.amarillo} />
+        <path d="M17 14c0-4 4-4 4-8M26 14c0-4 4-4 4-8" {...t} stroke={PALETA.rosa} />
+      </>
+    ),
     // Tarro
     bebidas: (
       <>
@@ -317,14 +326,6 @@ export function IconoCategoria({ tipo, className = '', color = 'turquesa' }) {
         <path d="M29 19h5a5 5 0 010 10h-5" {...t} />
         <path d="M11 21h18" {...t} stroke={PALETA.amarillo} />
         <path d="M10 14c3-4 8-5 11-2 3-3 7-2 9 2" {...t} stroke={PALETA.crema} />
-      </>
-    ),
-    // Etiqueta de promoción
-    promos: (
-      <>
-        <path d="M22 5l16 16-14 14L8 19V5z" {...t} />
-        <circle cx="15" cy="12" r="2.6" {...t} stroke={PALETA.amarillo} />
-        <path d="M20 22l6 6" {...t} stroke={PALETA.rosa} />
       </>
     ),
   }

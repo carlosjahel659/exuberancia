@@ -102,6 +102,21 @@ export const REGLAS = {
     otroDia: 'Disponible sábados y domingos',
   },
 
+  // El sábado se abre "Fin de semana" pero la barbacoa sigue cerrada: es una
+  // categoría aparte justamente para que puedan desbloquearse por separado.
+  barbacoa: {
+    nombre: 'Barbacoa',
+    corto: 'Barbacoa',
+    icono: 'barbacoa',
+    dias: SOLO_DOMINGO,
+    desde: min(0),
+    hasta: min(24),
+    resumen: 'Solo domingos',
+    textoActivo: 'Disponible hoy, domingo',
+    soloDomingos: true,
+    otroDia: 'La barbacoa se sirve solamente los domingos',
+  },
+
   bebidas: {
     nombre: 'Bebidas',
     corto: 'Bebidas',
@@ -112,36 +127,15 @@ export const REGLAS = {
     resumen: 'Todos los días',
     textoActivo: 'Disponible todo el día',
   },
-
-  promos: {
-    nombre: 'Promociones',
-    corto: 'Promos',
-    icono: 'promos',
-    dias: TODOS_LOS_DIAS,
-    desde: min(0),
-    hasta: min(24),
-    resumen: 'Consulta cada promo',
-    textoActivo: 'Disponible todo el día',
-  },
 }
 
 /**
  * Reglas de grupos dentro de una categoría, por nombre de grupo tal como
- * aparece en `menu.js`. La barbacoa vive dentro de "Fin de semana" pero solo
- * se sirve los domingos.
+ * aparece en `menu.js`. Sirve para cerrar un grupo suelto sin cerrar toda la
+ * categoría; hoy ninguna lo necesita, porque la barbacoa ya es categoría
+ * propia. Para usarlo, agrega aquí una entrada con la misma forma que REGLAS.
  */
-export const REGLAS_GRUPO = {
-  Barbacoa: {
-    nombre: 'Barbacoa',
-    dias: SOLO_DOMINGO,
-    desde: min(0),
-    hasta: min(24),
-    resumen: 'Solo domingos',
-    textoActivo: 'Disponible hoy, domingo',
-    soloDomingos: true,
-    otroDia: 'Barbacoa disponible solamente los domingos',
-  },
-}
+export const REGLAS_GRUPO = {}
 
 /**
  * Días propios de algunas promociones. Solo se registran los que la propia
@@ -415,7 +409,7 @@ export function avisoDelDia(ahora = ahoraEnCDMX()) {
   const ids = Object.keys(REGLAS)
   const evaluadas = ids.map((id) => ({ id, ...REGLAS[id], ...estadoCategoria(id, ahora) }))
 
-  const activas = evaluadas.filter((c) => c.disponible && c.id !== 'promos')
+  const activas = evaluadas.filter((c) => c.disponible)
   const masTarde = evaluadas.filter((c) => c.estado.id === ESTADOS.masTarde.id)
 
   const frases = []

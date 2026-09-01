@@ -77,9 +77,6 @@ export default function Especialidades() {
                     </p>
 
                     <div className="mt-6 flex flex-wrap items-center justify-center gap-4 lg:justify-start">
-                      <span className="font-display text-4xl text-amarillo drop-shadow-[0_0_18px_rgba(240,179,35,.4)] sm:text-5xl">
-                        {item.precio}
-                      </span>
                       <Etiqueta>{item.etiqueta}</Etiqueta>
                     </div>
 

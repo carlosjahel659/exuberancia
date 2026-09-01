@@ -1,69 +1,58 @@
-# La Exuberancia — beta del sitio web
+# La Exuberancia — sitio web
 
-Beta funcional del sitio de **La Exuberancia** (restaurante mexicano familiar), construida con
-**React + Vite + Tailwind CSS**. El contenido del menú se extrajo del PDF `MENU EXUBERANCIA.pdf`
-y del cartel *Menú de bebidas*; todo está convertido a HTML real (no hay PDFs ni imágenes de
-menú incrustadas).
+Sitio de **La Exuberancia** (restaurante mexicano familiar), construido con
+**React + Vite + Tailwind CSS**.
+
+El contenido del menú sale de **`public/menu-exuberancia.pdf`**
+(*Menu_Exuberancia_Con_Bebidas*) y está convertido a **HTML real**: la página no depende de un
+visor de PDF. El PDF se conserva en `public/` únicamente para el botón
+*“Ver menú completo en PDF”*.
+
+> El PDF **no incluye precios**. Por eso el sitio tampoco muestra ninguno: no se inventaron
+> importes ni cantidades. Ver [Cómo agregar precios](#cómo-agregar-precios-cuando-existan).
 
 ---
 
 ## Cómo iniciar la página
 
-En esta computadora **no había Node.js instalado**, así que se instaló una copia portátil en
-`C:\Users\carlo\tools\node-v22.14.0-win-x64` (no toca el sistema ni el PATH global).
-
-### Opción A — usar la copia portátil (PowerShell)
+Requiere **Node 20 o superior** (en esta computadora está instalado Node 20.20.2).
 
 ```powershell
-$env:PATH = "$env:USERPROFILE\tools\node-v22.14.0-win-x64;" + $env:PATH
 cd c:\Users\carlo\repositorios\exuberancia
 npm install      # solo la primera vez
-npm run dev      # abre http://localhost:5173
+npm run dev      # abre http://localhost:5173/exuberancia/
 ```
 
-### Opción B — instalar Node.js normalmente
+| Comando           | Qué hace                                                    |
+| ----------------- | ----------------------------------------------------------- |
+| `npm run dev`     | Servidor de desarrollo en `http://localhost:5173/exuberancia/` |
+| `npm run build`   | Compila el sitio a `dist/`                                  |
+| `npm run preview` | Sirve la versión compilada en `http://localhost:4173/exuberancia/` |
 
-Instala Node 20 o superior desde <https://nodejs.org> y después:
-
-```powershell
-cd c:\Users\carlo\repositorios\exuberancia
-npm install
-npm run dev
-```
-
-Otros comandos:
-
-| Comando           | Qué hace                                        |
-| ----------------- | ----------------------------------------------- |
-| `npm run dev`     | Servidor de desarrollo en `http://localhost:5173` |
-| `npm run build`   | Compila el sitio a `dist/`                      |
-| `npm run preview` | Sirve la versión compilada                      |
+> La dirección incluye `/exuberancia/` porque el sitio se publica en un subdirectorio de GitHub
+> Pages (`base` en `vite.config.js`). Es intencional: así se desarrolla en la misma ruta en la
+> que se publica.
 
 ---
 
-## Archivos creados
+## Estructura del proyecto
 
 ```
 exuberancia/
 ├─ index.html                     Documento base, fuentes y metadatos
-├─ package.json                   Dependencias y scripts
-├─ vite.config.js
+├─ vite.config.js                 base: '/exuberancia/' para GitHub Pages
 ├─ tailwind.config.js             Paleta, tipografías y animaciones de marca
-├─ postcss.config.js
-├─ .gitignore
-├─ public/assets/                 Imágenes extraídas del PDF y optimizadas a .webp
-│  ├─ logo-exuberancia.webp       Logotipo completo
-│  ├─ logo-wordmark.webp          Logotipo tipográfico
-│  ├─ textura-tela.webp           Textura diagonal de fondo (del propio PDF)
-│  ├─ barbacoa.webp  chilaquiles.webp  enchiladas.webp
-│  ├─ hot-cakes.webp  quesadillas.webp  cazuela-barro.webp
-│  └─ favicon.png
+├─ .github/workflows/deploy.yml   Publica en GitHub Pages en cada push a main
+├─ public/
+│  ├─ menu-exuberancia.pdf        PDF completo (botón "Ver menú completo en PDF")
+│  └─ assets/                     Imágenes extraídas del PDF y optimizadas a .webp
 └─ src/
    ├─ main.jsx                    Punto de entrada
    ├─ App.jsx                     Orden de las secciones
    ├─ index.css                   Estilos base, texturas, neón y reduced-motion
+   ├─ utils/recurso.js            Calcula rutas de public/ respetando la base
    ├─ data/
-   │  ├─ menu.js                  TODO el menú, bebidas, promos y especialidades
+   │  ├─ menu.js                  TODO el menú: 6 categorías, grupos y productos
    │  ├─ horarios.js              ÚNICA fuente de días, horarios y disponibilidad
    │  └─ site.js                  Contacto, horarios, redes y navegación
    ├─ hooks/
@@ -72,59 +61,80 @@ exuberancia/
    └─ components/
       ├─ Encabezado.jsx           Header fijo + menú hamburguesa animado
       ├─ Portada.jsx              Hero con entrada animada
-      ├─ MenuInteractivo.jsx      Cuadrícula de 6 categorías con estado (sin recargar)
+      ├─ MenuInteractivo.jsx      Cuadrícula de 6 categorías + panel de contenido
       ├─ AvisoDelDia.jsx          Bloque dinámico de día, hora y disponibilidad
-      ├─ EstadoDisponibilidad.jsx Pastillas de estado y aviso de categoría bloqueada
+      ├─ EstadoDisponibilidad.jsx Pastillas de estado, candado y aviso de bloqueo
       ├─ TarjetaProducto.jsx      Tarjeta de platillo reutilizable
       ├─ TarjetaPromo.jsx         Tarjeta de promoción reutilizable
       ├─ Especialidades.jsx       Bloques grandes alternando foto/texto
-      ├─ Bebidas.jsx              Sección tipo pizarrón con precios de barril
+      ├─ Bebidas.jsx              Sección tipo pizarrón, bebidas de barril
       ├─ Nosotros.jsx             Bloque de marca
       ├─ Promociones.jsx          Promos + horarios + tiempos de preparación
       ├─ Ubicacion.jsx            Contacto, redes y espacio para el mapa
       ├─ PieDePagina.jsx          Footer
-      ├─ Ornamentos.jsx           Filigranas, agaves, chispas e ilustraciones neón
+      ├─ Ornamentos.jsx           Filigranas, agaves, chispas e iconos SVG
       ├─ IconosRed.jsx            Iconos de Instagram, Facebook y TikTok
       └─ ui.jsx                   Botón, etiqueta, título de sección, Revelar
 ```
 
 ---
 
+## Las seis categorías
+
+El menú se organiza en **exactamente seis** opciones. Cada una agrupa lo que le corresponde del
+PDF:
+
+| Categoría           | Qué contiene                                                                     |
+| ------------------- | -------------------------------------------------------------------------------- |
+| **Desayunos**       | Chilaquiles, huevos, huevos al gusto, omelettes, hot cakes, molletes, pan francés |
+| **Entradas**        | Queso asadero, molcajetes, sopas y cremas                                        |
+| **Comida mexicana** | Guisados del día, enchiladas, quesadillas, antojitos, platos fuertes             |
+| **Fin de semana**   | Carnitas, caldos, de la brasa, especialidades de la brasa, aguachiles, coctelería de mariscos |
+| **Barbacoa**        | Por orden y para compartir                                                       |
+| **Bebidas**         | Cervezas, ron, vodka, cantaritos, tequila, mezcal, brandy y vino, botellas, bebidas individuales, bebidas frías, para compartir en familia, daños o errores |
+
+En el teléfono se ven las seis en una cuadrícula de **2 columnas × 3 filas** dentro de la primera
+pantalla; en computadora, **3 columnas × 2 filas**. Al tocar una categoría disponible se abre su
+contenido debajo, con un botón **“Volver a las categorías”** siempre visible (barra fija arriba
+del panel) y otro al final. `Esc` también regresa.
+
+---
+
 ## Menú dinámico por día y horario
 
 La página detecta sola el día y la hora en **`America/Mexico_City`** (no usa el reloj ni la
-región del visitante) y activa o bloquea cada categoría.
+región del visitante) y desbloquea o bloquea cada categoría.
 
 **Todas las reglas viven en un solo archivo: [`src/data/horarios.js`](src/data/horarios.js).**
-Ningún componente repite horarios: todos preguntan ahí. Para cambiar un horario se edita ese
-archivo y se actualiza toda la página.
+Ningún componente repite horarios: todos preguntan ahí. Estas reglas **tienen prioridad sobre
+los horarios impresos dentro del PDF**.
 
-| Categoría           | Días              | Horario         | Cuando no aplica                              |
-| ------------------- | ----------------- | --------------- | --------------------------------------------- |
-| **Desayunos**       | Lunes a viernes   | 9:00 – 12:00    | “Desayunos disponibles de 9:00 a. m. a 12:00 p. m.” |
-| **Entradas**        | Lunes a viernes   | 9:00 – 19:00    | Dentro del horario se anuncia “Disponible todo el día” |
-| **Comida mexicana** | Lunes a viernes   | 12:00 – 19:00   | Antes de las 12:00: “Disponible a partir de las 12:00 p. m.” |
-| **Fin de semana**   | Sábado y domingo  | Todo el día     | Lun–vie: “Disponible sábados y domingos”      |
-| **Barbacoa** (grupo dentro de Fin de semana) | Solo domingo | Todo el día | “Barbacoa disponible solamente los domingos” |
-| **Bebidas**         | Todos los días    | Todo el día     | Siempre activa (con y sin alcohol)            |
-| **Promociones**     | Todos los días    | —               | Solo respeta los días que la propia promo ya declara |
+| Categoría           | Días              | Horario       | Cuando no aplica                                             |
+| ------------------- | ----------------- | ------------- | ------------------------------------------------------------ |
+| **Desayunos**       | Lunes a viernes   | 9:00 – 12:00  | “Desayunos disponibles de 9:00 a. m. a 12:00 p. m.”          |
+| **Entradas**        | Lunes a viernes   | 9:00 – 19:00  | Dentro del horario se anuncia “Disponible todo el día”       |
+| **Comida mexicana** | Lunes a viernes   | 12:00 – 19:00 | Antes de las 12:00: “Disponible a partir de las 12:00 p. m.” |
+| **Fin de semana**   | Sábado y domingo  | Todo el día   | Lun–vie: “Disponible sábados y domingos”                     |
+| **Barbacoa**        | **Solo domingo**  | Todo el día   | “La barbacoa se sirve solamente los domingos”                |
+| **Bebidas**         | Todos los días    | Todo el día   | Siempre disponible                                           |
 
-Las dos promociones que ya traían días propios los conservan: **Desayuno Ejecutivo**
-(lunes a viernes) y **Música en vivo** (viernes, sábado y domingo desde las 12:00). Las demás no
-tienen horario y no se les inventó ninguno.
+**El sábado se desbloquea *Fin de semana* pero *Barbacoa* sigue bloqueada; el domingo se
+desbloquean las dos.** Por eso Barbacoa es una categoría propia y no un grupo dentro de Fin de
+semana: así pueden abrirse por separado.
 
 ### Estados visuales
 
-| Estado                  | Color            | Cuándo aparece                                  |
-| ----------------------- | ---------------- | ----------------------------------------------- |
-| **Disponible ahora**    | Turquesa         | Es su día y está dentro del horario             |
-| **Disponible más tarde**| Amarillo         | Es su día pero todavía no abre                  |
-| **No disponible hoy**   | Gris             | No se sirve hoy, o su horario ya terminó        |
-| **Solo domingos**       | Rosa mexicano    | Barbacoa cualquier día que no sea domingo       |
+| Estado                   | Color         | Cuándo aparece                             |
+| ------------------------ | ------------- | ------------------------------------------ |
+| **Disponible ahora**     | Turquesa      | Es su día y está dentro del horario        |
+| **Disponible más tarde** | Amarillo      | Es su día pero todavía no abre             |
+| **No disponible hoy**    | Gris          | No se sirve hoy, o su horario ya terminó   |
+| **Solo domingos**        | Rosa mexicano | Barbacoa cualquier día que no sea domingo  |
 
-Las categorías bloqueadas **siguen visibles**: el cliente puede leer toda la carta. Al abrirlas se
-muestra su horario y el próximo día disponible, y cada platillo queda marcado como
-“No se puede pedir en este momento”.
+Una categoría bloqueada **no desaparece**: sigue en la cuadrícula, se ve oscurecida y sin color,
+lleva un candado y muestra su horario o el próximo día disponible (“Vuelve el domingo”). No se
+puede abrir: el botón queda con `aria-disabled` y no responde al clic, pero **sí recibe el foco
+del teclado** para que un lector de pantalla anuncie por qué no está disponible.
 
 ### Cómo probar otros días y horas (sin tocar el reloj de la computadora)
 
@@ -132,12 +142,12 @@ Agrega parámetros a la dirección. La página muestra un aviso amarillo de **mo
 mientras la simulación está activa:
 
 ```
-http://localhost:5173/?dia=lunes&hora=10:00      → menú entre semana, desayunos activos
-http://localhost:5173/?dia=lunes&hora=12:00      → desayunos cierran, comida mexicana abre
-http://localhost:5173/?dia=lunes&hora=19:00      → cocina cerrada, solo bebidas y promos
-http://localhost:5173/?dia=sabado&hora=13:00     → fin de semana activo, barbacoa bloqueada
-http://localhost:5173/?dia=domingo&hora=13:00    → fin de semana y barbacoa activos
-http://localhost:5173/?ahora=2026-09-06T13:00    → fecha y hora completas
+http://localhost:5173/exuberancia/?dia=lunes&hora=10:00     → desayunos y entradas
+http://localhost:5173/exuberancia/?dia=lunes&hora=12:00     → cierran desayunos, abre comida mexicana
+http://localhost:5173/exuberancia/?dia=lunes&hora=19:00     → cocina cerrada, solo bebidas
+http://localhost:5173/exuberancia/?dia=sabado&hora=13:00    → fin de semana SÍ, barbacoa NO
+http://localhost:5173/exuberancia/?dia=domingo&hora=13:00   → fin de semana y barbacoa
+http://localhost:5173/exuberancia/?ahora=2026-09-06T13:00   → fecha y hora completas
 ```
 
 También acepta el día como número (`?dia=0` domingo … `?dia=6` sábado). Quitar los parámetros
@@ -151,102 +161,142 @@ navegador como en el servidor (no dependen del DOM):
 ```js
 import { puedeAgregarAlCarrito, revisarDisponibilidad } from './src/data/horarios'
 
-// Antes de agregar al carrito o de registrar una compra
-puedeAgregarAlCarrito({ categoria: 'finde', grupo: 'Barbacoa' })
-// -> { permitido: false, motivo: 'Barbacoa disponible solamente los domingos', estado: 'soloDomingos' }
+puedeAgregarAlCarrito({ categoria: 'barbacoa' })   // un martes
+// -> { permitido: false, motivo: 'La barbacoa se sirve solamente los domingos', estado: 'soloDomingos' }
 
-// Antes de finalizar la compra, para avisar de lo que dejó de estar disponible
 revisarDisponibilidad(articulosDelCarrito)
 // -> { todoDisponible: false, noDisponibles: [ { articulo, motivo, estado } ] }
 ```
 
-> **Importante:** este proyecto es un sitio estático (React + Vite) **sin backend, sin base de
-> datos, sin sistema de usuarios y sin carrito de compras** — la beta anterior se pidió
-> explícitamente sin ellos. Por eso la validación de servidor todavía no se puede conectar: las
-> funciones de arriba ya están listas y probadas para hacerlo el día que exista el backend.
+> Este proyecto es un sitio estático **sin backend, sin base de datos y sin carrito**. Las
+> funciones de arriba ya están listas para conectarse el día que exista el backend.
 
 ---
 
-## Datos reales que todavía faltan
+## Cómo editar el contenido
 
-Todos viven en un solo archivo: [`src/data/site.js`](src/data/site.js). Sustituye el texto entre
-corchetes y el sitio entero se actualiza (encabezado, botones, ubicación y pie de página).
+### Cambiar, agregar o quitar productos
 
-1. **Dirección** — `[DIRECCIÓN]`
-2. **Teléfono** — `[TELÉFONO]`
-3. **Enlace de WhatsApp** — `[WHATSAPP_LINK]` (formato `https://wa.me/52XXXXXXXXXX`)
-4. **URL de Google Maps** — `[GOOGLE_MAPS_URL]` (y el `<iframe>` para incrustar el mapa)
-5. **Instagram** — `[INSTAGRAM_URL]`
-6. **Facebook** — `[FACEBOOK_URL]`
-7. **TikTok** — `[TIKTOK_URL]`
+Todo el menú vive en **[`src/data/menu.js`](src/data/menu.js)**. No hay que tocar ningún
+componente: las tarjetas se generan solas a partir de estos datos.
 
-Mientras estén sin definir, los enlaces se muestran deshabilitados y marcados como
-“por definir”, en lugar de llevar a una página rota.
+```js
+export const menu = {
+  desayunos: [                       // ← una de las seis categorías
+    {
+      grupo: 'Chilaquiles',          // ← encabezado del bloque
+      nota: 'Texto opcional del grupo',
+      productos: [
+        {
+          nombre: 'Chilaquiles tradicionales',
+          descripcion: 'Totopos con crema, queso fresco…',
+          detalles: [
+            { etiqueta: 'Elige tu salsa', opciones: ['Verde', 'Roja'] },
+            { etiqueta: 'Incluye', tipo: 'incluye', opciones: ['100 g de pollo'] },
+          ],
+          imagen: IMG.chilaquiles,   // opcional, de public/assets/
+          etiqueta: 'Exuberante',    // opcional: Exuberante | Especialidad | Fin de semana
+        },
+      ],
+    },
+  ],
+}
+```
 
-Además, hay dos cosas del menú que conviene confirmar con el restaurante:
+- **Agregar un producto** → añade un objeto a `productos`.
+- **Agregar un grupo** → añade `{ grupo, productos }` al arreglo de la categoría.
+- **Mover un producto de categoría** → córtalo y pégalo en la otra; nada más.
+- `tipo: 'incluye'` pinta los chips en amarillo (“Incluye”, “Rinde para”); sin él salen en
+  turquesa (“Elige tu…”).
+- `formato: 'lista'` en un grupo lo pinta como lista compacta en vez de tarjetas grandes; así se
+  muestran las bebidas.
 
-8. **Descripción de “Enchiladas Exuberantes”** — en el PDF aparece el nombre y el precio
-   ($7.75) pero no la descripción. Está marcada como pendiente en la tarjeta.
-9. **Fotografías en alta resolución** — ver la nota de imágenes abajo.
+### Cambiar horarios
+
+Todo en **[`src/data/horarios.js`](src/data/horarios.js)**, en el objeto `REGLAS`:
+
+```js
+desayunos: {
+  dias: LUNES_A_VIERNES,   // o FIN_DE_SEMANA, SOLO_DOMINGO, TODOS_LOS_DIAS, o [1,3,5]
+  desde: min(9),           // 9:00
+  hasta: min(12),          // 12:00
+  resumen: 'Lun a vie · 9:00 a 12:00',      // lo que se lee en la tarjeta
+  fueraDeHorario: '…',                       // mensaje cuando ya cerró
+  otroDia: 'Disponible de lunes a viernes',  // mensaje cuando hoy no toca
+},
+```
+
+Cambiar `desde`/`hasta`/`dias` actualiza la cuadrícula, el aviso del día, los bloqueos y los
+mensajes, todo a la vez. **Acuérdate de actualizar también `resumen`**, que es el texto que se
+muestra: no se genera solo, para que puedas redactarlo como quieras.
+
+Para volver a cerrar un grupo suelto sin cerrar toda su categoría, agrega una entrada en
+`REGLAS_GRUPO` con la misma forma, usando como llave el nombre exacto del grupo en `menu.js`.
+
+### Cómo agregar precios cuando existan
+
+Hoy no hay ninguno porque el PDF no los trae. Cuando el restaurante los defina:
+
+1. Agrega `precio: '$95'` a cada producto en `src/data/menu.js`.
+2. En `src/components/TarjetaProducto.jsx`, dentro del `<h4>` del nombre, agrega el campo:
+
+   ```jsx
+   {producto.precio && (
+     <span className="font-display text-xl text-amarillo sm:text-2xl">{producto.precio}</span>
+   )}
+   ```
+
+3. Para los grupos en `formato: 'lista'` (bebidas), el mismo campo se pinta en `GrupoLista`
+   dentro de `src/components/MenuInteractivo.jsx`.
+
+### Reemplazar el PDF
+
+Sustituye `public/menu-exuberancia.pdf` conservando el nombre. El botón *“Ver menú completo en
+PDF”* apunta ahí a través de `MENU_PDF` en `menu.js`, que respeta la base del sitio.
+
+### Datos de contacto que todavía faltan
+
+Todos viven en **[`src/data/site.js`](src/data/site.js)**. Sustituye el texto entre corchetes y
+el sitio entero se actualiza (encabezado, botones, ubicación y pie de página):
+`[DIRECCIÓN]`, `[TELÉFONO]`, `[WHATSAPP_LINK]`, `[GOOGLE_MAPS_URL]`, `[INSTAGRAM_URL]`,
+`[FACEBOOK_URL]`, `[TIKTOK_URL]`.
+
+Mientras estén sin definir, los enlaces se muestran deshabilitados y marcados como “por definir”,
+en lugar de llevar a una página rota.
 
 ---
 
 ## Notas sobre el contenido
 
-### Precios y textos
-
-Los nombres, descripciones y precios se transcribieron **tal cual** del PDF. Solo se corrigieron
-faltas de ortografía evidentes:
-
-| En el PDF          | En el sitio         |
-| ------------------ | ------------------- |
-| `Divorsiados`      | `Divorciados`       |
-| `COCTELERIA`       | `Coctelería`        |
-| `porción de arrachera` (sin espacio) | corregido el espaciado |
-
-También se antepuso el nombre del grupo en algunos platillos para que se entiendan fuera de su
-columna (`Tradicionales` → `Chilaquiles Tradicionales`, `Rancheros` → `Huevos Rancheros`, etc.).
-Los precios **no se modificaron**; conviene revisarlos, porque en el PDF algunos parecen
-inconsistentes (por ejemplo, *Hot Cakes Exuberantes* $4.50 sale más barato que los tradicionales
-$7.00, y los platillos “Exuberantes” suelen costar menos que los tradicionales).
-
-Se añadieron dos descripciones cortas donde el PDF solo traía una lista de opciones sin texto
-(*Queso fundido* y *Taco Exuberante*); son textos de relleno editables en `src/data/menu.js`.
-
-### Bebidas
-
-- Los **precios de barril** (Cerveza de Barril, Cerveza Mega, Michelada de Barril, Michelada Mega,
-  Marina de Barril y Venenosa) vienen del cartel *Menú de bebidas*.
-- La **lista de coctelería, cervezas, aguas frescas, malteadas y otras bebidas** viene del PDF,
-  que no incluye precios para esos artículos.
-
-### Imágenes
-
-- Todas las fotografías y el logotipo se **extrajeron del PDF original** (con su transparencia) y
-  se convirtieron a `.webp` optimizado. No se usó ninguna foto de banco ajena a la marca.
-- Las fotos del PDF son **de baja resolución** (entre 176 px y 380 px de ancho). Se ven bien en
-  las tarjetas del menú, pero en la sección de *Especialidades* se muestran a mayor tamaño y se
-  notan suaves. Si el cliente puede enviar las fotos originales, basta con reemplazar los
-  archivos de `public/assets/` conservando el nombre.
-- El cartel de bebidas no permitía recortar fotos limpias de los tarros, así que las bebidas de
-  barril se representan con **ilustraciones neón dibujadas en SVG** (`Ornamentos.jsx`), en el mismo
-  estilo del cartel. Se pueden cambiar por fotografías reales cuando existan.
-- El mapa es un **espacio reservado** claramente identificado hasta tener la URL de Google Maps.
+- Nombres, descripciones, gramajes y opciones están transcritos **literalmente** del PDF. No se
+  inventaron productos, ingredientes, cantidades ni precios.
+- **Los molcajetes** (norteño, Mexa y Mexa Exuberante) quedaron en *Entradas*. En el PDF, el
+  Molcajete Mexa aparece en la página de *Asada* (viernes a domingo); se movió a Entradas por
+  petición expresa. Si prefieres que siga las reglas del fin de semana, mueve ese grupo a
+  `menu.finde` en `menu.js`.
+- **Promociones** (`#promociones`) no viene del PDF: se conserva del contenido anterior del
+  sitio. Es la única sección con textos que no salen del documento.
+- Las fotografías y el logotipo se extrajeron del PDF original y se convirtieron a `.webp`. Son
+  de baja resolución (176–380 px de ancho); si el cliente envía las originales, basta con
+  reemplazar los archivos de `public/assets/` conservando el nombre.
+- Las bebidas de barril se representan con **ilustraciones neón dibujadas en SVG**
+  (`Ornamentos.jsx`), porque no hay fotografías utilizables.
+- El mapa es un **espacio reservado** hasta tener la URL de Google Maps.
 
 ---
 
 ## Diseño y comportamiento
 
 - **Paleta:** negro carbón `#070909`, blanco cálido `#F5F0DF`, turquesa `#00A8A5`,
-  rosa mexicano `#E50058`, amarillo `#F0B323`, naranja `#E87B3A`.
-- **Tipografías:** Anton (títulos), Bebas Neue (subtítulos y precios), Montserrat (texto).
+  rosa mexicano `#E50058`, amarillo `#F0B323`, naranja `#E87B3A`. Se agregó `rosaClaro`
+  `#FF7BA6` solo para textos pequeños: el rosa de marca sobre carbón no alcanza contraste AA.
+- **Tipografías:** Anton (títulos), Bebas Neue (subtítulos), Montserrat (texto).
 - **Fondo:** textura de tela diagonal tomada del propio PDF, con resplandores de color.
-- **Responsive:** diseñado primero para móvil; probado a **360 px, 768 px y 1440 px**. Sin
-  desplazamiento horizontal en ningún ancho. Las seis categorías se ven completas en una
-  cuadrícula de 2×3 en teléfono y en una sola fila de 6 en computadora.
-- **Animaciones:** entrada de la portada, aparición al hacer scroll, ornamentos flotando, escala
-  suave en tarjetas y fotos, transición entre categorías y brillo en los botones principales.
-  Todo respeta `prefers-reduced-motion: reduce`.
-- **Accesibilidad:** HTML semántico, enlace “saltar al menú”, `aria-*` en pestañas y menú móvil,
-  foco visible, textos alternativos y contraste alto sobre fondo oscuro.
-- Sin backend, sin carrito y sin pagos, tal como se pidió para esta beta.
+- **Responsive:** móvil primero. Sin desplazamiento horizontal en ningún ancho. Las seis
+  categorías caben completas en la primera pantalla del teléfono (2×3) y en 3×2 en computadora.
+- **Animaciones:** entrada de la portada, aparición al hacer scroll, ornamentos flotando, entrada
+  escalonada de las tarjetas al abrir una categoría y brillo en los botones. Todo respeta
+  `prefers-reduced-motion: reduce`.
+- **Accesibilidad:** HTML semántico, enlace “saltar al menú”, `aria-expanded`/`aria-controls` en
+  las categorías, `aria-disabled` + `aria-describedby` en las bloqueadas, foco que entra al panel
+  al abrir y vuelve a la tarjeta al cerrar, `Esc` para cerrar, textos alternativos y contraste AA.

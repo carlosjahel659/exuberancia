@@ -111,7 +111,7 @@ export default function PieDePagina() {
 
         <div className="mt-12 border-t border-white/10 pt-6 text-center">
           <p className="text-[12px] uppercase tracking-[0.14em] text-crema/45">
-            Los precios pueden cambiar sin previo aviso · Imágenes ilustrativas
+            Imágenes ilustrativas · Consulta precios y disponibilidad con tu mesero
           </p>
           <p className="mt-2 text-[12px] text-crema/35">
             © {anio} {site.nombre}. Todos los derechos reservados.
