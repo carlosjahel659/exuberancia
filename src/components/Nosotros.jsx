@@ -1,6 +1,7 @@
 import { site } from '../data/site'
 import { Agave, Chispa, Divisor, Filigrana } from './Ornamentos'
 import { Boton, Revelar, Seccion } from './ui'
+import { recurso } from '../utils/recurso'
 
 const RASGOS = [
   {
@@ -33,7 +34,7 @@ export default function Nosotros() {
                 className="absolute -top-6 left-1/2 h-16 w-24 -translate-x-1/2 opacity-40 animate-sway"
               />
               <img
-                src="/assets/logo-wordmark.webp"
+                src={recurso('assets/logo-wordmark.webp')}
                 alt="La Exuberancia"
                 loading="lazy"
                 decoding="async"

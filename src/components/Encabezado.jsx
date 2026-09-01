@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { navegacion, site } from '../data/site'
 import { useSeccionActiva } from '../hooks/useRevelar'
 import { Boton } from './ui'
+import { recurso } from '../utils/recurso'
 
 const IDS = navegacion.map((n) => n.id)
 
@@ -47,7 +48,7 @@ export default function Encabezado() {
           aria-label={`${site.nombre} — ir al inicio`}
         >
           <img
-            src="/assets/logo-exuberancia.webp"
+            src={recurso('assets/logo-exuberancia.webp')}
             alt=""
             width="820"
             height="820"

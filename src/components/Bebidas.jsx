@@ -1,6 +1,7 @@
 import { bebidasBarril } from '../data/menu'
 import { Boton, Revelar, Seccion } from './ui'
 import { Chispa, CLASES_COLOR, EsquinaFloral, Filigrana, IlustracionBebida } from './Ornamentos'
+import { recurso } from '../utils/recurso'
 
 function Precios({ precios, color }) {
   return (
@@ -33,7 +34,7 @@ export default function Bebidas() {
               aria-hidden="true"
               className="pointer-events-none absolute inset-0 opacity-70"
               style={{
-                backgroundImage: 'url(/assets/textura-tela.webp)',
+                backgroundImage: `url(${recurso('assets/textura-tela.webp')})`,
                 backgroundSize: '300px',
               }}
             />

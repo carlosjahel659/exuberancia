@@ -5,15 +5,17 @@
 // Solo se corrigieron faltas de ortografía evidentes (ver README).
 // -----------------------------------------------------------------------------
 
+import { recurso } from '../utils/recurso'
+
 export const IMG = {
-  chilaquiles: '/assets/chilaquiles.webp',
-  hotCakes: '/assets/hot-cakes.webp',
-  quesadillas: '/assets/quesadillas.webp',
-  enchiladas: '/assets/enchiladas.webp',
-  barbacoa: '/assets/barbacoa.webp',
-  cazuela: '/assets/cazuela-barro.webp',
-  logo: '/assets/logo-exuberancia.webp',
-  wordmark: '/assets/logo-wordmark.webp',
+  chilaquiles: recurso('assets/chilaquiles.webp'),
+  hotCakes: recurso('assets/hot-cakes.webp'),
+  quesadillas: recurso('assets/quesadillas.webp'),
+  enchiladas: recurso('assets/enchiladas.webp'),
+  barbacoa: recurso('assets/barbacoa.webp'),
+  cazuela: recurso('assets/cazuela-barro.webp'),
+  logo: recurso('assets/logo-exuberancia.webp'),
+  wordmark: recurso('assets/logo-wordmark.webp'),
 }
 
 export const categorias = [

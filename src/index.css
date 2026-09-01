@@ -29,7 +29,7 @@
     position: fixed;
     inset: 0;
     z-index: -2;
-    background-image: url('/assets/textura-tela.webp');
+    background-image: var(--textura-tela);
     background-size: 380px;
     opacity: 0.5;
     pointer-events: none;

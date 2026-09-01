@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { site } from '../data/site'
 import { Agave, Chispa, Filigrana } from './Ornamentos'
 import { Boton } from './ui'
+import { recurso } from '../utils/recurso'
 
 /** Portada principal con entrada animada al cargar. */
 export default function Portada() {
@@ -39,7 +40,7 @@ export default function Portada() {
         <div className="relative text-center lg:text-left">
           <div {...entrada(0)}>
             <img
-              src="/assets/logo-exuberancia.webp"
+              src={recurso('assets/logo-exuberancia.webp')}
               alt="Logotipo de La Exuberancia"
               width="820"
               height="820"
@@ -117,7 +118,7 @@ export default function Portada() {
             />
 
             <img
-              src="/assets/barbacoa.webp"
+              src={recurso('assets/barbacoa.webp')}
               alt="Tacos de barbacoa servidos en plato de barro"
               width="360"
               height="360"

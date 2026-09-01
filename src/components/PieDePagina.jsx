@@ -1,6 +1,7 @@
 import { navegacion, PENDIENTE, redes, site } from '../data/site'
 import IconoRed from './IconosRed'
 import { Divisor, Filigrana } from './Ornamentos'
+import { recurso } from '../utils/recurso'
 
 export default function PieDePagina() {
   const anio = new Date().getFullYear()
@@ -14,7 +15,7 @@ export default function PieDePagina() {
           {/* Marca */}
           <div className="text-center sm:col-span-2 sm:text-left lg:col-span-1">
             <img
-              src="/assets/logo-exuberancia.webp"
+              src={recurso('assets/logo-exuberancia.webp')}
               alt="La Exuberancia"
               loading="lazy"
               decoding="async"
