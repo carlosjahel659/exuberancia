@@ -39,7 +39,7 @@ function Detalle({ detalle }) {
  * completa) pero marcado como no pedible en este momento.
  */
 export default function TarjetaProducto({ producto, indice = 0, disponible = true }) {
-  const { nombre, descripcion, detalles, nota, imagen, etiqueta } = producto
+  const { nombre, descripcion, detalles, nota, imagen, foto, fotoAlt, etiqueta } = producto
 
   return (
     <article
@@ -60,7 +60,27 @@ export default function TarjetaProducto({ producto, indice = 0, disponible = tru
       )}
 
       <div className={`flex items-start gap-4 ${disponible ? '' : 'opacity-60'}`}>
-        {imagen && (
+        {/* Fotografía real: miniatura cuadrada de recorte uniforme. Es un acento
+            al lado del texto, nunca el elemento principal de la tarjeta. */}
+        {foto && (
+          <div className="relative shrink-0 overflow-hidden rounded-xl ring-1 ring-white/15">
+            <img
+              src={foto.src}
+              srcSet={`${foto.chica} 160w, ${foto.src} 320w`}
+              sizes="(min-width: 640px) 96px, 72px"
+              alt={fotoAlt ?? nombre}
+              loading="lazy"
+              decoding="async"
+              width="320"
+              height="320"
+              className={`block h-[72px] w-[72px] object-cover transition-transform duration-500 sm:h-24 sm:w-24 ${
+                disponible ? 'group-hover:scale-[1.08]' : 'grayscale-[.6]'
+              }`}
+            />
+          </div>
+        )}
+
+        {!foto && imagen && (
           <div className="relative shrink-0">
             <span
               aria-hidden="true"

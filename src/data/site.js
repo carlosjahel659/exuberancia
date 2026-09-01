@@ -21,9 +21,12 @@ export const site = {
   facebook: '[FACEBOOK_URL]',
   tiktok: '[TIKTOK_URL]',
 
+  // Cierre diario a las 7:30 p.m. en todos los días; las horas de apertura son
+  // las que ya tenía cada día. Si esto cambia, actualiza también CIERRE_DIARIO
+  // en src/data/horarios.js, que es lo que apaga las categorías.
   horarios: [
-    { dias: 'Lunes a viernes', horas: '9:00 a.m. – 8:00 p.m.' },
-    { dias: 'Sábado y domingo', horas: '7:00 a.m. – 8:00 p.m.' },
+    { dias: 'Lunes a viernes', horas: '9:00 a.m. – 7:30 p.m.' },
+    { dias: 'Sábado y domingo', horas: '7:00 a.m. – 7:30 p.m.' },
   ],
 
   tiempos: [

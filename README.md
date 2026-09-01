@@ -5,8 +5,8 @@ Sitio de **La Exuberancia** (restaurante mexicano familiar), construido con
 
 El contenido del menú sale de **`public/menu-exuberancia.pdf`**
 (*Menu_Exuberancia_Con_Bebidas*) y está convertido a **HTML real**: la página no depende de un
-visor de PDF. El PDF se conserva en `public/` únicamente para el botón
-*“Ver menú completo en PDF”*.
+visor de PDF. El PDF se conserva en `public/menu-exuberancia.pdf` como respaldo del
+contenido, pero **el sitio ya no lo enlaza desde ninguna parte**.
 
 > El PDF **no incluye precios**. Por eso el sitio tampoco muestra ninguno: no se inventaron
 > importes ni cantidades. Ver [Cómo agregar precios](#cómo-agregar-precios-cuando-existan).
@@ -44,8 +44,10 @@ exuberancia/
 ├─ tailwind.config.js             Paleta, tipografías y animaciones de marca
 ├─ .github/workflows/deploy.yml   Publica en GitHub Pages en cada push a main
 ├─ public/
-│  ├─ menu-exuberancia.pdf        PDF completo (botón "Ver menú completo en PDF")
-│  └─ assets/                     Imágenes extraídas del PDF y optimizadas a .webp
+│  ├─ menu-exuberancia.pdf        PDF de respaldo (no se enlaza desde el sitio)
+│  └─ assets/
+│     ├─ fotos/                   9 fotografías reales, recorte cuadrado, 320 y 160 px
+│     └─ *.webp                   Recortes e ilustraciones extraídos del PDF
 └─ src/
    ├─ main.jsx                    Punto de entrada
    ├─ App.jsx                     Orden de las secciones
@@ -112,11 +114,17 @@ los horarios impresos dentro del PDF**.
 | Categoría           | Días              | Horario       | Cuando no aplica                                             |
 | ------------------- | ----------------- | ------------- | ------------------------------------------------------------ |
 | **Desayunos**       | Lunes a viernes   | 9:00 – 12:00  | “Desayunos disponibles de 9:00 a. m. a 12:00 p. m.”          |
-| **Entradas**        | Lunes a viernes   | 9:00 – 19:00  | Dentro del horario se anuncia “Disponible todo el día”       |
+| **Entradas**        | Lunes a viernes   | 9:00 – 19:00  | “Entradas disponibles de 9:00 a. m. a 7:00 p. m.”            |
 | **Comida mexicana** | Lunes a viernes   | 12:00 – 19:00 | Antes de las 12:00: “Disponible a partir de las 12:00 p. m.” |
-| **Fin de semana**   | Sábado y domingo  | Todo el día   | Lun–vie: “Disponible sábados y domingos”                     |
-| **Barbacoa**        | **Solo domingo**  | Todo el día   | “La barbacoa se sirve solamente los domingos”                |
-| **Bebidas**         | Todos los días    | Todo el día   | Siempre disponible                                           |
+| **Fin de semana**   | Sábado y domingo  | hasta 19:30   | Lun–vie: “Disponible sábados y domingos”                     |
+| **Barbacoa**        | **Solo domingo**  | hasta 19:30   | “La barbacoa se sirve solamente los domingos”                |
+| **Bebidas**         | Todos los días    | hasta 19:30   | Los 7 días, dentro del horario                               |
+
+**El restaurante cierra a las 7:30 p. m. todos los días.** Esa hora vive en la constante
+`CIERRE_DIARIO` de `horarios.js` y es el tope de todas las categorías: después de las 19:30
+ninguna aparece como disponible. Las que cierran antes (desayunos a las 12:00, entradas y
+comida mexicana a las 19:00) conservan su propio horario. El texto que se muestra al cliente
+está en `site.horarios` (`src/data/site.js`); si cambias una, cambia la otra.
 
 **El sábado se desbloquea *Fin de semana* pero *Barbacoa* sigue bloqueada; el domingo se
 desbloquean las dos.** Por eso Barbacoa es una categoría propia y no un grupo dentro de Fin de
@@ -194,7 +202,8 @@ export const menu = {
             { etiqueta: 'Elige tu salsa', opciones: ['Verde', 'Roja'] },
             { etiqueta: 'Incluye', tipo: 'incluye', opciones: ['100 g de pollo'] },
           ],
-          imagen: IMG.chilaquiles,   // opcional, de public/assets/
+          foto: FOTO.cremaPoblana,   // fotografía real, opcional
+          fotoAlt: 'Descripción de la foto para lectores de pantalla',
           etiqueta: 'Exuberante',    // opcional: Exuberante | Especialidad | Fin de semana
         },
       ],
@@ -249,10 +258,22 @@ Hoy no hay ninguno porque el PDF no los trae. Cuando el restaurante los defina:
 3. Para los grupos en `formato: 'lista'` (bebidas), el mismo campo se pinta en `GrupoLista`
    dentro de `src/components/MenuInteractivo.jsx`.
 
-### Reemplazar el PDF
+### Cambiar las fotografías
 
-Sustituye `public/menu-exuberancia.pdf` conservando el nombre. El botón *“Ver menú completo en
-PDF”* apunta ahí a través de `MENU_PDF` en `menu.js`, que respeta la base del sitio.
+Las 9 fotos viven en `public/assets/fotos/`, en dos tamaños por foto (`nombre.webp` a 320 px y
+`nombre@160.webp` a 160 px, para el `srcSet`). Para sustituir una, reemplaza ambos archivos
+conservando el nombre y el **recorte cuadrado**: se muestran con `object-cover`, así que una
+imagen que no sea cuadrada se recorta sola por el centro.
+
+Para asignarlas, en `menu.js` cada producto acepta:
+
+```js
+foto: FOTO.cremaPoblana,
+fotoAlt: 'Crema poblana servida en cazuela de barro',   // texto alternativo
+```
+
+`FOTO` está definido arriba del archivo. Una categoría también acepta `foto` y `fotoAlt`: se
+muestra como acento junto a su descripción al abrirla (hoy la usa *Entradas*).
 
 ### Datos de contacto que todavía faltan
 
@@ -276,7 +297,10 @@ en lugar de llevar a una página rota.
   `menu.finde` en `menu.js`.
 - **Promociones** (`#promociones`) no viene del PDF: se conserva del contenido anterior del
   sitio. Es la única sección con textos que no salen del documento.
-- Las fotografías y el logotipo se extrajeron del PDF original y se convirtieron a `.webp`. Son
+- **Las 9 fotografías reales** del restaurante se integran como miniatura cuadrada junto a su
+  platillo (chilaquiles, enchiladas, cremas y molcajetes) y como acento en la categoría
+  *Entradas*. Son acentos visuales, no una galería: el nombre y la descripción mandan.
+- Los recortes y el logotipo se extrajeron del PDF original y se convirtieron a `.webp`. Son
   de baja resolución (176–380 px de ancho); si el cliente envía las originales, basta con
   reemplazar los archivos de `public/assets/` conservando el nombre.
 - Las bebidas de barril se representan con **ilustraciones neón dibujadas en SVG**

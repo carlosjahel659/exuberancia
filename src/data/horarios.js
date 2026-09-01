@@ -28,6 +28,15 @@ export const SOLO_DOMINGO = [0]
 /** Convierte una hora del reloj a minutos desde la medianoche. */
 const min = (hora, minuto = 0) => hora * 60 + minuto
 
+/**
+ * Hora de cierre del restaurante, igual todos los días.
+ * Ninguna categoría puede seguir disponible después de esta hora. Las que
+ * cierran antes (desayunos, entradas, comida mexicana) conservan su propio
+ * horario; las que se sirven "todo el día" terminan aquí.
+ * Si cambia, actualiza también `site.horarios` en src/data/site.js.
+ */
+export const CIERRE_DIARIO = min(19, 30)
+
 /** "sábado" -> "sabado", para comparar nombres de día escritos sin acentos. */
 const sinAcentos = (texto) =>
   texto
@@ -70,9 +79,7 @@ export const REGLAS = {
     dias: LUNES_A_VIERNES,
     desde: min(9),
     hasta: min(19),
-    resumen: 'Lun a vie · todo el día',
-    // Dentro de su horario se anuncia como "todo el día".
-    textoActivo: 'Disponible todo el día',
+    resumen: 'Lun a vie · 9:00 a 7:00',
     fueraDeHorario: 'Entradas disponibles de 9:00 a. m. a 7:00 p. m.',
     otroDia: 'Disponible de lunes a viernes',
   },
@@ -96,9 +103,9 @@ export const REGLAS = {
     icono: 'finde',
     dias: FIN_DE_SEMANA,
     desde: min(0),
-    hasta: min(24),
-    resumen: 'Sábado y domingo',
-    textoActivo: 'Disponible todo el día',
+    hasta: CIERRE_DIARIO,
+    resumen: 'Sáb y dom · hasta 7:30 p. m.',
+    fueraDeHorario: 'El menú de fin de semana se sirve hasta las 7:30 p. m.',
     otroDia: 'Disponible sábados y domingos',
   },
 
@@ -110,10 +117,10 @@ export const REGLAS = {
     icono: 'barbacoa',
     dias: SOLO_DOMINGO,
     desde: min(0),
-    hasta: min(24),
-    resumen: 'Solo domingos',
-    textoActivo: 'Disponible hoy, domingo',
+    hasta: CIERRE_DIARIO,
+    resumen: 'Domingos · hasta 7:30 p. m.',
     soloDomingos: true,
+    fueraDeHorario: 'La barbacoa de hoy se sirvió hasta las 7:30 p. m.',
     otroDia: 'La barbacoa se sirve solamente los domingos',
   },
 
@@ -123,9 +130,9 @@ export const REGLAS = {
     icono: 'bebidas',
     dias: TODOS_LOS_DIAS,
     desde: min(0),
-    hasta: min(24),
-    resumen: 'Todos los días',
-    textoActivo: 'Disponible todo el día',
+    hasta: CIERRE_DIARIO,
+    resumen: 'Todos los días · hasta 7:30 p. m.',
+    fueraDeHorario: 'Las bebidas se sirven hasta las 7:30 p. m.',
   },
 }
 
@@ -412,33 +419,46 @@ export function avisoDelDia(ahora = ahoraEnCDMX()) {
   const activas = evaluadas.filter((c) => c.disponible)
   const masTarde = evaluadas.filter((c) => c.estado.id === ESTADOS.masTarde.id)
 
-  const frases = []
+  const cierre = formatoHora(CIERRE_DIARIO)
+  // formatoHora ya termina en punto ("7:30 p. m."): sin esto salen dos seguidos.
+  const punto = (texto) => (texto.endsWith('.') ? texto : `${texto}.`)
 
-  if (ahora.esDomingo) {
-    frases.push('Menú de fin de semana y barbacoa disponibles.')
+  let crudo
+
+  if (!activas.length) {
+    // Nada disponible: o todavía no abrimos, o ya cerramos por hoy.
+    crudo = masTarde.length
+      ? punto(`Hoy empezamos a servir a las ${formatoHora(Math.min(...masTarde.map((c) => c.desde)))}`)
+      : punto(`Ya cerramos por hoy. Cerramos todos los días a las ${cierre}`)
+  } else if (ahora.esDomingo) {
+    crudo = punto(`Menú de fin de semana y barbacoa disponibles hasta las ${cierre}`)
   } else if (ahora.esFinDeSemana) {
-    frases.push('Ya está disponible nuestro menú de fin de semana.')
-    frases.push('La barbacoa se sirve únicamente los domingos.')
+    crudo = `${punto(
+      `Ya está disponible nuestro menú de fin de semana, hasta las ${cierre}`,
+    )} La barbacoa se sirve únicamente los domingos.`
   } else {
     const desayunos = evaluadas.find((c) => c.id === 'desayunos')
     const mexicana = evaluadas.find((c) => c.id === 'mexicana')
+    const frases = []
 
+    // Se anuncia cada una tanto si ya está sirviéndose como si abre más tarde,
+    // para que a las 8 de la mañana no parezca que solo hay bebidas.
     if (desayunos.disponible) {
-      frases.push(`Desayunos disponibles hasta las ${formatoHora(REGLAS.desayunos.hasta)}`)
+      frases.push(`desayunos hasta las ${formatoHora(REGLAS.desayunos.hasta)}`)
+    } else if (desayunos.estado.id === ESTADOS.masTarde.id) {
+      frases.push(`desayunos a partir de las ${formatoHora(REGLAS.desayunos.desde)}`)
     }
     if (mexicana.disponible) {
       frases.push(`comida mexicana hasta las ${formatoHora(REGLAS.mexicana.hasta)}`)
     } else if (mexicana.estado.id === ESTADOS.masTarde.id) {
       frases.push(`comida mexicana a partir de las ${formatoHora(REGLAS.mexicana.desde)}`)
     }
-    if (!frases.length) {
-      frases.push('La cocina está fuera de horario, pero las bebidas siguen disponibles')
-    }
+
+    crudo = frases.length
+      ? punto(`Servimos ${frases.join(' y ')}`)
+      : punto(`La cocina está fuera de horario, pero las bebidas siguen hasta las ${cierre}`)
   }
 
-  const crudo = ahora.esFinDeSemana
-    ? frases.join(' ')
-    : `${frases.join(' y ')}.`.replace('..', '.')
   const texto = crudo.charAt(0).toUpperCase() + crudo.slice(1)
 
   return {

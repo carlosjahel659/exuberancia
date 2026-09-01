@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { categorias, menu, MENU_PDF } from '../data/menu'
+import { categorias, menu } from '../data/menu'
 import { REGLAS, estadoCategoria, estadoGrupo } from '../data/horarios'
 import { useAhora } from '../hooks/useAhora'
 import AvisoDelDia from './AvisoDelDia'
@@ -13,23 +13,6 @@ const FLECHA_IZQ = (
     <path d="M15 5l-7 7 7 7" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 )
-
-const ICONO_PDF = (
-  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.9" aria-hidden="true">
-    <path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z" strokeLinejoin="round" />
-    <path d="M14 3v5h5" strokeLinejoin="round" />
-  </svg>
-)
-
-/** Enlace al PDF completo. Se abre en otra pestaña y se descarga si el navegador no lo muestra. */
-function BotonPDF({ className = '', variante = 'contorno' }) {
-  return (
-    <Boton href={MENU_PDF} variante={variante} className={className}>
-      {ICONO_PDF}
-      Ver menú completo en PDF
-    </Boton>
-  )
-}
 
 /** Encabezado de grupo, con el doble trazo del menú impreso. */
 function TituloGrupo({ texto, color = 'turquesa', estado }) {
@@ -301,12 +284,9 @@ export default function MenuInteractivo() {
             ))}
           </ul>
 
-          <div className="mt-4 flex flex-col items-center gap-2 sm:mt-6 sm:gap-3">
-            <BotonPDF className="w-full px-4 py-2.5 text-[11px] sm:w-auto sm:px-6 sm:py-3 sm:text-[13px]" />
-            <p className="text-center text-[11px] leading-snug text-crema/45 sm:text-[12px]">
-              Toca una categoría disponible para ver sus platillos.
-            </p>
-          </div>
+          <p className="mt-4 text-center text-[11px] leading-snug text-crema/50 sm:mt-6 sm:text-[12px]">
+            Toca una categoría disponible para ver sus platillos.
+          </p>
         </div>
 
         {/* Contenido de la categoría abierta */}
@@ -353,9 +333,26 @@ export default function MenuInteractivo() {
                   espejo
                 />
               </div>
-              <p className="max-w-xl text-center text-[13px] leading-relaxed text-crema/60 sm:text-sm">
-                {categoria.descripcion}
-              </p>
+              {/* Foto de acento de la categoría, si la tiene: acompaña a la
+                  descripción sin taparla ni convertirse en portada. */}
+              <div className="flex max-w-xl flex-col items-center gap-3 sm:flex-row sm:items-center sm:gap-4">
+                {categoria.foto && (
+                  <img
+                    src={categoria.foto.src}
+                    srcSet={`${categoria.foto.chica} 160w, ${categoria.foto.src} 320w`}
+                    sizes="(min-width: 640px) 88px, 72px"
+                    alt={categoria.fotoAlt ?? ''}
+                    loading="lazy"
+                    decoding="async"
+                    width="320"
+                    height="320"
+                    className="h-[72px] w-[72px] shrink-0 rounded-xl object-cover ring-1 ring-white/15 sm:h-[88px] sm:w-[88px]"
+                  />
+                )}
+                <p className="text-center text-[13px] leading-relaxed text-crema/60 sm:text-left sm:text-sm">
+                  {categoria.descripcion}
+                </p>
+              </div>
             </div>
 
             <div className="mt-8">
@@ -367,8 +364,7 @@ export default function MenuInteractivo() {
               />
             </div>
 
-            <div className="mt-12 flex flex-col items-center gap-3">
-              <BotonPDF variante="contorno" />
+            <div className="mt-12 flex justify-center">
               <Boton variante="amarillo" onClick={cerrar}>
                 {FLECHA_IZQ}
                 Volver a las categorías

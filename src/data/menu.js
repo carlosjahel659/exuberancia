@@ -14,8 +14,28 @@
 
 import { recurso } from '../utils/recurso'
 
-/** PDF completo, servido desde public/. Respeta la base del sitio. */
-export const MENU_PDF = recurso('menu-exuberancia.pdf')
+/**
+ * Fotografías reales del restaurante (public/assets/fotos/).
+ * Recorte cuadrado uniforme; de cada una hay dos tamaños, 320 px y 160 px, para
+ * que la miniatura se vea nítida en pantallas retina sin descargar de más.
+ * Se usan como acento junto al platillo, nunca como galería.
+ */
+const foto = (nombre) => ({
+  src: recurso(`assets/fotos/${nombre}.webp`),
+  chica: recurso(`assets/fotos/${nombre}@160.webp`),
+})
+
+export const FOTO = {
+  chilaquilesTradicionales: foto('chilaquiles-tradicionales'),
+  chilaquilesExuberantes: foto('chilaquiles-exuberantes'),
+  enchiladasTradicionales: foto('enchiladas-tradicionales'),
+  enchiladasSuizas: foto('enchiladas-suizas'),
+  cremaPoblana: foto('crema-poblana'),
+  cremaZanahoria: foto('crema-zanahoria'),
+  molcajeteNorteno: foto('molcajete-norteno'),
+  molcajeteMexa: foto('molcajete-mexa'),
+  mesaServida: foto('mesa-servida'),
+}
 
 export const IMG = {
   chilaquiles: recurso('assets/chilaquiles.webp'),
@@ -48,6 +68,8 @@ export const categorias = [
     titulo: 'Compartir',
     color: 'naranja',
     descripcion: 'Quesos asaderos, molcajetes, sopas y cremas de la casa.',
+    foto: FOTO.mesaServida,
+    fotoAlt: 'Mesa servida con cazuelas de barro para compartir',
   },
   {
     id: 'mexicana',
@@ -118,7 +140,8 @@ export const menu = {
             { etiqueta: 'Elige tu salsa', opciones: SALSAS },
             { etiqueta: 'Elige tu proteína (200 g)', opciones: [...PROTEINAS, 'Huevo'] },
           ],
-          imagen: IMG.chilaquiles,
+          foto: FOTO.chilaquilesTradicionales,
+          fotoAlt: 'Chilaquiles verdes con pollo, aguacate, queso fresco y crema',
         },
         {
           nombre: 'Chilaquiles suizos',
@@ -147,6 +170,8 @@ export const menu = {
               ],
             },
           ],
+          foto: FOTO.chilaquilesExuberantes,
+          fotoAlt: 'Chilaquiles rojos con arrachera, chistorra y aguacate',
           etiqueta: 'Exuberante',
         },
       ],
@@ -292,13 +317,16 @@ export const menu = {
         {
           nombre: 'Molcajete norteño',
           descripcion: 'Guacamole, chicharrón norteño, cebollas encurtidas y 300 g de tortillas.',
-          imagen: IMG.cazuela,
+          foto: FOTO.molcajeteNorteno,
+          fotoAlt: 'Molcajete de piedra con carne y chiles güeros',
         },
         {
           nombre: 'Molcajete Mexa',
           descripcion:
             'Nopales, cebolla cambray, arrachera, pollo, chistorra y 200 g de tortillas.',
           detalles: [{ etiqueta: 'Rinde para', tipo: 'incluye', opciones: ['2 personas'] }],
+          foto: FOTO.molcajeteMexa,
+          fotoAlt: 'Molcajete con arrachera, chistorra, cebollitas cambray y queso asado',
         },
         {
           nombre: 'Molcajete Mexa Exuberante',
@@ -315,8 +343,18 @@ export const menu = {
       productos: [
         { nombre: 'Sopa azteca', descripcion: 'Con el sabor tradicional de la casa.' },
         { nombre: 'Sopa de médula', descripcion: 'Preparación reconfortante de sabor profundo.' },
-        { nombre: 'Crema poblana', descripcion: 'Cremosa y ligeramente ahumada.' },
-        { nombre: 'Crema de zanahoria', descripcion: 'Suave, cálida y equilibrada.' },
+        {
+          nombre: 'Crema poblana',
+          descripcion: 'Cremosa y ligeramente ahumada.',
+          foto: FOTO.cremaPoblana,
+          fotoAlt: 'Crema poblana servida en cazuela de barro',
+        },
+        {
+          nombre: 'Crema de zanahoria',
+          descripcion: 'Suave, cálida y equilibrada.',
+          foto: FOTO.cremaZanahoria,
+          fotoAlt: 'Crema de zanahoria servida en cazuela de barro',
+        },
       ],
     },
   ],
@@ -344,7 +382,8 @@ export const menu = {
             { etiqueta: 'Elige tu salsa', opciones: SALSAS },
             { etiqueta: 'Elige tu relleno', opciones: PROTEINAS },
           ],
-          imagen: IMG.enchiladas,
+          foto: FOTO.enchiladasTradicionales,
+          fotoAlt: 'Enchiladas rojas con queso fresco, cebolla y crema',
         },
         {
           nombre: 'Enchiladas suizas',
@@ -353,6 +392,8 @@ export const menu = {
             { etiqueta: 'Elige tu salsa', opciones: SALSAS },
             { etiqueta: 'Elige tu relleno', opciones: PROTEINAS },
           ],
+          foto: FOTO.enchiladasSuizas,
+          fotoAlt: 'Enchiladas suizas gratinadas con crema y cilantro',
         },
         {
           nombre: 'Enchiladas Exuberantes',
