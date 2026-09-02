@@ -160,13 +160,13 @@ export const REGLAS_PROMO = {
   },
   'Música en vivo': {
     nombre: 'Música en vivo',
-    dias: [5, 6, 0],
-    desde: min(12),
-    hasta: min(24),
-    resumen: 'Vie, sáb y dom desde las 12:00',
-    textoActivo: 'Hoy a partir de las 12:00 p. m.',
-    antesDeHorario: 'Hoy a partir de las 12:00 p. m.',
-    otroDia: 'Viernes, sábado y domingo',
+    dias: FIN_DE_SEMANA,
+    desde: min(10),
+    hasta: CIERRE_DIARIO,
+    resumen: 'Sábados y domingos desde las 10:00 a. m.',
+    textoActivo: 'Hay música en vivo hoy',
+    antesDeHorario: 'Hoy a partir de las 10:00 a. m.',
+    otroDia: 'Sábados y domingos desde las 10:00 a. m.',
   },
 }
 

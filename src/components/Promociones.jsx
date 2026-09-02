@@ -25,16 +25,18 @@ function Horarios() {
 
       <Divisor className="my-6" />
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        {site.tiempos.map((t) => (
-          <div key={t.que} className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
-            <p className="font-alt text-[13px] uppercase tracking-[0.18em] text-turquesa">
-              Preparación · {t.que}
-            </p>
-            <p className="mt-1 text-sm text-crema/80">{t.cuanto}</p>
-          </div>
-        ))}
-      </div>
+      {/* Los tiempos de preparación tienen su propia sección, para no repetirlos. */}
+      <a
+        href="#tiempos"
+        className="mt-auto block rounded-xl border border-white/10 bg-white/[0.03] p-4 transition-colors duration-300 hover:border-turquesa/40 hover:bg-white/[0.06]"
+      >
+        <p className="font-alt text-[13px] uppercase tracking-[0.18em] text-turquesa">
+          Tiempos de preparación
+        </p>
+        <p className="mt-1 text-sm text-crema/80">
+          Consulta cuánto tardan alimentos y bebidas →
+        </p>
+      </a>
     </div>
   )
 }

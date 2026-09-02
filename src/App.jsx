@@ -1,11 +1,14 @@
 import Bebidas from './components/Bebidas'
+import Cumpleanos from './components/Cumpleanos'
 import Encabezado from './components/Encabezado'
 import Especialidades from './components/Especialidades'
 import MenuInteractivo from './components/MenuInteractivo'
+import MusicaEnVivo from './components/MusicaEnVivo'
 import Nosotros from './components/Nosotros'
 import PieDePagina from './components/PieDePagina'
 import Portada from './components/Portada'
 import Promociones from './components/Promociones'
+import TiemposPreparacion from './components/TiemposPreparacion'
 import Ubicacion from './components/Ubicacion'
 
 export default function App() {
@@ -22,11 +25,14 @@ export default function App() {
 
       <main>
         <Portada />
+        <MusicaEnVivo />
         <MenuInteractivo />
         <Especialidades />
         <Bebidas />
         <Nosotros />
         <Promociones />
+        <Cumpleanos />
+        <TiemposPreparacion />
         <Ubicacion />
       </main>
 

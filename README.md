@@ -242,21 +242,77 @@ muestra: no se genera solo, para que puedas redactarlo como quieras.
 Para volver a cerrar un grupo suelto sin cerrar toda su categoría, agrega una entrada en
 `REGLAS_GRUPO` con la misma forma, usando como llave el nombre exacto del grupo en `menu.js`.
 
-### Cómo agregar precios cuando existan
+### Cambiar precios, tamaños y sabores de las bebidas
 
-Hoy no hay ninguno porque el PDF no los trae. Cuando el restaurante los defina:
+Todo vive en `menu.bebidas` dentro de [`src/data/menu.js`](src/data/menu.js). **El precio se
+guarda como número**, sin `$` ni comas: el formato lo pone
+[`src/utils/precio.js`](src/utils/precio.js) (`2599` → `$2,599`).
 
-1. Agrega `precio: '$95'` a cada producto en `src/data/menu.js`.
-2. En `src/components/TarjetaProducto.jsx`, dentro del `<h4>` del nombre, agrega el campo:
+```js
+// Precio simple
+{ nombre: 'Coca-Cola 500 ml', precio: 45 }
 
-   ```jsx
-   {producto.precio && (
-     <span className="font-display text-xl text-amarillo sm:text-2xl">{producto.precio}</span>
-   )}
-   ```
+// Varios tamaños: UNA tarjeta, el precio cambia al tocar el tamaño
+{
+  nombre: 'Cantarito',
+  descripcion: 'Toronja, naranja, limón, sal, tequila y refresco.',
+  variantes: [
+    { medida: '355 ml', precio: 85 },
+    { medida: '1 litro', precio: 135 },
+  ],
+  opciones: { etiqueta: 'Elige tu tequila', valores: ['Supremo', 'José Cuervo'] },
+}
 
-3. Para los grupos en `formato: 'lista'` (bebidas), el mismo campo se pinta en `GrupoLista`
-   dentro de `src/components/MenuInteractivo.jsx`.
+// Varios sabores: UNA tarjeta con etiquetas; los ingredientes van en el desplegable
+{
+  nombre: 'Mojito',
+  variantes: [{ medida: '1 litro', precio: 135 }],
+  sabores: [
+    { nombre: 'Clásico' },
+    { nombre: 'Pepino', ingredientes: 'Azúcar, hierbabuena, limón y pepino.' },
+  ],
+}
+```
+
+- **Cambiar un precio** → edita el número. Nada más.
+- **Agregar un tamaño** → añade un objeto a `variantes`.
+- **Agregar un sabor** → añade un objeto a `sabores`; `ingredientes` es opcional.
+- **Nunca dupliques un producto por sabor o por tamaño**: usa `variantes` o `sabores`.
+
+El orden de los bloques lo manda el orden del arreglo, usando las constantes `SIN_ALCOHOL`,
+`CON_ALCOHOL` y `AVISOS`. **Sin alcohol siempre va antes que con alcohol**, y los cargos por
+daños al final.
+
+### Productos ocultos (pendientes de confirmar)
+
+Un producto con `oculto: true` **no se muestra en la carta pero no se borra**. Es lo que se hace
+con lo que se queda sin precio:
+
+```js
+{ nombre: 'Ice de cereza 500 ml', oculto: true }
+```
+
+Para volver a publicarlo, agrégale `precio` y quita `oculto`.
+
+### Cambiar los requisitos de cumpleaños
+
+Están en el objeto `cumpleanos` de [`src/data/site.js`](src/data/site.js):
+
+```js
+export const cumpleanos = {
+  titulo: '¿Es tu cumpleaños? ¡Celebra con nosotros!',
+  requisitos: ['Cumplir años el mismo día de la visita.', '…'],
+  beneficio: 'Cumple los requisitos y consulta con nuestro personal el beneficio…',
+}
+```
+
+Agrega, quita o reordena `requisitos` libremente: la lista se dibuja sola. **`beneficio` está a
+propósito en un texto neutral porque el restaurante todavía no definió qué se regala**; cuando lo
+decidan, se cambia esa línea y nada más.
+
+Los tiempos de preparación viven en `site.tiempos` (minutos como número, `bajo` y `alto`) y el
+anuncio de música en `musicaEnVivo`. Los días y la hora de la música también están en
+`REGLAS_PROMO` de `horarios.js`, que es lo que enciende el aviso de «Hoy hay música».
 
 ### Cambiar las fotografías
 

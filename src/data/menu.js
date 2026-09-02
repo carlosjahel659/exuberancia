@@ -3,8 +3,9 @@
 //
 // FUENTE ÚNICA: public/menu-exuberancia.pdf ("Menu_Exuberancia_Con_Bebidas").
 // Nombres, descripciones, gramajes y opciones están transcritos literalmente de
-// ese documento. El PDF no trae precios, así que aquí tampoco hay ninguno: no se
-// inventan cantidades ni importes.
+// ese documento. El PDF no traía precios; los de BEBIDAS se agregaron después a
+// partir de la lista que envió el restaurante y se guardan como número. Los
+// platillos de comida siguen sin precio porque todavía no se han entregado.
 //
 // Cómo editar (ver README):
 //   · Cambiar un producto  -> edita su objeto dentro de `menu`.
@@ -122,8 +123,17 @@ export const categorias = [
 // tarjetas grandes con fotografía.
 // -----------------------------------------------------------------------------
 
+/**
+ * Los tres bloques en que se divide la categoría Bebidas. El orden del arreglo
+ * manda: sin alcohol siempre va antes que con alcohol.
+ */
+export const SIN_ALCOHOL = 'Bebidas sin alcohol'
+export const CON_ALCOHOL = 'Bebidas con alcohol'
+export const AVISOS = 'Daños o errores'
+
 const PROTEINAS = ['Pollo', 'Chorizo', 'Chistorra', 'Arrachera', 'Costilla']
 const SALSAS = ['Verde', 'Roja']
+const TEQUILAS = ['Supremo', 'José Cuervo', 'Centenario']
 const CORTES_CARNITAS = ['Chamorro', 'Cuerito', 'Costilla', 'Surtida']
 const BRASA = ['Arrachera', 'Pollo', 'Chorizo', 'Chistorra', 'Costilla']
 
@@ -613,201 +623,325 @@ export const menu = {
   ],
 
   // ------------------------------------------------------------------ Bebidas
+  //
+  // Orden obligatorio: primero SIN alcohol, después CON alcohol y al final los
+  // cargos por daños. El campo `bloque` es el que dibuja esos tres encabezados.
+  //
+  // Precios en pesos, guardados como número (ver src/utils/precio.js).
+  // Un producto con `oculto: true` no se muestra en la carta pero se conserva
+  // aquí: son los que se quedaron sin precio en la última actualización.
   bebidas: [
+    // ============================ 1. SIN ALCOHOL ============================
     {
-      grupo: 'Cervezas',
-      formato: 'lista',
-      color: 'amarillo',
+      bloque: SIN_ALCOHOL,
+      grupo: 'Bebidas individuales',
+      formato: 'bebidas',
+      color: 'turquesa',
+      sinAlcohol: true,
       productos: [
-        { nombre: 'Cerveza de barril 1 litro' },
-        { nombre: 'Cerveza de barril 1/2 litro' },
-        { nombre: 'Cerveza mega 1 litro', descripcion: 'Corona, Victoria o Modelo Especial.' },
-        { nombre: 'Michelada de sabor de barril', descripcion: 'Mango, tamarindo o cubana.' },
-        { nombre: 'Michelada mega', descripcion: 'Cubana, mango o tamarindo.' },
+        { nombre: 'Café de olla 250 ml', precio: 29 },
+        { nombre: 'Coca-Cola 500 ml', precio: 45 },
+        { nombre: 'Refresco de sabor 355 ml', precio: 35 },
         {
-          nombre: 'Marina de barril 1 litro',
-          descripcion: 'Camarón pacotilla, Clamato, cubano de la casa, salsas negras y ostiones.',
+          nombre: 'Agua de sabor',
+          variantes: [
+            { medida: '1 litro', precio: 40 },
+            { medida: '1/2 litro', precio: 29 },
+          ],
         },
-        { nombre: 'Marina de barril 1/2 litro' },
+        { nombre: 'Limonada 500 ml', precio: 55 },
+        { nombre: 'Naranjada 500 ml', precio: 55 },
+        { nombre: 'Tehuacán preparado 500 ml', precio: 59 },
+        { nombre: 'Sangría preparada 500 ml', precio: 59 },
+        { nombre: 'Clamato preparado 500 ml', precio: 70 },
         {
-          nombre: 'Marina mega 1 litro',
-          descripcion: 'Camarón pacotilla, Clamato, cubano de la casa, salsas negras y ostiones.',
+          nombre: 'Frappés',
+          precio: 80,
+          sabores: [{ nombre: 'Frutos rojos' }, { nombre: 'Mangoneada' }],
         },
-        { nombre: 'Cerillito', descripcion: 'Lata de cerveza.' },
-        { nombre: 'Venenosa', descripcion: 'Corona o Victoria.' },
-        { nombre: 'Cerveza 355 ml', descripcion: 'Indio, Tecate o XX Lager.' },
-        { nombre: 'Tarro extra con limón y sal' },
-        { nombre: 'Tarro extra cubano' },
+        { nombre: 'Ice de mora 500 ml', precio: 79 },
+        { nombre: 'Ice de cereza 500 ml', precio: 79 },
+        { nombre: 'Limonada de frutos rojos 500 ml', precio: 65 },
       ],
     },
     {
-      grupo: 'Cerveza para compartir',
-      formato: 'lista',
+      bloque: SIN_ALCOHOL,
+      grupo: 'Para compartir en familia',
+      formato: 'bebidas',
+      color: 'turquesa',
+      sinAlcohol: true,
+      productos: [
+        { nombre: 'Coca-Cola familiar 3 litros', precio: 149 },
+        { nombre: 'Jarra de limonada 1.9 litros', precio: 149 },
+        { nombre: 'Jarra de limonada de frutos rojos 1.9 litros', precio: 169 },
+        { nombre: 'Jarra de agua de sabor 1.9 litros', precio: 139 },
+      ],
+    },
+
+    // ============================ 2. CON ALCOHOL ============================
+    {
+      bloque: CON_ALCOHOL,
+      grupo: 'Cervezas y preparados',
+      formato: 'bebidas',
       color: 'amarillo',
       productos: [
-        { nombre: 'Cubetazo de cerveza · 10 piezas' },
-        { nombre: 'Cubetazo de cerveza · 6 piezas' },
+        {
+          nombre: 'Cerveza de barril',
+          variantes: [
+            { medida: '1 litro', precio: 109 },
+            { medida: '1/2 litro', precio: 69 },
+          ],
+        },
+        {
+          nombre: 'Cerveza mega 1 litro',
+          precio: 135,
+          descripcion: 'Corona, Victoria o Modelo Especial.',
+        },
+        {
+          nombre: 'Michelada de sabor',
+          variantes: [
+            { medida: 'De barril', precio: 135 },
+            { medida: 'Mega', precio: 150 },
+          ],
+          sabores: [{ nombre: 'Mango' }, { nombre: 'Tamarindo' }, { nombre: 'Cubana' }],
+        },
+        {
+          nombre: 'Marina',
+          descripcion: 'Camarón pacotilla, Clamato, cubano de la casa, salsas negras y ostiones.',
+          variantes: [
+            { medida: 'Barril 1 litro', precio: 180 },
+            { medida: 'Barril 1/2 litro', precio: 100 },
+            { medida: 'Mega 1 litro', precio: 195 },
+            { medida: 'Mega 1/2 litro', precio: 110 },
+          ],
+        },
+        { nombre: 'Venenosa', precio: 135, descripcion: 'Corona o Victoria.' },
+        { nombre: 'Cerveza 355 ml', precio: 55, descripcion: 'Indio, Tecate o XX Lager.' },
+        {
+          nombre: 'Tarro extra',
+          variantes: [
+            { medida: 'Con limón', precio: 30 },
+            { medida: 'Con cubano', precio: 39 },
+          ],
+        },
       ],
     },
     {
-      grupo: 'Ron',
-      formato: 'lista',
+      bloque: CON_ALCOHOL,
+      grupo: 'Para compartir',
+      formato: 'bebidas',
+      color: 'amarillo',
+      productos: [
+        {
+          nombre: 'Cubetazo de cerveza',
+          variantes: [
+            { medida: '10 piezas', precio: 379 },
+            { medida: '6 piezas', precio: 249 },
+          ],
+        },
+      ],
+    },
+    {
+      bloque: CON_ALCOHOL,
+      grupo: 'Mojitos',
+      formato: 'bebidas',
       color: 'rosa',
       productos: [
-        { nombre: 'Mojito clásico' },
-        { nombre: 'Mojito de frutos rojos' },
-        { nombre: 'Mojito de pepino', descripcion: 'Azúcar, hierbabuena, limón y pepino.' },
         {
-          nombre: 'Mojito Blue Berry',
-          descripcion: 'Moras, hierbabuena, ron azul, azúcar y limón.',
+          nombre: 'Mojito',
+          variantes: [
+            { medida: '1 litro', precio: 135 },
+            { medida: '1/2 litro', precio: 79 },
+          ],
+          // Solo llevan ingredientes los sabores que ya los tenían registrados.
+          sabores: [
+            { nombre: 'Clásico' },
+            { nombre: 'Frutos rojos' },
+            { nombre: 'Pepino', ingredientes: 'Azúcar, hierbabuena, limón y pepino.' },
+            { nombre: 'Blueberry', ingredientes: 'Moras, hierbabuena, ron azul, azúcar y limón.' },
+            { nombre: 'Mango' },
+            { nombre: 'Fresa' },
+          ],
         },
+      ],
+    },
+    {
+      bloque: CON_ALCOHOL,
+      grupo: 'Ron',
+      formato: 'bebidas',
+      color: 'rosa',
+      productos: [
         {
-          nombre: 'Mojito 1 litro',
-          descripcion: 'Tradicional, frutos rojos, mango, fresa o pepino.',
-        },
-        { nombre: 'Mojito 500 ml', descripcion: 'Tradicional, frutos rojos, pepino o fresa.' },
-        {
-          nombre: 'Piña colada 500 ml',
+          nombre: 'Piña colada',
           descripcion: 'Ron, preparado de piña colada y jugo de piña.',
-        },
-        {
-          nombre: 'Piña colada 1 litro',
-          descripcion: 'Ron, preparado de piña colada y jugo de piña.',
+          variantes: [
+            { medida: '500 ml', precio: 110 },
+            { medida: '1 litro', precio: 199 },
+          ],
         },
         {
           nombre: 'Coco Sunset',
+          precio: 100,
           descripcion: 'Ron, jugo de naranja, jugo de piña, Kahlúa y granadina.',
         },
       ],
     },
     {
+      bloque: CON_ALCOHOL,
       grupo: 'Vodka',
-      formato: 'lista',
+      formato: 'bebidas',
       color: 'turquesa',
       productos: [
-        { nombre: 'Exuberancia Rosa', descripcion: 'Vodka, piña, granadina y leche condensada.' },
-        { nombre: 'Blue 1 litro', descripcion: 'Volt, lima-limón, mora y vodka.' },
-        { nombre: 'Manguito', descripcion: 'Vodka, jugo de mango y Sprite.' },
-        { nombre: 'Nieve de Hielo', descripcion: 'Soda, vodka, limón y leche condensada.' },
+        {
+          nombre: 'Exuberancia Rosa 500 ml',
+          precio: 120,
+          descripcion: 'Vodka, piña, granadina y leche condensada.',
+        },
+        { nombre: 'Blue 1 litro', precio: 110, descripcion: 'Volt, lima-limón, mora y vodka.' },
+        { nombre: 'Manguito 500 ml', precio: 110, descripcion: 'Vodka, jugo de mango y Sprite.' },
+        {
+          nombre: 'Nieve de Hielo 500 ml',
+          precio: 110,
+          descripcion: 'Soda, vodka, limón y leche condensada.',
+        },
       ],
     },
     {
-      grupo: 'Cantaritos',
-      formato: 'lista',
+      bloque: CON_ALCOHOL,
+      grupo: 'Tequila y cantaritos',
+      formato: 'bebidas',
       color: 'naranja',
       productos: [
-        { nombre: 'Cantaritos', descripcion: 'Toronja, naranja, limón, sal, tequila y refresco.' },
-        { nombre: 'Cantarito 1 litro', descripcion: 'Supremo, José Cuervo o Centenario.' },
-        { nombre: 'Cantarito 5 litros', descripcion: 'Supremo, José Cuervo o Centenario.' },
-        { nombre: 'Cantarito 10 litros', descripcion: 'Supremo, José Cuervo o Centenario.' },
+        {
+          nombre: 'Cantarito',
+          descripcion: 'Toronja, naranja, limón, sal, tequila y refresco.',
+          variantes: [
+            { medida: '355 ml', precio: 85 },
+            { medida: '1 litro', precio: 135 },
+            { medida: '5 litros', precio: 649 },
+            { medida: '10 litros', precio: 1299 },
+          ],
+          opciones: { etiqueta: 'Elige tu tequila', valores: TEQUILAS },
+        },
+        {
+          // "Paloma" y "Palomazo" son la misma bebida: se unificaron en esta
+          // tarjeta, conservando su elección de tequila y los dos tamaños.
+          nombre: 'Palomazo',
+          variantes: [
+            { medida: '250 ml', precio: 99 },
+            { medida: '500 ml', precio: 135 },
+          ],
+          opciones: { etiqueta: 'Elige tu tequila', valores: TEQUILAS },
+        },
+        {
+          nombre: 'Charro Negro 500 ml',
+          precio: 135,
+          descripcion: 'Coca-Cola, limón, sal y tequila.',
+        },
+        {
+          nombre: 'Margarita',
+          precio: 110,
+          sabores: [
+            { nombre: 'Clásica' },
+            { nombre: 'Mango' },
+            { nombre: 'Pepino' },
+            { nombre: 'Maracuyá' },
+            { nombre: 'Jamaica' },
+          ],
+        },
+        { nombre: 'Ojo de Tigre 355 ml', precio: 110, descripcion: 'Cerveza con tequila.' },
       ],
     },
     {
-      grupo: 'Tequila',
-      formato: 'lista',
-      color: 'amarillo',
-      productos: [
-        { nombre: 'Palomazo' },
-        { nombre: 'Paloma 500 ml', descripcion: 'Supremo, José Cuervo o Centenario.' },
-        { nombre: 'Charro Negro 500 ml', descripcion: 'Coca-Cola, limón, sal y tequila.' },
-        { nombre: 'Margarita clásica' },
-        { nombre: 'Margarita de mango' },
-        { nombre: 'Margarita de pepino' },
-        { nombre: 'Margarita de maracuyá' },
-        { nombre: 'Margarita de jamaica' },
-        { nombre: 'Ojo de Tigre', descripcion: 'Cerveza con tequila.' },
-        { nombre: 'Batanfa', descripcion: 'Tequila con Coca-Cola y escarchado de sal.' },
-      ],
-    },
-    {
+      bloque: CON_ALCOHOL,
       grupo: 'Mezcal',
-      formato: 'lista',
+      formato: 'bebidas',
       color: 'naranja',
       productos: [
-        { nombre: 'Mezcalita de piña' },
-        { nombre: 'Mezcalita de jamaica' },
-        { nombre: 'Mezcalita de pepino' },
-        { nombre: 'Mezcalita de fresa' },
-        { nombre: 'Mezcalita de maracuyá' },
-        { nombre: 'Mezcalita de frutos rojos' },
+        {
+          nombre: 'Mezcalita 500 ml',
+          precio: 125,
+          sabores: [
+            { nombre: 'Piña' },
+            { nombre: 'Jamaica' },
+            { nombre: 'Pepino' },
+            { nombre: 'Fresa' },
+            { nombre: 'Maracuyá' },
+            { nombre: 'Frutos rojos' },
+          ],
+        },
       ],
     },
     {
-      grupo: 'Brandy y vino',
-      formato: 'lista',
+      bloque: CON_ALCOHOL,
+      grupo: 'Brandy',
+      formato: 'bebidas',
       color: 'rosa',
       productos: [
-        { nombre: 'Paraíso de Noche 500 ml', descripcion: 'Brandy, refresco de cola y limón.' },
-        { nombre: 'Paraíso de Día 500 ml', descripcion: 'Brandy, agua mineral y limón.' },
-        { nombre: 'Clericot 500 ml' },
-        { nombre: 'Clericot 1.8 litros' },
+        {
+          nombre: 'Paraíso de Noche 500 ml',
+          precio: 135,
+          descripcion: 'Brandy, refresco de cola y limón.',
+        },
+        {
+          nombre: 'Paraíso de Día 500 ml',
+          precio: 135,
+          descripcion: 'Brandy, agua mineral y limón.',
+        },
       ],
     },
     {
+      bloque: CON_ALCOHOL,
+      grupo: 'Vino y clericot',
+      formato: 'bebidas',
+      color: 'rosa',
+      productos: [
+        {
+          nombre: 'Clericot',
+          variantes: [
+            { medida: '355 ml', precio: 110 },
+            { medida: '500 ml', precio: 145 },
+            { medida: '2 litros', precio: 329 },
+          ],
+        },
+      ],
+    },
+    {
+      bloque: CON_ALCOHOL,
       grupo: 'Botellas · con servicio y show',
-      formato: 'lista',
+      formato: 'bebidas',
       color: 'amarillo',
       nota: 'Todas incluyen servicio de refresco, hielos y limones.',
       productos: [
-        { nombre: 'Buchanans' },
-        { nombre: 'Don Julio 70' },
-        { nombre: 'Maestro Dobel' },
-        { nombre: 'Red Label' },
-        { nombre: 'José Cuervo Especial' },
-        { nombre: 'Torres 10' },
-        { nombre: 'Centenario' },
-        { nombre: 'Bacardí' },
+        { nombre: "Buchanan's", precio: 2599 },
+        { nombre: 'Don Julio 70', precio: 2599 },
+        { nombre: 'Maestro Dobel', precio: 2599 },
+        { nombre: 'Red Label', precio: 1699 },
+        { nombre: 'José Cuervo Especial', precio: 1599 },
+        { nombre: 'Torres 10', precio: 1699 },
+        { nombre: 'Bacardí', precio: 1499 },
+        { nombre: 'Centenario', precio: 1599 },
       ],
+
     },
+
+    // =========================== 3. DAÑOS O ERRORES =========================
     {
-      grupo: 'Bebidas individuales',
-      formato: 'lista',
-      color: 'turquesa',
-      sinAlcohol: true,
-      productos: [
-        { nombre: 'Café de olla 250 ml' },
-        { nombre: 'Coca-Cola 500 ml' },
-        { nombre: 'Refresco de sabor' },
-        { nombre: 'Agua de sabor 1 litro' },
-        { nombre: 'Agua de sabor 1/2 litro' },
-        { nombre: 'Naranjada 500 ml' },
-        { nombre: 'Limonada 500 ml' },
-        { nombre: 'Limonada de frutos rojos 500 ml' },
-        { nombre: 'Tehuacán preparado 500 ml' },
-        { nombre: 'Sangría preparada 500 ml' },
-      ],
-    },
-    {
-      grupo: 'Bebidas frías',
-      formato: 'lista',
-      color: 'turquesa',
-      sinAlcohol: true,
-      productos: [
-        { nombre: 'Clamato preparado 500 ml' },
-        { nombre: 'Frappé de frutos rojos 500 ml' },
-        { nombre: 'Frappé Mangoneada 500 ml' },
-        { nombre: 'Ice de mora 500 ml' },
-        { nombre: 'Ice de cereza 500 ml' },
-      ],
-    },
-    {
-      grupo: 'Para compartir en familia',
-      formato: 'lista',
-      color: 'turquesa',
-      sinAlcohol: true,
-      productos: [
-        { nombre: 'Coca-Cola familiar 3 litros' },
-        { nombre: 'Jarra de limonada 1.8 litros' },
-        { nombre: 'Jarra de limonada de frutos rojos 1.8 litros' },
-        { nombre: 'Jarra de agua de sabor natural 1.8 litros' },
-      ],
-    },
-    {
+      bloque: AVISOS,
       grupo: 'Daños o errores',
-      formato: 'lista',
-      color: 'rosa',
-      nota: 'Cargos que aplican cuando se rompe una pieza del servicio.',
-      productos: [{ nombre: 'Tarro roto' }, { nombre: 'Copa rota' }, { nombre: 'Plato roto' }],
+      formato: 'bebidas',
+      color: 'naranja',
+      aviso: true,
+      nota: 'Se cobran solo si una pieza del servicio se rompe durante la visita.',
+      productos: [
+        { nombre: 'Tarro roto de 1 litro', precio: 100 },
+        { nombre: 'Copa rota de 500 ml', precio: 89 },
+        { nombre: 'Plato roto', precio: 100 },
+        { nombre: 'Cántaro roto de 1 litro', precio: 60 },
+        { nombre: 'Cántaro roto de 5 litros', precio: 199 },
+        { nombre: 'Cántaro roto de 10 litros', precio: 250 },
+        { nombre: 'Cántaro roto de 15 litros', precio: 329 },
+      ],
     },
   ],
 }
@@ -886,15 +1020,10 @@ export const especialidades = [
 // Promociones e información de servicio (sección #promociones).
 // No provienen del PDF del menú: se conservan del contenido anterior del sitio.
 // -----------------------------------------------------------------------------
+// Cumpleañeros y Música en vivo salieron de aquí: cada uno tiene ahora su
+// propia sección (Cumpleanos.jsx y MusicaEnVivo.jsx), con el texto correcto.
+// Tenerlos también como tarjeta repetiría —y contradiría— esa información.
 export const promociones = [
-  {
-    nombre: 'Cumpleañero',
-    texto: 'Celebra tu cumpleaños con nosotros y recibe una bebida, pastel y un taco de cortesía.',
-    restricciones: true,
-    icono: 'pastel',
-    color: 'rosa',
-    destacado: true,
-  },
   {
     nombre: 'Desayuno Ejecutivo',
     texto: 'Chilaquiles tradicionales + café de olla + agua de sabor.',
@@ -916,11 +1045,6 @@ export const promociones = [
     restricciones: true,
     icono: 'olla',
     color: 'naranja',
-  },
-  {
-    nombre: 'Música en vivo',
-    texto: 'Viernes, sábado y domingo a partir de las 12:00 p.m.',
-    icono: 'musica',
-    color: 'rosa',
+    destacado: true,
   },
 ]

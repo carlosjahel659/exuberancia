@@ -41,8 +41,11 @@ export const site = {
   whatsapp: '[WHATSAPP_LINK]',
   maps: '[GOOGLE_MAPS_URL]',
   instagram: '[INSTAGRAM_URL]',
-  facebook: '[FACEBOOK_URL]',
-  tiktok: '[TIKTOK_URL]',
+  // Enlaces limpios: se quitaron los parámetros de rastreo que agrega el botón
+  // "compartir" (mibextid, rdid, share_url, _r, _t). Apuntan al mismo perfil,
+  // no caducan y no meten basura en el sameAs del JSON-LD.
+  facebook: 'https://www.facebook.com/profile.php?id=61594189674321',
+  tiktok: 'https://www.tiktok.com/@user5231770584110',
 
   // Texto derivado de `horarioServicio`: no se escribe a mano para que no se
   // desincronice del cierre real ni de los datos estructurados.
@@ -51,10 +54,35 @@ export const site = {
     horas: `${formatoHora(h.abre)} – ${formatoHora(CIERRE_DIARIO)}`,
   })),
 
+  // Tiempos estimados de preparación, por flujo de gente.
   tiempos: [
-    { que: 'Alimentos', cuanto: '15 minutos aprox.' },
-    { que: 'Bebidas', cuanto: '5 minutos aprox.' },
+    { que: 'Alimentos', icono: 'cocina', bajo: 15, alto: 25 },
+    { que: 'Bebidas', icono: 'bebida', bajo: 5, alto: 10 },
   ],
+  avisoTiempos: 'Los tiempos pueden variar dependiendo del flujo de personas.',
+}
+
+/**
+ * Requisitos del apartado de cumpleañeros.
+ * El beneficio todavía NO está definido por el restaurante: por eso el texto de
+ * cierre es neutral y no promete pastel, bebida ni descuento. Cuando lo
+ * definan, cámbialo en `beneficio` (y solo ahí).
+ */
+export const cumpleanos = {
+  titulo: '¿Es tu cumpleaños? ¡Celebra con nosotros!',
+  requisitos: [
+    'Cumplir años el mismo día de la visita.',
+    'Presentar INE o CURP para comprobar la fecha.',
+    'Ir acompañado de al menos tres personas.',
+    'La mesa debe tener un consumo mínimo de $750.',
+  ],
+  beneficio: 'Cumple los requisitos y consulta con nuestro personal el beneficio para cumpleañeros.',
+}
+
+/** Anuncio de música en vivo. Los días y la hora también viven en horarios.js. */
+export const musicaEnVivo = {
+  titulo: 'Música en vivo',
+  texto: 'Todos los sábados y domingos desde las 10:00 a.m.',
 }
 
 export const navegacion = [

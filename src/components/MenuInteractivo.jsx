@@ -4,9 +4,11 @@ import { REGLAS, estadoCategoria, estadoGrupo } from '../data/horarios'
 import { useAhora } from '../hooks/useAhora'
 import AvisoDelDia from './AvisoDelDia'
 import { AvisoBloqueo, ESTILO_ESTADO, IconoCandado, PastillaEstado } from './EstadoDisponibilidad'
-import { CLASES_COLOR, Filigrana, IconoCategoria } from './Ornamentos'
+import { CLASES_COLOR, Divisor, Filigrana, IconoCategoria } from './Ornamentos'
+import TarjetaBebida from './TarjetaBebida'
 import TarjetaProducto from './TarjetaProducto'
 import { Boton, Etiqueta, Seccion } from './ui'
+import { precioMXN } from '../utils/precio'
 
 const FLECHA_IZQ = (
   <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
@@ -35,45 +37,73 @@ function TituloGrupo({ texto, color = 'turquesa', estado }) {
   )
 }
 
-/** Grupo en formato lista compacta: bebidas, botellas, cargos por daños. */
-function GrupoLista({ grupo, disponible }) {
-  const color = grupo.color ?? 'turquesa'
+/** Productos que sí se muestran: `oculto` marca los que se quedaron sin precio. */
+const visibles = (grupo) => grupo.productos.filter((p) => !p.oculto)
+
+/** Encabezado de uno de los tres bloques de bebidas (sin alcohol / con alcohol / daños). */
+function TituloBloque({ texto }) {
   return (
-    <div className={`tarjeta flex h-full flex-col p-5 sm:p-6 ${disponible ? '' : 'opacity-60'}`}>
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h4 className={`font-alt text-xl uppercase tracking-[0.06em] sm:text-2xl ${CLASES_COLOR[color].texto}`}>
+    <div className="mb-8 text-center">
+      <h3 className="titulo-display texto-neon text-[clamp(1.7rem,6vw,2.6rem)]">{texto}</h3>
+      <Divisor className="mx-auto mt-3 max-w-xs" />
+    </div>
+  )
+}
+
+/** Un grupo de bebidas: rejilla de tarjetas con precio, tamaños y sabores. */
+function GrupoBebidas({ grupo }) {
+  const productos = visibles(grupo)
+  if (!productos.length) return null
+
+  const color = grupo.color ?? 'turquesa'
+
+  return (
+    <section aria-label={grupo.grupo}>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <h4
+          className={`font-alt text-xl uppercase tracking-[0.06em] sm:text-2xl ${CLASES_COLOR[color].texto}`}
+        >
           {grupo.grupo}
         </h4>
         {grupo.sinAlcohol && <Etiqueta>Sin alcohol</Etiqueta>}
+        <span className="linea-degradada h-px min-w-[30px] flex-1 opacity-50" />
       </div>
 
-      <span
-        aria-hidden="true"
-        className={`mt-3 block h-[2px] w-14 rounded ${CLASES_COLOR[color].fondo} opacity-80`}
-      />
+      {grupo.nota && <p className="mt-2 text-[12.5px] text-crema/55">{grupo.nota}</p>}
 
-      <ul className="mt-4 flex-1 space-y-2.5">
-        {grupo.productos.map((p) => (
-          <li key={p.nombre} className="flex items-baseline gap-2.5">
-            <span
-              aria-hidden="true"
-              className={`mt-[7px] block h-1.5 w-1.5 shrink-0 rounded-full ${CLASES_COLOR[color].fondo}`}
-            />
-            <span className="min-w-0">
-              <span className="block text-[14px] leading-snug text-crema/90">{p.nombre}</span>
-              {p.descripcion && (
-                <span className="mt-0.5 block text-[12.5px] leading-snug text-crema/55">
-                  {p.descripcion}
-                </span>
-              )}
-            </span>
-          </li>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {productos.map((p) => (
+          <TarjetaBebida key={p.nombre} producto={p} aviso={grupo.aviso} />
         ))}
-      </ul>
+      </div>
+    </section>
+  )
+}
 
-      {grupo.nota && (
-        <p className="mt-4 border-t border-white/10 pt-3 text-[12px] text-crema/50">{grupo.nota}</p>
-      )}
+/**
+ * Bebidas agrupadas por bloque, respetando el orden del arreglo de datos:
+ * sin alcohol primero, con alcohol después y los cargos por daños al final.
+ */
+function BloquesBebidas({ grupos }) {
+  const bloques = []
+  grupos.forEach((g) => {
+    const ultimo = bloques[bloques.length - 1]
+    if (ultimo && ultimo.nombre === g.bloque) ultimo.grupos.push(g)
+    else bloques.push({ nombre: g.bloque, grupos: [g] })
+  })
+
+  return (
+    <div className="space-y-14">
+      {bloques.map((b) => (
+        <section key={b.nombre} aria-label={b.nombre}>
+          <TituloBloque texto={b.nombre} />
+          <div className="space-y-10">
+            {b.grupos.map((g) => (
+              <GrupoBebidas key={g.grupo} grupo={g} />
+            ))}
+          </div>
+        </section>
+      ))}
     </div>
   )
 }
@@ -83,12 +113,12 @@ function GrupoLista({ grupo, disponible }) {
  * horario, así que se evalúa grupo por grupo.
  */
 function PanelCategoria({ grupos, color, idCategoria, ahora }) {
-  const listas = grupos.filter((g) => g.formato === 'lista')
-  const tarjetas = grupos.filter((g) => g.formato !== 'lista')
+  const bebidas = grupos.filter((g) => g.formato === 'bebidas')
+  const platillos = grupos.filter((g) => g.formato !== 'bebidas')
 
   return (
     <div className="panel-entra space-y-12">
-      {tarjetas.map((grupo) => {
+      {platillos.map((grupo) => {
         const disp = estadoGrupo(grupo.grupo, idCategoria, ahora)
         return (
           <section key={grupo.grupo} aria-label={grupo.grupo}>
@@ -103,7 +133,7 @@ function PanelCategoria({ grupos, color, idCategoria, ahora }) {
             )}
 
             <div className="grid gap-5 md:grid-cols-2">
-              {grupo.productos.map((p, i) => (
+              {visibles(grupo).map((p, i) => (
                 <TarjetaProducto
                   key={p.nombre}
                   producto={p}
@@ -116,14 +146,7 @@ function PanelCategoria({ grupos, color, idCategoria, ahora }) {
         )
       })}
 
-      {listas.length > 0 && (
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {listas.map((grupo) => {
-            const disp = estadoGrupo(grupo.grupo, idCategoria, ahora)
-            return <GrupoLista key={grupo.grupo} grupo={grupo} disponible={disp.disponible} />
-          })}
-        </div>
-      )}
+      {bebidas.length > 0 && <BloquesBebidas grupos={bebidas} />}
     </div>
   )
 }
@@ -154,16 +177,28 @@ function MenuParaBuscadores() {
             {cat.descripcion} Horario: {REGLAS[cat.id].resumen}.
           </p>
 
-          {menu[cat.id].map((grupo) => (
+          {menu[cat.id].map((grupo, i) => (
             <div key={grupo.grupo} className="mt-5">
+              {/* Encabezado del bloque solo cuando cambia: deja el orden
+                  "sin alcohol → con alcohol → daños" visible también aquí. */}
+              {grupo.bloque && grupo.bloque !== menu[cat.id][i - 1]?.bloque && (
+                <h4 className="mb-3 mt-8 font-display text-xl uppercase text-crema sm:text-2xl">
+                  {grupo.bloque}
+                </h4>
+              )}
               <h4 className="font-alt text-lg uppercase tracking-[0.06em] text-turquesa">
                 {grupo.grupo}
               </h4>
               <ul className="mt-2 space-y-1.5">
-                {grupo.productos.map((p) => (
+                {visibles(grupo).map((p) => (
                   <li key={p.nombre} className="text-[13.5px] leading-relaxed text-crema/75">
                     <strong className="font-semibold text-crema">{p.nombre}</strong>
+                    {p.precio !== undefined ? ` ${precioMXN(p.precio)}` : ''}
+                    {p.variantes
+                      ? ` — ${p.variantes.map((v) => `${v.medida} ${precioMXN(v.precio)}`).join(' · ')}`
+                      : ''}
                     {p.descripcion ? ` — ${p.descripcion}` : ''}
+                    {p.sabores ? ` Sabores: ${p.sabores.map((s) => s.nombre).join(', ')}.` : ''}
                   </li>
                 ))}
               </ul>
