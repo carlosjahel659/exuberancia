@@ -6,7 +6,8 @@ import { recurso } from '../utils/recurso'
 
 /** Portada principal con entrada animada al cargar. */
 export default function Portada() {
-  const [listo, setListo] = useState(false)
+  // Igual que en useRevelar: prerenderizado arranca visible, navegador anima.
+  const [listo, setListo] = useState(() => typeof window === 'undefined')
 
   useEffect(() => {
     const t = setTimeout(() => setListo(true), 60)
@@ -44,27 +45,31 @@ export default function Portada() {
               alt="Logotipo de La Exuberancia"
               width="820"
               height="820"
-              fetchPriority="high"
+              fetchpriority="high"
               className="mx-auto h-32 w-32 drop-shadow-[0_18px_36px_rgba(0,0,0,.85)] sm:h-40 sm:w-40 lg:mx-0 lg:h-44 lg:w-44"
             />
           </div>
 
-          <div {...entrada(140)} className={`${entrada(140).className} mt-6`}>
-            <p className="font-alt text-sm uppercase tracking-[0.42em] text-turquesa sm:text-base">
+          {/* Único H1 de la página: texto HTML real y visible, no una imagen.
+              Nombra al negocio y lo que es, que es lo que busca la gente. */}
+          <h1 {...entrada(140)} className={`${entrada(140).className} mt-6`}>
+            <span className="block font-alt text-sm uppercase tracking-[0.42em] text-turquesa sm:text-base">
               Restaurante mexicano familiar
-            </p>
-          </div>
+            </span>
+            <span className="titulo-display texto-neon mt-2 block text-[clamp(2.6rem,10vw,5.25rem)]">
+              La Exuberancia
+            </span>
+          </h1>
 
-          <h1
+          <p
             {...entrada(240)}
-            className={`${entrada(240).className} titulo-display mt-3 text-[clamp(2.9rem,11vw,5.75rem)]`}
+            className={`${entrada(240).className} titulo-display mt-4 text-[clamp(1.9rem,7vw,3.5rem)]`}
           >
-            <span className="texto-neon block">Sabor que</span>
             <span className="block text-amarillo drop-shadow-[0_0_22px_rgba(240,179,35,.35)]">
-              se vive
+              Sabor que se vive
             </span>
             <span className="texto-neon-rosa block">a lo grande</span>
-          </h1>
+          </p>
 
           <div {...entrada(360)} className={`${entrada(360).className} mt-5`}>
             <p className="mx-auto max-w-md font-alt text-lg uppercase tracking-[0.2em] text-crema/85 sm:text-xl lg:mx-0">
@@ -122,7 +127,7 @@ export default function Portada() {
               alt="Tacos de barbacoa servidos en plato de barro"
               width="360"
               height="360"
-              fetchPriority="high"
+              fetchpriority="high"
               className="sombra-plato absolute inset-[10%] h-[80%] w-[80%] animate-floaty object-contain"
             />
 

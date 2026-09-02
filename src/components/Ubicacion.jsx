@@ -76,7 +76,10 @@ export default function Ubicacion() {
         <div className="mt-14 grid gap-6 lg:grid-cols-[1fr_1.15fr]">
           {/* Datos de contacto */}
           <Revelar className="order-2 lg:order-1">
-            <div className="tarjeta relative h-full overflow-hidden p-6 sm:p-8">
+            <div
+              id="contacto"
+              className="tarjeta relative h-full scroll-mt-24 overflow-hidden p-6 sm:p-8"
+            >
               <EsquinaFloral className="pointer-events-none absolute -right-6 -top-6 h-28 w-28 -scale-x-100 opacity-35" color="naranja" />
               <Chispa className="absolute bottom-6 right-6 h-4 w-4 animate-pulseGlow" color="rosa" />
 

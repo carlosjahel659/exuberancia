@@ -128,6 +128,53 @@ function PanelCategoria({ grupos, color, idCategoria, ahora }) {
   )
 }
 
+/** true durante el prerenderizado del build; false en el navegador. */
+const SIN_NAVEGADOR = typeof window === 'undefined'
+
+/**
+ * Carta completa en HTML plano.
+ *
+ * Solo se dibuja al prerenderizar: deja los 140 platillos dentro del HTML que
+ * descargan los buscadores y quien navegue sin JavaScript. Al arrancar, React
+ * vacía #root y monta el menú interactivo, así que el visitante normal nunca ve
+ * este bloque y no hay contenido duplicado en pantalla.
+ */
+function MenuParaBuscadores() {
+  return (
+    <div className="mt-14 space-y-12 border-t border-white/10 pt-12">
+      {categorias.map((cat) => (
+        <section key={cat.id} aria-labelledby={`carta-${cat.id}`}>
+          <h3
+            id={`carta-${cat.id}`}
+            className="font-display text-2xl uppercase text-crema sm:text-3xl"
+          >
+            {REGLAS[cat.id].nombre}
+          </h3>
+          <p className="mt-1 text-sm text-crema/70">
+            {cat.descripcion} Horario: {REGLAS[cat.id].resumen}.
+          </p>
+
+          {menu[cat.id].map((grupo) => (
+            <div key={grupo.grupo} className="mt-5">
+              <h4 className="font-alt text-lg uppercase tracking-[0.06em] text-turquesa">
+                {grupo.grupo}
+              </h4>
+              <ul className="mt-2 space-y-1.5">
+                {grupo.productos.map((p) => (
+                  <li key={p.nombre} className="text-[13.5px] leading-relaxed text-crema/75">
+                    <strong className="font-semibold text-crema">{p.nombre}</strong>
+                    {p.descripcion ? ` — ${p.descripcion}` : ''}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </section>
+      ))}
+    </div>
+  )
+}
+
 /**
  * Una de las seis opciones de la cuadrícula.
  * Bloqueada sigue visible y enfocable con el teclado, pero no abre nada: se
@@ -372,6 +419,8 @@ export default function MenuInteractivo() {
             </div>
           </div>
         )}
+
+        {SIN_NAVEGADOR && <MenuParaBuscadores />}
 
         <p className="mt-10 text-center text-[11px] uppercase tracking-[0.14em] text-crema/40 sm:text-[12px]">
           Consulta precios y disponibilidad con tu mesero

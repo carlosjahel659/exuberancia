@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://carlosjahel659.github.io/exuberancia/sitemap.xml

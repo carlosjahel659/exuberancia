@@ -4,7 +4,30 @@
 // reales del negocio y todo el sitio se actualiza solo.
 // -----------------------------------------------------------------------------
 
+import { CIERRE_DIARIO, formatoHora } from './horarios'
+
 export const PENDIENTE = (valor) => typeof valor === 'string' && valor.startsWith('[')
+
+/**
+ * Horario de servicio como datos, no como texto suelto.
+ * De aquí salen las dos cosas a la vez: lo que lee el cliente en la página y el
+ * `openingHoursSpecification` del JSON-LD. La hora de cierre es la misma todos
+ * los días y vive en horarios.js (`CIERRE_DIARIO`), así que cambiarla ahí
+ * actualiza el encabezado, el pie, la sección de horarios y los datos
+ * estructurados de una sola vez.
+ */
+export const horarioServicio = [
+  {
+    dias: 'Lunes a viernes',
+    diasSchema: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+    abre: 9 * 60,
+  },
+  {
+    dias: 'Sábado y domingo',
+    diasSchema: ['Saturday', 'Sunday'],
+    abre: 7 * 60,
+  },
+]
 
 export const site = {
   nombre: 'La Exuberancia',
@@ -21,13 +44,12 @@ export const site = {
   facebook: '[FACEBOOK_URL]',
   tiktok: '[TIKTOK_URL]',
 
-  // Cierre diario a las 7:30 p.m. en todos los días; las horas de apertura son
-  // las que ya tenía cada día. Si esto cambia, actualiza también CIERRE_DIARIO
-  // en src/data/horarios.js, que es lo que apaga las categorías.
-  horarios: [
-    { dias: 'Lunes a viernes', horas: '9:00 a.m. – 7:30 p.m.' },
-    { dias: 'Sábado y domingo', horas: '7:00 a.m. – 7:30 p.m.' },
-  ],
+  // Texto derivado de `horarioServicio`: no se escribe a mano para que no se
+  // desincronice del cierre real ni de los datos estructurados.
+  horarios: horarioServicio.map((h) => ({
+    dias: h.dias,
+    horas: `${formatoHora(h.abre)} – ${formatoHora(CIERRE_DIARIO)}`,
+  })),
 
   tiempos: [
     { que: 'Alimentos', cuanto: '15 minutos aprox.' },
@@ -42,6 +64,12 @@ export const navegacion = [
   { id: 'nosotros', etiqueta: 'Nosotros' },
   { id: 'ubicacion', etiqueta: 'Ubicación' },
 ]
+
+/**
+ * El pie enlaza además a #contacto (el bloque de datos dentro de Ubicación).
+ * Va aparte porque en la barra superior una sexta pestaña ya no cabe en 1024 px.
+ */
+export const navegacionPie = [...navegacion, { id: 'contacto', etiqueta: 'Contacto' }]
 
 export const redes = [
   { nombre: 'Instagram', url: site.instagram, icono: 'instagram' },

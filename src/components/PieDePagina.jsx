@@ -1,4 +1,4 @@
-import { navegacion, PENDIENTE, redes, site } from '../data/site'
+import { navegacionPie, PENDIENTE, redes, site } from '../data/site'
 import IconoRed from './IconosRed'
 import { Divisor, Filigrana } from './Ornamentos'
 import { recurso } from '../utils/recurso'
@@ -33,7 +33,7 @@ export default function PieDePagina() {
           <nav aria-label="Pie de página" className="text-center sm:text-left">
             <h3 className="font-alt text-[13px] uppercase tracking-[0.28em] text-turquesa">Sitio</h3>
             <ul className="mt-4 space-y-2.5">
-              {navegacion.map((item) => (
+              {navegacionPie.map((item) => (
                 <li key={item.id}>
                   <a
                     href={`#${item.id}`}

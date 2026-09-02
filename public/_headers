@@ -1,11 +1,19 @@
-# Cabeceras de seguridad para Cloudflare Pages.
-# Este archivo se copia tal cual a dist/ durante el build.
+# Cabeceras de seguridad.
+#
+# Vite copia todo public/ tal cual a la raíz de dist/, así que este archivo
+# termina en dist/_headers, que es donde lo lee Cloudflare Pages.
+#
+# OJO: GitHub Pages IGNORA este archivo — no permite cabeceras personalizadas en
+# ningún formato. Mientras el sitio se publique en carlosjahel659.github.io
+# estas reglas no se aplican; empiezan a funcionar solas al mover el sitio a
+# Cloudflare Pages.
+
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'none'; object-src 'none'; upgrade-insecure-requests
-  X-Content-Type-Options: nosniff
-  X-Frame-Options: DENY
+  X-Frame-Options: SAMEORIGIN
   Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: geolocation=(), camera=(), microphone=(), payment=(), usb=(), interest-cohort=()
+  X-Content-Type-Options: nosniff
+  Content-Security-Policy: frame-ancestors 'self';
+  Permissions-Policy: geolocation=(), camera=(), microphone=(), payment=(), usb=()
   Strict-Transport-Security: max-age=31536000
 
 # Los archivos con hash en el nombre nunca cambian: cache agresivo.

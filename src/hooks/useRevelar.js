@@ -7,7 +7,10 @@ import { useEffect, useRef, useState } from 'react'
  */
 export function useRevelar({ margen = '0px 0px -12% 0px', umbral = 0.15 } = {}) {
   const ref = useRef(null)
-  const [visible, setVisible] = useState(false)
+  // En el prerenderizado no hay efectos ni IntersectionObserver: si arrancara
+  // oculto, el HTML que leen los buscadores quedaría con opacity 0. En el
+  // navegador el valor inicial sigue siendo false y la animación no cambia.
+  const [visible, setVisible] = useState(() => typeof window === 'undefined')
 
   useEffect(() => {
     const nodo = ref.current
