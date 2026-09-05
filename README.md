@@ -285,14 +285,29 @@ daños al final.
 
 ### Productos ocultos (pendientes de confirmar)
 
-Un producto con `oculto: true` **no se muestra en la carta pero no se borra**. Es lo que se hace
-con lo que se queda sin precio:
+**Una sola regla decide qué se publica**, en [`src/utils/catalogo.js`](src/utils/catalogo.js):
+un producto se dibuja solo si tiene **precio numérico mayor que cero** y no está marcado como
+oculto. Nunca se filtra con CSS: lo que no se publica tampoco llega al HTML.
 
 ```js
-{ nombre: 'Ice de cereza 500 ml', oculto: true }
+// No se publica: falta el precio
+{ nombre: 'Taco de carnitas', descripcion: '…', visible: false }
+
+// No se publica: precio pendiente de definir
+{ nombre: 'Combo mañanero', precio: null, visible: false }
+
+// Una variante suelta también puede quedarse fuera
+variantes: [
+  { medida: 'Sin proteína', precio: 89 },      // se publica
+  { medida: 'Con chorizo o chistorra', precio: null },  // no se publica
+]
 ```
 
-Para volver a publicarlo, agrégale `precio` y quita `oculto`.
+**Para publicar cualquiera de ellos: ponle `precio` y quita `visible: false`.** No hace falta
+tocar ningún componente ni el diseño; la tarjeta aparece sola con el mismo estilo que las demás.
+
+`npm run build` **lista por consola todo lo que quedó sin publicar**, con su categoría, grupo y
+motivo. Es la forma rápida de ver qué precios siguen pendientes.
 
 ### Cambiar los requisitos de cumpleaños
 

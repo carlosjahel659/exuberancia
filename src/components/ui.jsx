@@ -68,6 +68,8 @@ const ETIQUETAS = {
   Especialidad: 'bg-amarillo/15 text-amarillo border-amarillo/40',
   'Fin de semana': 'bg-turquesa/15 text-turquesa border-turquesa/40',
   'Sin alcohol': 'bg-turquesa/10 text-turquesa/90 border-turquesa/30',
+  // Discreta a propósito: aclara la unidad de venta, no es un distintivo.
+  'Precio por pieza': 'bg-white/5 text-crema/70 border-white/20',
   Nuevo: 'bg-naranja/15 text-naranja border-naranja/40',
 }
 

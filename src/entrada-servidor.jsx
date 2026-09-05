@@ -14,11 +14,14 @@
 import { renderToString } from 'react-dom/server'
 import App from './App.jsx'
 import { datosPendientes, restauranteJsonLd } from './data/seo'
+import { menu } from './data/menu'
+import { catalogoPendiente } from './utils/catalogo'
 
 export function render() {
   return {
     html: renderToString(<App />),
     jsonLd: restauranteJsonLd(),
     pendientes: datosPendientes(),
+    productosOcultos: catalogoPendiente(menu),
   }
 }

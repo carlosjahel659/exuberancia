@@ -142,30 +142,33 @@ export const menu = {
   desayunos: [
     {
       grupo: 'Chilaquiles',
+      // Banda informativa bajo el grupo. Es solo un aviso: no hay carrito ni
+      // cálculo automático de la promoción.
+      promo: {
+        texto: 'En la compra de cualquier chilaquiles, llévate un café de olla con refill por solo',
+        precio: 9,
+      },
       productos: [
         {
           nombre: 'Chilaquiles tradicionales',
           descripcion: 'Totopos con crema, queso fresco, cebolla morada y frijoles refritos.',
-          detalles: [
-            { etiqueta: 'Elige tu salsa', opciones: SALSAS },
-            { etiqueta: 'Elige tu proteína (200 g)', opciones: [...PROTEINAS, 'Huevo'] },
+          detalles: [{ etiqueta: 'Elige tu salsa', opciones: SALSAS }],
+          variantes: [
+            { medida: 'Sin proteína', precio: 89 },
+            { medida: 'Con huevo o pollo', precio: 119 },
+            { medida: 'Con costilla, arrachera o aguja', precio: 139 },
+            // Chorizo y chistorra siguen en la carta impresa pero todavía no
+            // tienen precio confirmado: se conservan y no se publican.
+            { medida: 'Con chorizo o chistorra', precio: null },
           ],
           foto: FOTO.chilaquilesTradicionales,
           fotoAlt: 'Chilaquiles verdes con pollo, aguacate, queso fresco y crema',
         },
         {
-          nombre: 'Chilaquiles suizos',
-          descripcion:
-            'Totopos con preparación cremosa, queso gratinado, crema, queso fresco, cebolla y frijoles refritos.',
-          detalles: [
-            { etiqueta: 'Elige tu salsa', opciones: SALSAS },
-            { etiqueta: 'Elige tu proteína (200 g)', opciones: [...PROTEINAS, 'Huevo'] },
-          ],
-        },
-        {
           nombre: 'Chilaquiles Exuberantes',
           descripcion:
             'Totopos con crema, queso fresco y cebolla morada. Incluyen 500 g de proteína en total.',
+          precio: 159,
           detalles: [
             { etiqueta: 'Elige tu salsa', opciones: SALSAS },
             {
@@ -184,6 +187,16 @@ export const menu = {
           fotoAlt: 'Chilaquiles rojos con arrachera, chistorra y aguacate',
           etiqueta: 'Exuberante',
         },
+        {
+          nombre: 'Chilaquiles suizos',
+          descripcion:
+            'Totopos con preparación cremosa, queso gratinado, crema, queso fresco, cebolla y frijoles refritos.',
+          detalles: [
+            { etiqueta: 'Elige tu salsa', opciones: SALSAS },
+            { etiqueta: 'Elige tu proteína (200 g)', opciones: [...PROTEINAS, 'Huevo'] },
+          ],
+          visible: false,
+        },
       ],
     },
     {
@@ -191,10 +204,12 @@ export const menu = {
       productos: [
         {
           nombre: 'Huevos rancheros',
+          precio: 89,
           descripcion: 'Dos huevos estrellados sobre tortilla, salsa ranchera y frijoles refritos.',
         },
         {
           nombre: 'Huevos divorciados',
+          precio: 99,
           descripcion:
             'Dos huevos estrellados con salsa verde y roja, aguacate, cebolla, frijoles refritos y totopos.',
         },
@@ -204,7 +219,8 @@ export const menu = {
       grupo: 'Huevos al gusto',
       productos: [
         {
-          nombre: 'Huevos revueltos al gusto',
+          nombre: 'Huevos al gusto',
+          precio: 89,
           descripcion: 'Tres huevos con frijoles refritos y totopos.',
           detalles: [
             {
@@ -220,6 +236,7 @@ export const menu = {
       productos: [
         {
           nombre: 'Omelette al gusto',
+          precio: 99,
           descripcion: 'Preparado con tres huevos, frijoles refritos, totopos y queso fresco.',
           detalles: [
             {
@@ -230,6 +247,7 @@ export const menu = {
         },
         {
           nombre: 'Omelette Exuberante',
+          precio: 139,
           descripcion: 'Preparado con cuatro huevos y rajas de chile poblano.',
           detalles: [
             {
@@ -248,6 +266,23 @@ export const menu = {
       ],
     },
     {
+      grupo: 'Molletes',
+      productos: [
+        {
+          nombre: 'Molletes clásicos',
+          precio: 109,
+          descripcion:
+            'Tres piezas preparadas con bolillo normal, frijoles, queso gratinado y pico de gallo.',
+        },
+        {
+          nombre: 'Molletes con proteína',
+          precio: 139,
+          descripcion: 'Tres piezas de bolillo normal con frijoles y queso gratinado.',
+          detalles: [{ etiqueta: 'Elige tu proteína', opciones: PROTEINAS }],
+        },
+      ],
+    },
+    {
       grupo: 'Hot cakes',
       productos: [
         {
@@ -255,32 +290,20 @@ export const menu = {
           descripcion:
             'Tres piezas con un peso total de 150 g, miel, 100 g de plátano y azúcar glass.',
           imagen: IMG.hotCakes,
+          visible: false,
         },
         {
           nombre: 'Hot cakes Exuberantes',
           descripcion:
             'Tres piezas con un peso total de 150 g, miel, 150 g de frutos rojos y azúcar glass.',
           etiqueta: 'Exuberante',
+          visible: false,
         },
         {
           nombre: 'Hot cakes con tocino crujiente',
           descripcion:
             'Tres piezas con un peso total de 150 g, miel, 100 g de plátano, tocino crujiente y azúcar glass.',
-        },
-      ],
-    },
-    {
-      grupo: 'Molletes',
-      productos: [
-        {
-          nombre: 'Molletes clásicos',
-          descripcion:
-            'Tres piezas preparadas con bolillo normal, frijoles, queso gratinado y pico de gallo.',
-        },
-        {
-          nombre: 'Molletes con proteína',
-          descripcion: 'Tres piezas de bolillo normal con frijoles y queso gratinado.',
-          detalles: [{ etiqueta: 'Elige tu proteína', opciones: PROTEINAS }],
+          visible: false,
         },
       ],
     },
@@ -291,13 +314,24 @@ export const menu = {
           nombre: 'Pan francés',
           descripcion:
             'Dos rebanadas de pan de caja cortadas a 3 cm, preparadas con vainilla y azúcar glass.',
+          visible: false,
         },
         {
           nombre: 'Pan francés Exuberante',
           descripcion:
             'Cuatro rebanadas de pan de caja cortadas a 3 cm, con frutos rojos, plátano, vainilla y azúcar glass.',
           etiqueta: 'Exuberante',
+          visible: false,
         },
+      ],
+    },
+    {
+      grupo: 'Combos',
+      productos: [
+        // Pendientes: el restaurante todavía no define qué incluyen ni su
+        // precio. No se inventa contenido; para publicarlos basta agregar
+        // `precio` y quitar `visible: false`.
+        { nombre: 'Combo mañanero', precio: null, visible: false },
       ],
     },
   ],
@@ -305,19 +339,28 @@ export const menu = {
   // ----------------------------------------------------------------- Entradas
   entradas: [
     {
-      grupo: 'Queso asadero',
+      grupo: 'Sopas y cremas',
+      nota: 'Las cuatro preparaciones están disponibles diariamente.',
       productos: [
+        { nombre: 'Sopa azteca', precio: 99, descripcion: 'Con el sabor tradicional de la casa.' },
         {
-          nombre: 'Queso asadero',
-          descripcion: 'Queso fundido con una ligera costra dorada en la parte superior.',
-          detalles: [{ etiqueta: 'Elige tu proteína', opciones: PROTEINAS }],
-          imagen: IMG.quesadillas,
+          nombre: 'Sopa de médula',
+          precio: 105,
+          descripcion: 'Preparación reconfortante de sabor profundo.',
         },
         {
-          nombre: 'Queso asadero Exuberante',
-          descripcion: 'Queso fundido con una ligera costra dorada en la parte superior.',
-          detalles: [{ etiqueta: 'Incluye', tipo: 'incluye', opciones: PROTEINAS }],
-          etiqueta: 'Exuberante',
+          nombre: 'Crema poblana',
+          precio: 99,
+          descripcion: 'Cremosa y ligeramente ahumada.',
+          foto: FOTO.cremaPoblana,
+          fotoAlt: 'Crema poblana servida en cazuela de barro',
+        },
+        {
+          nombre: 'Crema de zanahoria',
+          precio: 99,
+          descripcion: 'Suave, cálida y equilibrada.',
+          foto: FOTO.cremaZanahoria,
+          fotoAlt: 'Crema de zanahoria servida en cazuela de barro',
         },
       ],
     },
@@ -325,13 +368,8 @@ export const menu = {
       grupo: 'Molcajetes',
       productos: [
         {
-          nombre: 'Molcajete norteño',
-          descripcion: 'Guacamole, chicharrón norteño, cebollas encurtidas y 300 g de tortillas.',
-          foto: FOTO.molcajeteNorteno,
-          fotoAlt: 'Molcajete de piedra con carne y chiles güeros',
-        },
-        {
           nombre: 'Molcajete Mexa',
+          precio: 349,
           descripcion:
             'Nopales, cebolla cambray, arrachera, pollo, chistorra y 200 g de tortillas.',
           detalles: [{ etiqueta: 'Rinde para', tipo: 'incluye', opciones: ['2 personas'] }],
@@ -340,30 +378,37 @@ export const menu = {
         },
         {
           nombre: 'Molcajete Mexa Exuberante',
+          precio: 549,
           descripcion:
             'Nopales, cebolla cambray, arrachera, pollo, costilla, chistorra, tres quesadillas de chorizo y 500 g de tortillas.',
           detalles: [{ etiqueta: 'Rinde para', tipo: 'incluye', opciones: ['4 personas'] }],
           etiqueta: 'Exuberante',
         },
+        {
+          nombre: 'Molcajete norteño',
+          descripcion: 'Guacamole, chicharrón norteño, cebollas encurtidas y 300 g de tortillas.',
+          foto: FOTO.molcajeteNorteno,
+          fotoAlt: 'Molcajete de piedra con carne y chiles güeros',
+          visible: false,
+        },
       ],
     },
     {
-      grupo: 'Sopas y cremas',
-      nota: 'Las cuatro preparaciones están disponibles diariamente.',
+      grupo: 'Queso asadero',
       productos: [
-        { nombre: 'Sopa azteca', descripcion: 'Con el sabor tradicional de la casa.' },
-        { nombre: 'Sopa de médula', descripcion: 'Preparación reconfortante de sabor profundo.' },
         {
-          nombre: 'Crema poblana',
-          descripcion: 'Cremosa y ligeramente ahumada.',
-          foto: FOTO.cremaPoblana,
-          fotoAlt: 'Crema poblana servida en cazuela de barro',
+          nombre: 'Queso asadero',
+          descripcion: 'Queso fundido con una ligera costra dorada en la parte superior.',
+          detalles: [{ etiqueta: 'Elige tu proteína', opciones: PROTEINAS }],
+          imagen: IMG.quesadillas,
+          visible: false,
         },
         {
-          nombre: 'Crema de zanahoria',
-          descripcion: 'Suave, cálida y equilibrada.',
-          foto: FOTO.cremaZanahoria,
-          fotoAlt: 'Crema de zanahoria servida en cazuela de barro',
+          nombre: 'Queso asadero Exuberante',
+          descripcion: 'Queso fundido con una ligera costra dorada en la parte superior.',
+          detalles: [{ etiqueta: 'Incluye', tipo: 'incluye', opciones: PROTEINAS }],
+          etiqueta: 'Exuberante',
+          visible: false,
         },
       ],
     },
@@ -372,41 +417,32 @@ export const menu = {
   // ---------------------------------------------------------- Comida mexicana
   mexicana: [
     {
-      grupo: 'Guisados del día',
-      productos: [
-        {
-          nombre: 'Guisados del día',
-          descripcion:
-            'Dos preparaciones diferentes cada día. Consulta disponibilidad. Se sirven sin guarnición.',
-          etiqueta: 'Especialidad',
-        },
-      ],
-    },
-    {
       grupo: 'Enchiladas',
       productos: [
         {
           nombre: 'Enchiladas tradicionales',
           descripcion: 'Cuatro piezas con crema, queso fresco, cebolla y cilantro.',
-          detalles: [
-            { etiqueta: 'Elige tu salsa', opciones: SALSAS },
-            { etiqueta: 'Elige tu relleno', opciones: PROTEINAS },
+          detalles: [{ etiqueta: 'Elige tu salsa', opciones: SALSAS }],
+          variantes: [
+            { medida: 'Sin proteína', precio: 99 },
+            { medida: 'Con pollo o huevo', precio: 119 },
+            // Chorizo, chistorra, arrachera y costilla siguen sin precio.
+            { medida: 'Con chorizo, chistorra, arrachera o costilla', precio: null },
           ],
           foto: FOTO.enchiladasTradicionales,
           fotoAlt: 'Enchiladas rojas con queso fresco, cebolla y crema',
         },
         {
           nombre: 'Enchiladas suizas',
+          precio: 129,
           descripcion: 'Cuatro piezas con preparación cremosa y queso gratinado.',
-          detalles: [
-            { etiqueta: 'Elige tu salsa', opciones: SALSAS },
-            { etiqueta: 'Elige tu relleno', opciones: PROTEINAS },
-          ],
+          detalles: [{ etiqueta: 'Elige tu salsa', opciones: SALSAS }],
           foto: FOTO.enchiladasSuizas,
           fotoAlt: 'Enchiladas suizas gratinadas con crema y cilantro',
         },
         {
           nombre: 'Enchiladas Exuberantes',
+          precio: 189,
           descripcion: 'Cuatro piezas con crema, queso fresco, cebolla y cilantro.',
           detalles: [{ etiqueta: 'Incluye', tipo: 'incluye', opciones: PROTEINAS }],
           etiqueta: 'Exuberante',
@@ -417,18 +453,23 @@ export const menu = {
       grupo: 'Quesadillas',
       productos: [
         {
-          nombre: 'Quesadillas',
-          descripcion: 'Tres piezas con queso, acompañadas con frijoles y salsa.',
-          detalles: [
-            { etiqueta: 'Elige tu relleno', opciones: ['Chorizo', 'Chistorra', 'Tinga de pollo'] },
+          nombre: 'Quesadilla',
+          descripcion: 'Preparada con queso y acompañada de frijoles y salsa.',
+          etiqueta: 'Precio por pieza',
+          variantes: [
+            { medida: 'De queso', precio: 45 },
+            { medida: 'De tinga', precio: 45 },
+            // Chorizo y chistorra todavía no tienen precio por pieza.
+            { medida: 'De chorizo o chistorra', precio: null },
           ],
           imagen: IMG.quesadillas,
         },
         {
-          nombre: 'Quesadillas Exuberantes',
-          descripcion: 'Tres piezas con queso, frijoles y salsa.',
+          nombre: 'Quesadilla Exuberante',
+          precio: 69,
+          descripcion: 'Con queso, frijoles y salsa.',
+          etiqueta: 'Precio por pieza',
           detalles: [{ etiqueta: 'Incluye', tipo: 'incluye', opciones: PROTEINAS }],
-          etiqueta: 'Exuberante',
         },
       ],
     },
@@ -437,14 +478,17 @@ export const menu = {
       productos: [
         {
           nombre: 'Tacos dorados de pollo',
+          precio: 119,
           descripcion: 'Cinco piezas doradas al momento, sin guarnición.',
         },
         {
           nombre: 'Tostadas de tinga de pollo',
-          descripcion: 'Dos piezas crujientes con tinga de pollo, sin guarnición.',
+          precio: 99,
+          descripcion: 'Orden de tres piezas crujientes con tinga de pollo, sin guarnición.',
         },
         {
           nombre: 'Pastel azteca',
+          precio: 149,
           descripcion:
             'Platillo disponible diariamente, preparado con tortilla, salsa, pollo y queso gratinado.',
         },
@@ -454,15 +498,36 @@ export const menu = {
       grupo: 'Platos fuertes',
       productos: [
         {
-          nombre: 'Pollo cordon bleu',
-          descripcion: 'Pechuga rellena y empanizada, disponible diariamente.',
-        },
-        {
           nombre: 'Papa rellena',
+          precio: 129,
           descripcion: 'Papa al horno, rellena y gratinada con queso.',
           detalles: [{ etiqueta: 'Elige tu proteína', opciones: PROTEINAS }],
           etiqueta: 'Especialidad',
         },
+        {
+          nombre: 'Pollo cordon bleu',
+          descripcion: 'Pechuga rellena y empanizada, disponible diariamente.',
+          visible: false,
+        },
+      ],
+    },
+    {
+      grupo: 'Guisados del día',
+      productos: [
+        {
+          nombre: 'Guisados del día',
+          descripcion:
+            'Dos preparaciones diferentes cada día. Consulta disponibilidad. Se sirven sin guarnición.',
+          etiqueta: 'Especialidad',
+          visible: false,
+        },
+      ],
+    },
+    {
+      grupo: 'Combos',
+      productos: [
+        // Pendiente de definir por el restaurante; ver "Combo mañanero".
+        { nombre: 'Combo ejecutivo', precio: null, visible: false },
       ],
     },
   ],
@@ -474,25 +539,31 @@ export const menu = {
       nota: 'En las órdenes por peso se pueden repetir dos tortillas por persona.',
       productos: [
         {
+          nombre: 'Carnitas por peso',
+          descripcion: 'Acompañadas de tortillas hechas a mano.',
+          detalles: [{ etiqueta: 'Elige tu corte', opciones: CORTES_CARNITAS }],
+          variantes: [
+            { medida: 'Medio kilo', precio: 250 },
+            { medida: 'Un kilo', precio: 400 },
+          ],
+          imagen: IMG.cazuela,
+        },
+        {
+          nombre: 'Kilogramo de tortillas hechas a mano',
+          precio: 45,
+          descripcion: 'Para acompañar cualquier orden por peso.',
+        },
+        {
           nombre: 'Taco de carnitas',
           descripcion: 'Servido en tortilla hecha a mano.',
           detalles: [{ etiqueta: 'Elige tu corte', opciones: CORTES_CARNITAS }],
-          imagen: IMG.cazuela,
+          visible: false,
         },
         {
           nombre: 'Torta de carnitas',
           descripcion: 'Preparada en bolillo normal.',
           detalles: [{ etiqueta: 'Elige tu corte', opciones: CORTES_CARNITAS }],
-        },
-        {
-          nombre: 'Medio kilo de carnitas',
-          descripcion: 'Acompañado con 200 g de tortillas hechas a mano.',
-          detalles: [{ etiqueta: 'Elige tu corte', opciones: CORTES_CARNITAS }],
-        },
-        {
-          nombre: 'Kilo de carnitas',
-          descripcion: 'Acompañado con 500 g de tortillas hechas a mano.',
-          detalles: [{ etiqueta: 'Elige tu corte', opciones: CORTES_CARNITAS }],
+          visible: false,
         },
       ],
     },
@@ -500,59 +571,23 @@ export const menu = {
       grupo: 'Caldos',
       productos: [
         {
-          nombre: 'Pozole rojo norteño',
-          descripcion: 'Porción de 20 oz con lechuga, rábano, cebolla y tostadas.',
+          nombre: 'Pozole rojo',
+          descripcion: 'Estilo norteño, con lechuga, rábano, cebolla y tostadas.',
+          variantes: [
+            { medida: 'Mediano', precio: 109 },
+            { medida: 'Grande', precio: 145 },
+            { medida: 'Exuberante', precio: 175 },
+          ],
           etiqueta: 'Fin de semana',
         },
         {
-          nombre: 'Pancita tradicional',
-          descripcion: 'Porción de 20 oz con sus acompañamientos.',
-        },
-        {
-          nombre: 'Pancita Exuberante',
-          descripcion: 'Porción de 40 oz con sus acompañamientos.',
-          etiqueta: 'Exuberante',
-        },
-      ],
-    },
-    {
-      grupo: 'De la brasa',
-      productos: [
-        {
-          nombre: 'Taco tradicional a la brasa',
-          descripcion: 'Dos tortillas hechas a mano con 170 g de proteína.',
-          detalles: [{ etiqueta: 'Elige tu proteína', opciones: BRASA }],
-        },
-        {
-          nombre: 'Taco Exuberante a la brasa',
-          descripcion: 'Cuatro tortillas empalmadas a lo largo con 350 g de proteína.',
-          detalles: [{ etiqueta: 'Elige tu proteína', opciones: BRASA }],
-          etiqueta: 'Exuberante',
-        },
-        {
-          nombre: 'Tostadas Exuberantes',
-          descripcion:
-            'Dos piezas con guacamole, queso fundido y salsa martajada; sin guarnición adicional.',
-          detalles: [{ etiqueta: 'Elige tu proteína', opciones: BRASA }],
-          etiqueta: 'Exuberante',
-        },
-        {
-          nombre: 'Burrito Exuberante',
-          descripcion:
-            'Tortilla de harina con frijoles, mezcla de quesos, lechuga, salsa y guacamole.',
-          detalles: [{ etiqueta: 'Elige tu proteína', opciones: BRASA }],
-          etiqueta: 'Exuberante',
-        },
-      ],
-    },
-    {
-      grupo: 'Especialidades de la brasa',
-      productos: [
-        {
-          nombre: 'Arrachera tampiqueña',
-          descripcion:
-            'Arrachera con papitas y rajas, frijoles, queso fresco, totopos, salsa y guacamole.',
-          etiqueta: 'Especialidad',
+          nombre: 'Pancita',
+          descripcion: 'Servida con sus acompañamientos.',
+          variantes: [
+            { medida: 'Mediana', precio: 105 },
+            { medida: 'Grande', precio: 145 },
+            { medida: 'Exuberante', precio: 175 },
+          ],
         },
       ],
     },
@@ -561,12 +596,17 @@ export const menu = {
       productos: [
         {
           nombre: 'Aguachile de camarón',
-          descripcion: 'Preparado con 150 g de camarón.',
+          descripcion: 'Preparado al momento.',
           detalles: [{ etiqueta: 'Elige tu sabor', opciones: ['Tradicional', 'Rojo', 'Negro'] }],
+          variantes: [
+            { medida: '10 piezas', precio: 189 },
+            { medida: '15 piezas', precio: 259 },
+          ],
         },
         {
-          nombre: 'Aguachile Exuberante',
-          descripcion: 'Preparado con 300 g de camarón y 50 g de pulpo.',
+          nombre: 'Aguachile Exuberante en molcajete',
+          precio: 359,
+          descripcion: 'Servido en molcajete, con 300 g de camarón y 50 g de pulpo.',
           detalles: [{ etiqueta: 'Elige tu sabor', opciones: ['Tradicional', 'Rojo', 'Negro'] }],
           etiqueta: 'Exuberante',
         },
@@ -578,10 +618,61 @@ export const menu = {
         {
           nombre: 'Cóctel de camarón',
           descripcion: 'Clásico, fresco y servido con los acompañamientos de la casa.',
+          variantes: [
+            { medida: 'Mediano', precio: 135 },
+            { medida: 'Exuberante', precio: 219 },
+          ],
         },
         {
-          nombre: 'Vuelve a la vida',
+          nombre: 'Vuelve a la Vida',
+          precio: 179,
           descripcion: 'Mezcla de mariscos preparada con la receta de la casa.',
+        },
+      ],
+    },
+    {
+      grupo: 'Especialidades de la brasa',
+      productos: [
+        {
+          nombre: 'Arrachera tampiqueña',
+          precio: 249,
+          descripcion:
+            'Arrachera con papitas y rajas, frijoles, queso fresco, totopos, salsa y guacamole.',
+          etiqueta: 'Especialidad',
+        },
+      ],
+    },
+    {
+      grupo: 'De la brasa',
+      productos: [
+        {
+          nombre: 'Taco tradicional a la brasa',
+          descripcion: 'Dos tortillas hechas a mano con 170 g de proteína.',
+          detalles: [{ etiqueta: 'Elige tu proteína', opciones: BRASA }],
+          visible: false,
+        },
+        {
+          nombre: 'Taco Exuberante a la brasa',
+          descripcion: 'Cuatro tortillas empalmadas a lo largo con 350 g de proteína.',
+          detalles: [{ etiqueta: 'Elige tu proteína', opciones: BRASA }],
+          etiqueta: 'Exuberante',
+          visible: false,
+        },
+        {
+          nombre: 'Tostadas Exuberantes',
+          descripcion:
+            'Dos piezas con guacamole, queso fundido y salsa martajada; sin guarnición adicional.',
+          detalles: [{ etiqueta: 'Elige tu proteína', opciones: BRASA }],
+          etiqueta: 'Exuberante',
+          visible: false,
+        },
+        {
+          nombre: 'Burrito Exuberante',
+          descripcion:
+            'Tortilla de harina con frijoles, mezcla de quesos, lechuga, salsa y guacamole.',
+          detalles: [{ etiqueta: 'Elige tu proteína', opciones: BRASA }],
+          etiqueta: 'Exuberante',
+          visible: false,
         },
       ],
     },
@@ -594,30 +685,45 @@ export const menu = {
       productos: [
         {
           nombre: 'Taco de barbacoa',
-          descripcion: 'Servido en tortilla hecha a mano.',
+          precio: 59,
+          descripcion: 'Pieza de 80 g servida en tortilla hecha a mano.',
           imagen: IMG.barbacoa,
+        },
+        {
+          nombre: 'Orden de flautas de barbacoa',
+          precio: 189,
+          descripcion: 'Tres flautas de barbacoa acompañadas con consomé.',
+        },
+        {
+          nombre: 'Torta de barbacoa',
+          precio: 79,
+          descripcion: 'Bolillo normal relleno de barbacoa.',
         },
         {
           nombre: 'Orden de barbacoa',
           descripcion: 'Tres tacos de barbacoa acompañados con consomé.',
           etiqueta: 'Especialidad',
+          visible: false,
         },
-        {
-          nombre: 'Orden de flautas',
-          descripcion: 'Tres flautas de barbacoa acompañadas con consomé.',
-        },
-        { nombre: 'Torta de barbacoa', descripcion: 'Bolillo normal relleno de barbacoa.' },
       ],
     },
     {
       grupo: 'Para compartir',
       productos: [
         {
-          nombre: 'Medio kilo de barbacoa',
-          descripcion: 'Acompañado con tortillas hechas a mano.',
+          nombre: 'Barbacoa por peso',
+          descripcion: 'Acompañada con tortillas hechas a mano.',
+          variantes: [
+            { medida: 'Medio kilo', precio: 415 },
+            { medida: 'Un kilo', precio: 789 },
+          ],
+          etiqueta: 'Especialidad',
         },
-        { nombre: 'Kilo de barbacoa', descripcion: 'Acompañado con tortillas hechas a mano.' },
-        { nombre: 'Consomé', descripcion: 'Disponible también por separado.' },
+        {
+          nombre: 'Consomé',
+          descripcion: 'Disponible también por separado.',
+          visible: false,
+        },
       ],
     },
   ],

@@ -29,7 +29,7 @@ if (!existsSync(ssrPath)) {
 }
 
 const { render } = await import(pathToFileURL(ssrPath).href)
-const { html, jsonLd, pendientes } = render()
+const { html, jsonLd, pendientes, productosOcultos } = render()
 
 let documento = readFileSync(htmlPath, 'utf8')
 
@@ -71,6 +71,14 @@ const palabras = html
 
 console.log(`✓ Prerenderizado: ${palabras} palabras y ${(html.length / 1024).toFixed(0)} KB de HTML dentro de #root`)
 console.log('✓ JSON-LD de Restaurant inyectado en el <head>')
+
+if (productosOcultos.length) {
+  console.log(`\n⚠ ${productosOcultos.length} productos NO se publican por falta de precio`)
+  console.log('  (siguen guardados en src/data/menu.js; se activan al ponerles precio):')
+  productosOcultos.forEach((p) =>
+    console.log(`    · ${p.categoria} / ${p.grupo} / ${p.nombre} — ${p.motivo}`),
+  )
+}
 
 if (pendientes.length) {
   console.log('\n⚠ El JSON-LD se publicó SIN estos campos, porque en src/data/site.js')

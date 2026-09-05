@@ -1,5 +1,32 @@
 import { IconoCandado } from './EstadoDisponibilidad'
 import { Etiqueta } from './ui'
+import { precioMXN } from '../utils/precio'
+import { variantesVisibles } from '../utils/catalogo'
+
+/**
+ * Variantes de un platillo (tamaño, proteína, presentación) como filas: nombre
+ * a la izquierda, precio a la derecha. Es más legible que un selector cuando
+ * cada opción vale distinto, y en el teléfono nunca desborda porque el nombre
+ * puede partirse y el precio va en columna propia.
+ */
+function Variantes({ variantes }) {
+  return (
+    <ul className="mt-3 space-y-1.5">
+      {variantes.map((v) => (
+        <li key={v.medida} className="flex items-baseline gap-2">
+          <span className="min-w-0 text-[13px] leading-snug text-crema/80">{v.medida}</span>
+          <span
+            aria-hidden="true"
+            className="mb-[3px] flex-1 border-b border-dotted border-white/20"
+          />
+          <span className="shrink-0 font-display text-base tabular-nums text-amarillo sm:text-lg">
+            {precioMXN(v.precio)}
+          </span>
+        </li>
+      ))}
+    </ul>
+  )
+}
 
 /** Chips de "Elige tu salsa", "Incluye", "Rinde para"… tal como los trae el PDF. */
 function Detalle({ detalle }) {
@@ -39,7 +66,8 @@ function Detalle({ detalle }) {
  * completa) pero marcado como no pedible en este momento.
  */
 export default function TarjetaProducto({ producto, indice = 0, disponible = true }) {
-  const { nombre, descripcion, detalles, nota, imagen, foto, fotoAlt, etiqueta } = producto
+  const { nombre, descripcion, detalles, nota, imagen, foto, fotoAlt, etiqueta, precio } = producto
+  const variantes = variantesVisibles(producto)
 
   return (
     <article
@@ -101,9 +129,18 @@ export default function TarjetaProducto({ producto, indice = 0, disponible = tru
         )}
 
         <div className="min-w-0 flex-1">
-          <h4 className="font-alt text-[22px] uppercase leading-[1.05] tracking-[0.04em] text-crema sm:text-2xl">
-            {nombre}
-          </h4>
+          {/* Nombre y precio en la misma línea; el precio nunca se encima
+              porque va en su propia columna y no se encoge. */}
+          <div className="flex items-baseline justify-between gap-3">
+            <h4 className="min-w-0 font-alt text-[22px] uppercase leading-[1.05] tracking-[0.04em] text-crema sm:text-2xl">
+              {nombre}
+            </h4>
+            {precio !== undefined && precio !== null && (
+              <span className="shrink-0 font-display text-xl tabular-nums text-amarillo drop-shadow-[0_0_14px_rgba(240,179,35,.3)] sm:text-2xl">
+                {precioMXN(precio)}
+              </span>
+            )}
+          </div>
 
           {etiqueta && (
             <div className="mt-2">
@@ -116,6 +153,8 @@ export default function TarjetaProducto({ producto, indice = 0, disponible = tru
               {descripcion}
             </p>
           )}
+
+          {variantes.length > 0 && <Variantes variantes={variantes} />}
         </div>
       </div>
 

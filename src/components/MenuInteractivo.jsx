@@ -9,6 +9,7 @@ import TarjetaBebida from './TarjetaBebida'
 import TarjetaProducto from './TarjetaProducto'
 import { Boton, Etiqueta, Seccion } from './ui'
 import { precioMXN } from '../utils/precio'
+import { grupoVisible, productosVisibles, variantesVisibles } from '../utils/catalogo'
 
 const FLECHA_IZQ = (
   <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
@@ -37,8 +38,30 @@ function TituloGrupo({ texto, color = 'turquesa', estado }) {
   )
 }
 
-/** Productos que sí se muestran: `oculto` marca los que se quedaron sin precio. */
-const visibles = (grupo) => grupo.productos.filter((p) => !p.oculto)
+/**
+ * Qué se publica lo decide una sola regla, en src/utils/catalogo.js: hace falta
+ * precio válido y no estar marcado como oculto. Aquí solo se consulta.
+ */
+const visibles = productosVisibles
+
+/** Banda informativa de una promoción ligada a un grupo. Solo informa. */
+function BandaPromo({ promo }) {
+  return (
+    <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-xl border border-amarillo/30 bg-amarillo/[0.07] px-4 py-3">
+      <svg viewBox="0 0 48 48" className="h-6 w-6 shrink-0 text-amarillo" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
+        <path d="M10 18h22v16a8 8 0 01-8 8h-6a8 8 0 01-8-8z" strokeLinejoin="round" />
+        <path d="M32 22h5a5 5 0 010 10h-5" strokeLinejoin="round" />
+        <path d="M16 12c0-3 3-3 3-6M25 12c0-3 3-3 3-6" strokeLinecap="round" />
+      </svg>
+      <p className="min-w-0 text-[13px] leading-snug text-crema/85">
+        {promo.texto}{' '}
+        <strong className="font-display text-lg tabular-nums text-amarillo">
+          {precioMXN(promo.precio)}
+        </strong>
+      </p>
+    </div>
+  )
+}
 
 /** Encabezado de uno de los tres bloques de bebidas (sin alcohol / con alcohol / daños). */
 function TituloBloque({ texto }) {
@@ -118,7 +141,7 @@ function PanelCategoria({ grupos, color, idCategoria, ahora }) {
 
   return (
     <div className="panel-entra space-y-12">
-      {platillos.map((grupo) => {
+      {platillos.filter(grupoVisible).map((grupo) => {
         const disp = estadoGrupo(grupo.grupo, idCategoria, ahora)
         return (
           <section key={grupo.grupo} aria-label={grupo.grupo}>
@@ -142,6 +165,8 @@ function PanelCategoria({ grupos, color, idCategoria, ahora }) {
                 />
               ))}
             </div>
+
+            {grupo.promo && <BandaPromo promo={grupo.promo} />}
           </section>
         )
       })}
@@ -177,7 +202,7 @@ function MenuParaBuscadores() {
             {cat.descripcion} Horario: {REGLAS[cat.id].resumen}.
           </p>
 
-          {menu[cat.id].map((grupo, i) => (
+          {menu[cat.id].filter(grupoVisible).map((grupo, i) => (
             <div key={grupo.grupo} className="mt-5">
               {/* Encabezado del bloque solo cuando cambia: deja el orden
                   "sin alcohol → con alcohol → daños" visible también aquí. */}
@@ -194,14 +219,23 @@ function MenuParaBuscadores() {
                   <li key={p.nombre} className="text-[13.5px] leading-relaxed text-crema/75">
                     <strong className="font-semibold text-crema">{p.nombre}</strong>
                     {p.precio !== undefined ? ` ${precioMXN(p.precio)}` : ''}
-                    {p.variantes
-                      ? ` — ${p.variantes.map((v) => `${v.medida} ${precioMXN(v.precio)}`).join(' · ')}`
+                    {variantesVisibles(p).length > 0
+                      ? ` — ${variantesVisibles(p)
+                          .map((v) => `${v.medida} ${precioMXN(v.precio)}`)
+                          .join(' · ')}`
                       : ''}
                     {p.descripcion ? ` — ${p.descripcion}` : ''}
                     {p.sabores ? ` Sabores: ${p.sabores.map((s) => s.nombre).join(', ')}.` : ''}
+                    {p.etiqueta === 'Precio por pieza' ? ' (Precio por pieza)' : ''}
                   </li>
                 ))}
               </ul>
+
+              {grupo.promo && (
+                <p className="mt-2 text-[13px] leading-relaxed text-amarillo/90">
+                  {grupo.promo.texto} {precioMXN(grupo.promo.precio)}
+                </p>
+              )}
             </div>
           ))}
         </section>
