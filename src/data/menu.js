@@ -546,7 +546,6 @@ export const menu = {
             { medida: 'Medio kilo', precio: 250 },
             { medida: 'Un kilo', precio: 400 },
           ],
-          imagen: IMG.cazuela,
         },
         {
           nombre: 'Kilogramo de tortillas hechas a mano',
