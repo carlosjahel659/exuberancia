@@ -113,9 +113,9 @@ los horarios impresos dentro del PDF**.
 
 | Categoría           | Días              | Horario       | Cuando no aplica                                             |
 | ------------------- | ----------------- | ------------- | ------------------------------------------------------------ |
-| **Desayunos**       | Lunes a viernes   | 9:00 – 12:00  | “Desayunos disponibles de 9:00 a. m. a 12:00 p. m.”          |
-| **Entradas**        | Lunes a viernes   | 9:00 – 19:00  | “Entradas disponibles de 9:00 a. m. a 7:00 p. m.”            |
-| **Comida mexicana** | Lunes a viernes   | 12:00 – 19:00 | Antes de las 12:00: “Disponible a partir de las 12:00 p. m.” |
+| **Desayunos**       | Todos los días    | 9:00 – 12:00  | “Desayunos disponibles de 9:00 a. m. a 12:00 p. m.”          |
+| **Entradas**        | Todos los días    | 9:00 – 19:00  | “Entradas disponibles de 9:00 a. m. a 7:00 p. m.”            |
+| **Comida mexicana** | Todos los días    | 12:00 – 19:00 | Antes de las 12:00: “Disponible a partir de las 12:00 p. m.” |
 | **Fin de semana**   | Sábado y domingo  | hasta 19:30   | Lun–vie: “Disponible sábados y domingos”                     |
 | **Barbacoa**        | **Solo domingo**  | hasta 19:30   | “La barbacoa se sirve solamente los domingos”                |
 | **Bebidas**         | Todos los días    | hasta 19:30   | Los 7 días, dentro del horario                               |
@@ -126,8 +126,9 @@ ninguna aparece como disponible. Las que cierran antes (desayunos a las 12:00, e
 comida mexicana a las 19:00) conservan su propio horario. El texto que se muestra al cliente
 está en `site.horarios` (`src/data/site.js`); si cambias una, cambia la otra.
 
-**El sábado se desbloquea *Fin de semana* pero *Barbacoa* sigue bloqueada; el domingo se
-desbloquean las dos.** Por eso Barbacoa es una categoría propia y no un grupo dentro de Fin de
+Desayunos, Entradas y Comida mexicana se sirven **los siete días**, cada una dentro de su
+horario. Lo que sigue atado al calendario es el fin de semana: **el sábado se desbloquea *Fin de
+semana* pero *Barbacoa* sigue bloqueada; el domingo se desbloquean las dos.** Por eso Barbacoa es una categoría propia y no un grupo dentro de Fin de
 semana: así pueden abrirse por separado.
 
 ### Estados visuales

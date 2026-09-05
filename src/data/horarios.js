@@ -62,39 +62,35 @@ export const REGLAS = {
     nombre: 'Desayunos',
     corto: 'Desayunos',
     icono: 'desayunos',
-    dias: LUNES_A_VIERNES,
+    dias: TODOS_LOS_DIAS,
     desde: min(9),
     hasta: min(12),
-    resumen: 'Lun a vie · 9:00 a 12:00',
-    // Mensaje cuando es día hábil pero está fuera del horario.
+    resumen: 'Todos los días · 9:00 a 12:00',
+    // Mensaje cuando ya pasó su horario del día.
     fueraDeHorario: 'Desayunos disponibles de 9:00 a. m. a 12:00 p. m.',
-    // Mensaje cuando hoy no es un día en que se sirve.
-    otroDia: 'Disponible de lunes a viernes',
   },
 
   entradas: {
     nombre: 'Entradas',
     corto: 'Entradas',
     icono: 'entradas',
-    dias: LUNES_A_VIERNES,
+    dias: TODOS_LOS_DIAS,
     desde: min(9),
     hasta: min(19),
-    resumen: 'Lun a vie · 9:00 a 7:00',
+    resumen: 'Todos los días · 9:00 a 7:00',
     fueraDeHorario: 'Entradas disponibles de 9:00 a. m. a 7:00 p. m.',
-    otroDia: 'Disponible de lunes a viernes',
   },
 
   mexicana: {
     nombre: 'Comida mexicana',
     corto: 'Mexicana',
     icono: 'mexicana',
-    dias: LUNES_A_VIERNES,
+    dias: TODOS_LOS_DIAS,
     desde: min(12),
     hasta: min(19),
-    resumen: 'Lun a vie · 12:00 a 7:00',
+    resumen: 'Todos los días · 12:00 a 7:00',
     antesDeHorario: 'Disponible a partir de las 12:00 p. m.',
     fueraDeHorario: 'Comida mexicana disponible de 12:00 p. m. a 7:00 p. m.',
-    otroDia: 'Disponible de lunes a viernes',
   },
 
   finde: {
@@ -430,19 +426,15 @@ export function avisoDelDia(ahora = ahoraEnCDMX()) {
     crudo = masTarde.length
       ? punto(`Hoy empezamos a servir a las ${formatoHora(Math.min(...masTarde.map((c) => c.desde)))}`)
       : punto(`Ya cerramos por hoy. Cerramos todos los días a las ${cierre}`)
-  } else if (ahora.esDomingo) {
-    crudo = punto(`Menú de fin de semana y barbacoa disponibles hasta las ${cierre}`)
-  } else if (ahora.esFinDeSemana) {
-    crudo = `${punto(
-      `Ya está disponible nuestro menú de fin de semana, hasta las ${cierre}`,
-    )} La barbacoa se sirve únicamente los domingos.`
   } else {
+    // Desayunos y comida mexicana se sirven los siete días, así que se anuncian
+    // siempre; lo del fin de semana se agrega encima como una frase extra.
     const desayunos = evaluadas.find((c) => c.id === 'desayunos')
     const mexicana = evaluadas.find((c) => c.id === 'mexicana')
     const frases = []
 
-    // Se anuncia cada una tanto si ya está sirviéndose como si abre más tarde,
-    // para que a las 8 de la mañana no parezca que solo hay bebidas.
+    // Cada una se menciona tanto si ya se está sirviendo como si abre más
+    // tarde, para que a las 8 de la mañana no parezca que solo hay bebidas.
     if (desayunos.disponible) {
       frases.push(`desayunos hasta las ${formatoHora(REGLAS.desayunos.hasta)}`)
     } else if (desayunos.estado.id === ESTADOS.masTarde.id) {
@@ -457,6 +449,12 @@ export function avisoDelDia(ahora = ahoraEnCDMX()) {
     crudo = frases.length
       ? punto(`Servimos ${frases.join(' y ')}`)
       : punto(`La cocina está fuera de horario, pero las bebidas siguen hasta las ${cierre}`)
+
+    if (ahora.esDomingo) {
+      crudo += ' Hoy también hay menú de fin de semana y barbacoa.'
+    } else if (ahora.esFinDeSemana) {
+      crudo += ' Hoy también hay menú de fin de semana; la barbacoa es solo los domingos.'
+    }
   }
 
   const texto = crudo.charAt(0).toUpperCase() + crudo.slice(1)
