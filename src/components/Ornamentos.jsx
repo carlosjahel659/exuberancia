@@ -213,57 +213,6 @@ export function IlustracionBebida({ tipo = 'tarro', color = 'amarillo', classNam
   )
 }
 
-/** Iconos simples para las promociones. */
-export function IconoPromo({ tipo, className = '', color = 'rosa' }) {
-  const c = PALETA[color] ?? PALETA.rosa
-  const t = { stroke: c, strokeWidth: 2.4, strokeLinecap: 'round', strokeLinejoin: 'round', fill: 'none' }
-  const formas = {
-    pastel: (
-      <>
-        <path d="M6 26h28v10a4 4 0 01-4 4H10a4 4 0 01-4-4z" {...t} />
-        <path d="M6 26c0-5 3-8 8-8h12c5 0 8 3 8 8" {...t} />
-        <path d="M20 18V8" {...t} stroke={PALETA.amarillo} />
-        <circle cx="20" cy="5" r="3" fill={PALETA.amarillo} />
-      </>
-    ),
-    cafe: (
-      <>
-        <path d="M8 16h20v16a8 8 0 01-8 8h-4a8 8 0 01-8-8z" {...t} />
-        <path d="M28 20h4a5 5 0 010 10h-4" {...t} />
-        <path d="M14 10c0-3 3-3 3-6M22 10c0-3 3-3 3-6" {...t} stroke={PALETA.amarillo} />
-      </>
-    ),
-    cantarito: (
-      <>
-        <path d="M12 14h18l-3 24a5 5 0 01-5 4h-2a5 5 0 01-5-4z" {...t} />
-        <path d="M30 20h4a4 4 0 010 8h-5" {...t} />
-        <path d="M18 14c0-4 3-6 6-6" {...t} stroke={PALETA.amarillo} />
-        <circle cx="26" cy="8" r="3" fill={PALETA.turquesa} />
-      </>
-    ),
-    olla: (
-      <>
-        <path d="M6 18h28v14a8 8 0 01-8 8H14a8 8 0 01-8-8z" {...t} />
-        <path d="M4 18h32" {...t} strokeWidth="3" />
-        <path d="M14 12c0-3 2-4 2-6M20 12c0-3 2-4 2-6M26 12c0-3 2-4 2-6" {...t} stroke={PALETA.amarillo} />
-      </>
-    ),
-    musica: (
-      <>
-        <path d="M16 34V10l16-4v24" {...t} />
-        <circle cx="12" cy="34" r="4.5" {...t} />
-        <circle cx="28" cy="30" r="4.5" {...t} />
-        <path d="M36 12c3 2 3 6 0 8" {...t} stroke={PALETA.turquesa} />
-      </>
-    ),
-  }
-  return (
-    <svg viewBox="0 0 44 44" className={className} aria-hidden="true">
-      {formas[tipo] ?? formas.musica}
-    </svg>
-  )
-}
-
 /** Iconos de las seis categorías del menú. */
 export function IconoCategoria({ tipo, className = '', color = 'turquesa' }) {
   const c = PALETA[color] ?? PALETA.turquesa

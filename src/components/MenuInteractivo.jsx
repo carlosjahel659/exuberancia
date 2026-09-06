@@ -6,7 +6,6 @@ import AvisoDelDia from './AvisoDelDia'
 import { AvisoBloqueo, ESTILO_ESTADO, IconoCandado, PastillaEstado } from './EstadoDisponibilidad'
 import { CLASES_COLOR, Divisor, Filigrana, IconoCategoria } from './Ornamentos'
 import TarjetaBebida from './TarjetaBebida'
-import PromocionesExuberantes from './PromocionesExuberantes'
 import TarjetaProducto from './TarjetaProducto'
 import { Boton, Etiqueta, Seccion } from './ui'
 import { precioMXN } from '../utils/precio'
@@ -406,8 +405,6 @@ export default function MenuInteractivo() {
           <p className="mt-4 text-center text-[11px] leading-snug text-crema/50 sm:mt-6 sm:text-[12px]">
             Toca una categoría disponible para ver sus platillos.
           </p>
-
-          <PromocionesExuberantes />
         </div>
 
         {/* Contenido de la categoría abierta */}

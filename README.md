@@ -67,11 +67,10 @@ exuberancia/
       ├─ AvisoDelDia.jsx          Bloque dinámico de día, hora y disponibilidad
       ├─ EstadoDisponibilidad.jsx Pastillas de estado, candado y aviso de bloqueo
       ├─ TarjetaProducto.jsx      Tarjeta de platillo reutilizable
-      ├─ TarjetaPromo.jsx         Tarjeta de promoción reutilizable
+      ├─ PromocionesExuberantes.jsx  Sección #promociones (6 promos)
       ├─ Especialidades.jsx       Bloques grandes alternando foto/texto
       ├─ Bebidas.jsx              Sección tipo pizarrón, bebidas de barril
       ├─ Nosotros.jsx             Bloque de marca
-      ├─ Promociones.jsx          Promos + horarios + tiempos de preparación
       ├─ Ubicacion.jsx            Contacto, redes y espacio para el mapa
       ├─ PieDePagina.jsx          Footer
       ├─ Ornamentos.jsx           Filigranas, agaves, chispas e iconos SVG
@@ -312,10 +311,9 @@ motivo. Es la forma rápida de ver qué precios siguen pendientes.
 
 ### Promociones Exuberantes
 
-Las cuatro promociones viven en el arreglo `promocionesExuberantes` de
+Las seis promociones viven en el arreglo `promocionesExuberantes` de
 [`src/data/menu.js`](src/data/menu.js). **No son una séptima categoría**: se dibujan en su propia
-sección, debajo de la cuadrícula de seis y solo cuando no hay ninguna categoría abierta, para no
-robarle sitio a las seis opciones en la primera pantalla del teléfono.
+sección `#promociones`, justo después del menú, sin reglas de horario.
 
 ```js
 {

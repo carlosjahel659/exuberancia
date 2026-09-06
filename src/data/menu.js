@@ -1202,30 +1202,25 @@ export const promocionesExuberantes = [
     precio: null,
     precioPendiente: true,
   },
-]
-
-// -----------------------------------------------------------------------------
-// Promociones e información de servicio (sección #promociones).
-// No provienen del PDF del menú: se conservan del contenido anterior del sitio.
-// -----------------------------------------------------------------------------
-// Cumpleañeros y Música en vivo salieron de aquí: cada uno tiene ahora su
-// propia sección (Cumpleanos.jsx y MusicaEnVivo.jsx), con el texto correcto.
-// Tenerlos también como tarjeta repetiría —y contradiría— esa información.
-export const promociones = [
   {
+    id: 'ejecutivo',
     nombre: 'Desayuno Ejecutivo',
-    texto: 'Chilaquiles tradicionales + café de olla + agua de sabor.',
-    detalle: 'Lunes a viernes.',
-    restricciones: true,
     icono: 'cafe',
     color: 'amarillo',
-    destacado: true,
+    incluye: ['Chilaquiles tradicionales', 'Café de olla', 'Agua de sabor'],
+    detalle: 'Lunes a viernes',
+    restricciones: true,
+    precio: null,
+    precioPendiente: true,
   },
   {
+    id: 'conbeber',
     nombre: 'Promo Conbeber',
-    texto: 'Dos cantaritos + dos aguachiles.',
-    restricciones: true,
     icono: 'cantarito',
-    color: 'turquesa',
+    color: 'rosa',
+    incluye: ['2 cantaritos', '2 aguachiles'],
+    restricciones: true,
+    precio: null,
+    precioPendiente: true,
   },
 ]

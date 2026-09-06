@@ -7,7 +7,7 @@ import MusicaEnVivo from './components/MusicaEnVivo'
 import Nosotros from './components/Nosotros'
 import PieDePagina from './components/PieDePagina'
 import Portada from './components/Portada'
-import Promociones from './components/Promociones'
+import PromocionesExuberantes from './components/PromocionesExuberantes'
 import TiemposPreparacion from './components/TiemposPreparacion'
 import Ubicacion from './components/Ubicacion'
 
@@ -30,7 +30,7 @@ export default function App() {
         <Especialidades />
         <Bebidas />
         <Nosotros />
-        <Promociones />
+        <PromocionesExuberantes />
         <Cumpleanos />
         <TiemposPreparacion />
         <Ubicacion />

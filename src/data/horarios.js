@@ -147,15 +147,6 @@ export const REGLAS_GRUPO = {}
  * promoción ya declara en el menú impreso; no se inventan horarios nuevos.
  */
 export const REGLAS_PROMO = {
-  'Desayuno Ejecutivo': {
-    nombre: 'Desayuno Ejecutivo',
-    dias: LUNES_A_VIERNES,
-    desde: min(0),
-    hasta: min(24),
-    resumen: 'Lunes a viernes',
-    textoActivo: 'Disponible hoy',
-    otroDia: 'Disponible de lunes a viernes',
-  },
   'Música en vivo': {
     nombre: 'Música en vivo',
     dias: FIN_DE_SEMANA,
