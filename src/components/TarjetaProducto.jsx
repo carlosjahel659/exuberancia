@@ -1,7 +1,7 @@
 import { IconoCandado } from './EstadoDisponibilidad'
 import { Etiqueta } from './ui'
 import { precioMXN } from '../utils/precio'
-import { variantesVisibles } from '../utils/catalogo'
+import { ETIQUETA_PENDIENTE, precioPendiente, variantesVisibles } from '../utils/catalogo'
 
 /**
  * Variantes de un platillo (tamaño, proteína, presentación) como filas: nombre
@@ -9,21 +9,30 @@ import { variantesVisibles } from '../utils/catalogo'
  * cada opción vale distinto, y en el teléfono nunca desborda porque el nombre
  * puede partirse y el precio va en columna propia.
  */
-function Variantes({ variantes }) {
+function Variantes({ producto, variantes }) {
   return (
     <ul className="mt-3 space-y-1.5">
-      {variantes.map((v) => (
-        <li key={v.medida} className="flex items-baseline gap-2">
-          <span className="min-w-0 text-[13px] leading-snug text-crema/80">{v.medida}</span>
-          <span
-            aria-hidden="true"
-            className="mb-[3px] flex-1 border-b border-dotted border-white/20"
-          />
-          <span className="shrink-0 font-display text-base tabular-nums text-amarillo sm:text-lg">
-            {precioMXN(v.precio)}
-          </span>
-        </li>
-      ))}
+      {variantes.map((v) => {
+        const pendiente = precioPendiente(producto, v.precio)
+        return (
+          <li key={v.medida} className="flex items-baseline gap-2">
+            <span className="min-w-0 text-[13px] leading-snug text-crema/80">{v.medida}</span>
+            <span
+              aria-hidden="true"
+              className="mb-[3px] flex-1 border-b border-dotted border-white/20"
+            />
+            {pendiente ? (
+              <span className="shrink-0 text-[11.5px] italic leading-snug text-crema/55">
+                {ETIQUETA_PENDIENTE}
+              </span>
+            ) : (
+              <span className="shrink-0 font-display text-base tabular-nums text-amarillo sm:text-lg">
+                {precioMXN(v.precio)}
+              </span>
+            )}
+          </li>
+        )
+      })}
     </ul>
   )
 }
@@ -68,6 +77,9 @@ function Detalle({ detalle }) {
 export default function TarjetaProducto({ producto, indice = 0, disponible = true }) {
   const { nombre, descripcion, detalles, nota, imagen, foto, fotoAlt, etiqueta, precio } = producto
   const variantes = variantesVisibles(producto)
+  // Sin variantes: o hay precio, o se anuncia como pendiente. Nunca un hueco.
+  const precioValido = typeof precio === 'number' && precio > 0
+  const pendiente = precioPendiente(producto) && variantes.length === 0
 
   return (
     <article
@@ -135,10 +147,16 @@ export default function TarjetaProducto({ producto, indice = 0, disponible = tru
             <h4 className="min-w-0 font-alt text-[22px] uppercase leading-[1.05] tracking-[0.04em] text-crema sm:text-2xl">
               {nombre}
             </h4>
-            {precio !== undefined && precio !== null && (
+            {precioValido ? (
               <span className="shrink-0 font-display text-xl tabular-nums text-amarillo drop-shadow-[0_0_14px_rgba(240,179,35,.3)] sm:text-2xl">
                 {precioMXN(precio)}
               </span>
+            ) : (
+              pendiente && (
+                <span className="shrink-0 text-right text-[11.5px] italic leading-snug text-crema/55">
+                  {ETIQUETA_PENDIENTE}
+                </span>
+              )
             )}
           </div>
 
@@ -154,7 +172,7 @@ export default function TarjetaProducto({ producto, indice = 0, disponible = tru
             </p>
           )}
 
-          {variantes.length > 0 && <Variantes variantes={variantes} />}
+          {variantes.length > 0 && <Variantes producto={producto} variantes={variantes} />}
         </div>
       </div>
 

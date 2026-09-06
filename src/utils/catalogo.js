@@ -18,19 +18,43 @@ export function precioValido(precio) {
   return typeof precio === 'number' && Number.isFinite(precio) && precio > 0
 }
 
-/** Variantes con precio confirmado. Las demás se conservan pero no se muestran. */
+/** Texto único que se muestra donde iría el precio mientras no lo haya. */
+export const ETIQUETA_PENDIENTE = 'Precio por confirmar'
+
+/**
+ * ¿Hay que anunciar este precio como pendiente?
+ * Solo para los productos que el restaurante pidió publicar aunque el precio
+ * todavía no esté definido. En cuanto se sustituya el `null` por un número,
+ * esto devuelve false y la interfaz muestra el precio sola.
+ */
+export function precioPendiente(producto, valor = producto?.precio) {
+  return Boolean(producto?.precioPendiente) && !precioValido(valor)
+}
+
+/**
+ * Variantes que se muestran.
+ * Normalmente solo las que tienen precio; en un producto marcado como pendiente
+ * se muestran todas, y cada fila decide si pinta el precio o la etiqueta.
+ */
 export function variantesVisibles(producto) {
-  return (producto.variantes ?? []).filter((v) => precioValido(v.precio))
+  const variantes = producto?.variantes ?? []
+  if (producto?.precioPendiente) return variantes
+  return variantes.filter((v) => precioValido(v.precio))
 }
 
 /**
  * ¿Este producto se publica?
  *   1. No está marcado como oculto (`visible: false` u `oculto: true`).
- *   2. Tiene precio propio válido, o al menos una variante con precio válido.
+ *   2. Y entonces: o está marcado como `precioPendiente`, o tiene precio propio
+ *      válido, o al menos una variante con precio válido.
+ *
+ * La regla general sigue siendo "sin precio no se publica"; `precioPendiente`
+ * es la excepción explícita, producto por producto.
  */
 export function esVisible(producto) {
   if (!producto) return false
   if (producto.visible === false || producto.oculto === true) return false
+  if (producto.precioPendiente) return true
   if (producto.variantes?.length) return variantesVisibles(producto).length > 0
   return precioValido(producto.precio)
 }
@@ -68,4 +92,33 @@ export function catalogoPendiente(menu) {
     })
   })
   return pendientes
+}
+
+/**
+ * Lo contrario: productos que SÍ se publican pero todavía anuncian
+ * "Precio por confirmar". Sirve para no perderlos de vista en el build.
+ */
+export function catalogoSinPrecio(menu) {
+  const sinPrecio = []
+  Object.entries(menu).forEach(([categoria, grupos]) => {
+    grupos.forEach((grupo) => {
+      grupo.productos.forEach((p) => {
+        if (!esVisible(p)) return
+        if (precioPendiente(p) && !p.variantes?.length) {
+          sinPrecio.push({ categoria, grupo: grupo.grupo, nombre: p.nombre })
+          return
+        }
+        variantesVisibles(p)
+          .filter((v) => precioPendiente(p, v.precio))
+          .forEach((v) =>
+            sinPrecio.push({
+              categoria,
+              grupo: grupo.grupo,
+              nombre: `${p.nombre} · ${v.medida}`,
+            }),
+          )
+      })
+    })
+  })
+  return sinPrecio
 }

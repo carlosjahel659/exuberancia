@@ -548,7 +548,7 @@ export const menu = {
           ],
         },
         {
-          nombre: 'Kilogramo de tortillas hechas a mano',
+          nombre: 'Un kilogramo de tortillas hechas a mano',
           precio: 45,
           descripcion: 'Para acompañar cualquier orden por peso.',
         },
@@ -642,21 +642,30 @@ export const menu = {
       ],
     },
     {
-      grupo: 'De la brasa',
+      // El encabezado dice "Tacos a la parrilla"; la descripción conserva el
+      // término "a la brasa" con el que venían en la carta impresa.
+      grupo: 'Tacos a la parrilla',
       productos: [
         {
-          nombre: 'Taco tradicional a la brasa',
-          descripcion: 'Dos tortillas hechas a mano con 170 g de proteína.',
+          nombre: 'Taco tradicional a la parrilla',
+          descripcion: 'Dos tortillas hechas a mano con 170 g de proteína a la brasa.',
           detalles: [{ etiqueta: 'Elige tu proteína', opciones: BRASA }],
-          visible: false,
+          precioPendiente: true,
+          precio: null,
         },
         {
-          nombre: 'Taco Exuberante a la brasa',
-          descripcion: 'Cuatro tortillas empalmadas a lo largo con 350 g de proteína.',
+          nombre: 'Taco Exuberante a la parrilla',
+          descripcion: 'Cuatro tortillas empalmadas a lo largo con 350 g de proteína a la brasa.',
           detalles: [{ etiqueta: 'Elige tu proteína', opciones: BRASA }],
           etiqueta: 'Exuberante',
-          visible: false,
+          precioPendiente: true,
+          precio: null,
         },
+      ],
+    },
+    {
+      grupo: 'De la brasa',
+      productos: [
         {
           nombre: 'Tostadas Exuberantes',
           descripcion:
@@ -678,6 +687,7 @@ export const menu = {
   ],
 
   // ----------------------------------------------------------------- Barbacoa
+  // La categoría sigue desbloqueándose solo los domingos (src/data/horarios.js).
   barbacoa: [
     {
       grupo: 'Por orden',
@@ -697,6 +707,17 @@ export const menu = {
           nombre: 'Torta de barbacoa',
           precio: 79,
           descripcion: 'Bolillo normal relleno de barbacoa.',
+        },
+        {
+          // Presentaciones nuevas. El precio NO se calcula multiplicando el
+          // taco suelto: pueden llevar precio promocional.
+          nombre: 'Paquete de tacos de barbacoa',
+          descripcion: 'Servidos en tortillas hechas a mano.',
+          precioPendiente: true,
+          variantes: [
+            { medida: '6 tacos', precio: null },
+            { medida: '12 tacos', precio: null },
+          ],
         },
         {
           nombre: 'Orden de barbacoa',
@@ -719,9 +740,19 @@ export const menu = {
           etiqueta: 'Especialidad',
         },
         {
+          nombre: 'Un kilogramo de tortillas hechas a mano',
+          precio: 45,
+          descripcion: 'Para acompañar cualquier orden por peso.',
+        },
+        {
           nombre: 'Consomé',
-          descripcion: 'Disponible también por separado.',
-          visible: false,
+          descripcion: 'Caldo de la casa, servido bien caliente.',
+          precioPendiente: true,
+          variantes: [
+            { medida: 'Chico', precio: null },
+            { medida: 'Mediano', precio: null },
+            { medida: 'Grande', precio: null },
+          ],
         },
       ],
     },
@@ -1094,9 +1125,11 @@ export const bebidasBarril = [
 export const especialidades = [
   {
     kicker: 'Solo los domingos',
-    nombre: 'Orden de barbacoa',
+    // Esta vitrina debe destacar algo que sí esté publicado en el menú: la
+    // "Orden de barbacoa" sigue oculta por falta de precio.
+    nombre: 'Taco de barbacoa',
     texto:
-      'Tres tacos de barbacoa acompañados con consomé y servidos en tortilla hecha a mano. También por taco, torta, flautas, medio kilo y kilo.',
+      'Pieza de 80 g servida en tortilla hecha a mano. También por torta, orden de flautas, medio kilo y kilo.',
     etiqueta: 'Especialidad',
     imagen: IMG.barbacoa,
     color: 'rosa',
@@ -1122,6 +1155,56 @@ export const especialidades = [
 ]
 
 // -----------------------------------------------------------------------------
+// Promociones Exuberantes (sección propia, debajo de las seis categorías).
+//
+// NO son una séptima categoría del menú: viven aparte y no tienen horario.
+// Ninguna trae precio todavía; se publican con `precioPendiente: true` para que
+// muestren "Precio por confirmar". Para publicar el precio real basta cambiar
+// `precio: null` por el número — la etiqueta desaparece sola.
+//
+// Los tamaños que el restaurante no especificó (por ejemplo, de qué tamaño es
+// el consomé del Combo Pareja) se dejan sin decir a propósito.
+// -----------------------------------------------------------------------------
+export const promocionesExuberantes = [
+  {
+    id: 'pareja',
+    nombre: 'Combo Pareja',
+    icono: 'pareja',
+    color: 'rosa',
+    incluye: ['4 tacos de barbacoa', '1 consomé', '2 cantaritos chicos de 355 ml'],
+    precio: null,
+    precioPendiente: true,
+  },
+  {
+    id: 'familia',
+    nombre: 'Promo Familia',
+    icono: 'familia',
+    color: 'amarillo',
+    incluye: ['1 kilo de barbacoa', '5 consomés', '1 cantarito de 5 litros'],
+    precio: null,
+    precioPendiente: true,
+  },
+  {
+    id: 'carnitas',
+    nombre: 'Promo Carnitas',
+    icono: 'carnitas',
+    color: 'naranja',
+    incluye: ['2 tacos de carnitas', '1 cantarito de 1 litro'],
+    precio: null,
+    precioPendiente: true,
+  },
+  {
+    id: 'cruda',
+    nombre: 'Promo Cruda',
+    icono: 'aguachile',
+    color: 'turquesa',
+    incluye: ['1 aguachile', '1 cantarito chico de 355 ml'],
+    precio: null,
+    precioPendiente: true,
+  },
+]
+
+// -----------------------------------------------------------------------------
 // Promociones e información de servicio (sección #promociones).
 // No provienen del PDF del menú: se conservan del contenido anterior del sitio.
 // -----------------------------------------------------------------------------
@@ -1136,6 +1219,7 @@ export const promociones = [
     restricciones: true,
     icono: 'cafe',
     color: 'amarillo',
+    destacado: true,
   },
   {
     nombre: 'Promo Conbeber',
@@ -1143,13 +1227,5 @@ export const promociones = [
     restricciones: true,
     icono: 'cantarito',
     color: 'turquesa',
-  },
-  {
-    nombre: 'Promo Familiar',
-    texto: 'Un kilo de barbacoa + un cantarito de 1 litro.',
-    restricciones: true,
-    icono: 'olla',
-    color: 'naranja',
-    destacado: true,
   },
 ]

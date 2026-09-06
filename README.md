@@ -310,6 +310,49 @@ tocar ningún componente ni el diseño; la tarjeta aparece sola con el mismo est
 `npm run build` **lista por consola todo lo que quedó sin publicar**, con su categoría, grupo y
 motivo. Es la forma rápida de ver qué precios siguen pendientes.
 
+### Promociones Exuberantes
+
+Las cuatro promociones viven en el arreglo `promocionesExuberantes` de
+[`src/data/menu.js`](src/data/menu.js). **No son una séptima categoría**: se dibujan en su propia
+sección, debajo de la cuadrícula de seis y solo cuando no hay ninguna categoría abierta, para no
+robarle sitio a las seis opciones en la primera pantalla del teléfono.
+
+```js
+{
+  id: 'pareja',
+  nombre: 'Combo Pareja',
+  icono: 'pareja',          // pareja | familia | carnitas | aguachile
+  color: 'rosa',            // rosa | amarillo | naranja | turquesa
+  incluye: ['4 tacos de barbacoa', '1 consomé', '2 cantaritos chicos de 355 ml'],
+  precio: null,
+  precioPendiente: true,
+}
+```
+
+- **Ponerle precio:** cambia `precio: null` por el número. La etiqueta «Precio por confirmar»
+  desaparece sola; no hay que tocar nada más.
+- **Cambiar qué incluye:** edita el arreglo `incluye`. Cada línea es una viñeta.
+- **Cambiar el icono o el color:** los cuatro iconos están dibujados en SVG dentro de
+  [`PromocionesExuberantes.jsx`](src/components/PromocionesExuberantes.jsx).
+
+### Precios pendientes («Precio por confirmar»)
+
+La regla general sigue siendo *sin precio no se publica*. La excepción se marca producto por
+producto con `precioPendiente: true`:
+
+```js
+{ nombre: 'Consomé', precioPendiente: true,
+  variantes: [{ medida: 'Chico', precio: null }, …] }
+```
+
+Eso lo deja visible mostrando «Precio por confirmar» en lugar del precio — nunca `$0`, ni
+asteriscos, ni un hueco. En cuanto `precio` sea un número mayor que cero, la interfaz muestra el
+importe y la etiqueta se apaga sola: la decide `precioPendiente()` en
+[`src/utils/catalogo.js`](src/utils/catalogo.js), no cada componente.
+
+`npm run build` lista por separado **lo que está oculto** y **lo que se publica con precio
+pendiente**.
+
 ### Cambiar los requisitos de cumpleaños
 
 Están en el objeto `cumpleanos` de [`src/data/site.js`](src/data/site.js):

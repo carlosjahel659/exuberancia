@@ -29,7 +29,7 @@ if (!existsSync(ssrPath)) {
 }
 
 const { render } = await import(pathToFileURL(ssrPath).href)
-const { html, jsonLd, pendientes, productosOcultos } = render()
+const { html, jsonLd, pendientes, productosOcultos, preciosPendientes } = render()
 
 let documento = readFileSync(htmlPath, 'utf8')
 
@@ -78,6 +78,12 @@ if (productosOcultos.length) {
   productosOcultos.forEach((p) =>
     console.log(`    · ${p.categoria} / ${p.grupo} / ${p.nombre} — ${p.motivo}`),
   )
+}
+
+if (preciosPendientes.length) {
+  console.log(`\n⚠ ${preciosPendientes.length} publicados con "Precio por confirmar"`)
+  console.log('  (visibles a propósito; al ponerles precio la etiqueta desaparece sola):')
+  preciosPendientes.forEach((p) => console.log(`    · ${p.categoria} / ${p.grupo} / ${p.nombre}`))
 }
 
 if (pendientes.length) {

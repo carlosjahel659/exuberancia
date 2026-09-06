@@ -15,7 +15,7 @@ import { renderToString } from 'react-dom/server'
 import App from './App.jsx'
 import { datosPendientes, restauranteJsonLd } from './data/seo'
 import { menu } from './data/menu'
-import { catalogoPendiente } from './utils/catalogo'
+import { catalogoPendiente, catalogoSinPrecio } from './utils/catalogo'
 
 export function render() {
   return {
@@ -23,5 +23,6 @@ export function render() {
     jsonLd: restauranteJsonLd(),
     pendientes: datosPendientes(),
     productosOcultos: catalogoPendiente(menu),
+    preciosPendientes: catalogoSinPrecio(menu),
   }
 }

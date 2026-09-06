@@ -6,6 +6,7 @@ import AvisoDelDia from './AvisoDelDia'
 import { AvisoBloqueo, ESTILO_ESTADO, IconoCandado, PastillaEstado } from './EstadoDisponibilidad'
 import { CLASES_COLOR, Divisor, Filigrana, IconoCategoria } from './Ornamentos'
 import TarjetaBebida from './TarjetaBebida'
+import PromocionesExuberantes from './PromocionesExuberantes'
 import TarjetaProducto from './TarjetaProducto'
 import { Boton, Etiqueta, Seccion } from './ui'
 import { precioMXN } from '../utils/precio'
@@ -256,7 +257,9 @@ function TarjetaCategoria({ categoria, disponibilidad, abierta, onAbrir, refBoto
   const idAyuda = `estado-${categoria.id}`
 
   // Con la categoría bloqueada mostramos cuándo vuelve; con el horario si abre hoy.
-  const pie = bloqueada ? disponibilidad.textoProximo || regla.resumen : regla.resumen
+  const pie = bloqueada
+    ? regla.textoBloqueo || disponibilidad.textoProximo || regla.resumen
+    : regla.resumen
 
   return (
     <button
@@ -403,6 +406,8 @@ export default function MenuInteractivo() {
           <p className="mt-4 text-center text-[11px] leading-snug text-crema/50 sm:mt-6 sm:text-[12px]">
             Toca una categoría disponible para ver sus platillos.
           </p>
+
+          <PromocionesExuberantes />
         </div>
 
         {/* Contenido de la categoría abierta */}

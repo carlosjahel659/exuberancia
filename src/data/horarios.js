@@ -117,7 +117,9 @@ export const REGLAS = {
     resumen: 'Domingos · hasta 7:30 p. m.',
     soloDomingos: true,
     fueraDeHorario: 'La barbacoa de hoy se sirvió hasta las 7:30 p. m.',
-    otroDia: 'La barbacoa se sirve solamente los domingos',
+    otroDia: 'Disponible únicamente los domingos',
+    // Texto exacto que muestra la tarjeta mientras está bloqueada.
+    textoBloqueo: 'Disponible únicamente los domingos',
   },
 
   bebidas: {
