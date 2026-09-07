@@ -4,7 +4,7 @@
 // reales del negocio y todo el sitio se actualiza solo.
 // -----------------------------------------------------------------------------
 
-import { CIERRE_DIARIO, formatoHora } from './horarios'
+import { APERTURAS_SERVICIO, REGLAS_PROMO, CIERRE_DIARIO, formatoHora } from './horarios'
 
 export const PENDIENTE = (valor) => typeof valor === 'string' && valor.startsWith('[')
 
@@ -16,18 +16,7 @@ export const PENDIENTE = (valor) => typeof valor === 'string' && valor.startsWit
  * actualiza el encabezado, el pie, la sección de horarios y los datos
  * estructurados de una sola vez.
  */
-export const horarioServicio = [
-  {
-    dias: 'Lunes a viernes',
-    diasSchema: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-    abre: 9 * 60,
-  },
-  {
-    dias: 'Sábado y domingo',
-    diasSchema: ['Saturday', 'Sunday'],
-    abre: 7 * 60,
-  },
-]
+export const horarioServicio = APERTURAS_SERVICIO
 
 export const site = {
   nombre: 'La Exuberancia',
@@ -40,6 +29,7 @@ export const site = {
   telefono: '[TELÉFONO]',
   whatsapp: '[WHATSAPP_LINK]',
   maps: '[GOOGLE_MAPS_URL]',
+  resenas: '[GOOGLE_REVIEW_URL]',
   instagram: '[INSTAGRAM_URL]',
   // Enlaces limpios: se quitaron los parámetros de rastreo que agrega el botón
   // "compartir" (mibextid, rdid, share_url, _r, _t). Apuntan al mismo perfil,
@@ -82,7 +72,7 @@ export const cumpleanos = {
 /** Anuncio de música en vivo. Los días y la hora también viven en horarios.js. */
 export const musicaEnVivo = {
   titulo: 'Música en vivo',
-  texto: 'Todos los sábados y domingos desde las 10:00 a.m.',
+  texto: REGLAS_PROMO['Música en vivo'].resumen,
 }
 
 export const navegacion = [

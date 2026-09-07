@@ -2,26 +2,36 @@ import { useEffect, useState } from 'react'
 import { ahoraEnCDMX } from '../data/horarios'
 
 /**
- * Día y hora actuales en Ciudad de México, actualizados solos.
- * Si la URL trae una simulación (?dia=...&hora=...) el valor queda fijo,
- * para poder revisar el comportamiento de cualquier día sin tocar el reloj.
+ * El primer render no anuncia disponibilidad: es idéntico en servidor y cliente
+ * para hidratar sin diferencias de reloj. El efecto resuelve la hora enseguida.
  */
 export function useAhora(intervaloMs = 30000) {
-  const [ahora, setAhora] = useState(() => ahoraEnCDMX())
+  const [ahora, setAhora] = useState(null)
 
   useEffect(() => {
-    if (ahora.simulado) return undefined
+    let momento
+    const actualizar = () => {
+      momento = ahoraEnCDMX()
+      setAhora(momento)
+    }
+    const alVolver = () => {
+      if (document.visibilityState === 'visible' && !momento?.simulado) actualizar()
+    }
+    actualizar()
+    const intervalo = Number.isFinite(intervaloMs) ? Math.max(1000, intervaloMs) : 30000
+    const id = setInterval(() => {
+      if (!momento?.simulado) actualizar()
+    }, intervalo)
 
-    const actualizar = () => setAhora(ahoraEnCDMX())
-    const id = setInterval(actualizar, intervaloMs)
-
-    // Al volver a la pestaña, refresca de inmediato.
-    document.addEventListener('visibilitychange', actualizar)
+    // Una simulación permanece fija; Atrás/Adelante puede cambiar sus parámetros.
+    document.addEventListener('visibilitychange', alVolver)
+    window.addEventListener('popstate', actualizar)
     return () => {
       clearInterval(id)
-      document.removeEventListener('visibilitychange', actualizar)
+      document.removeEventListener('visibilitychange', alVolver)
+      window.removeEventListener('popstate', actualizar)
     }
-  }, [ahora.simulado, intervaloMs])
+  }, [intervaloMs])
 
   return ahora
 }

@@ -3,3 +3,8 @@ dist
 .DS_Store
 *.local
 .ssr
+test-results/
+playwright-report/
+.env
+.env.*
+!.env.example

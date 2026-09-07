@@ -4,16 +4,16 @@
 // -----------------------------------------------------------------------------
 
 export const PALETA = {
-  turquesa: '#00A8A5',
-  rosa: '#E50058',
-  amarillo: '#F0B323',
-  naranja: '#E87B3A',
-  crema: '#F5F0DF',
+  turquesa: 'var(--turquesa)',
+  rosa: 'var(--rosa)',
+  amarillo: 'var(--amarillo)',
+  naranja: 'var(--naranja)',
+  crema: 'var(--crema)',
 }
 
 export const CLASES_COLOR = {
   turquesa: { texto: 'text-turquesa', borde: 'border-turquesa/40', fondo: 'bg-turquesa' },
-  rosa: { texto: 'text-rosa', borde: 'border-rosa/40', fondo: 'bg-rosa' },
+  rosa: { texto: 'text-rosaClaro', borde: 'border-rosa/40', fondo: 'bg-rosa' },
   amarillo: { texto: 'text-amarillo', borde: 'border-amarillo/40', fondo: 'bg-amarillo' },
   naranja: { texto: 'text-naranja', borde: 'border-naranja/40', fondo: 'bg-naranja' },
 }
@@ -202,11 +202,7 @@ export function IlustracionBebida({ tipo = 'tarro', color = 'amarillo', classNam
 
   return (
     <svg viewBox="0 0 110 110" className={className} aria-hidden="true">
-      <g
-        style={{
-          filter: `drop-shadow(0 0 10px ${c}66) drop-shadow(0 0 3px ${c}88)`,
-        }}
-      >
+      <g>
         {contenido[tipo] ?? contenido.tarro}
       </g>
     </svg>

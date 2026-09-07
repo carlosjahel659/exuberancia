@@ -2,501 +2,173 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { categorias, menu } from '../data/menu'
 import { REGLAS, estadoCategoria, estadoGrupo } from '../data/horarios'
 import { useAhora } from '../hooks/useAhora'
-import AvisoDelDia from './AvisoDelDia'
-import { AvisoBloqueo, ESTILO_ESTADO, IconoCandado, PastillaEstado } from './EstadoDisponibilidad'
-import { CLASES_COLOR, Divisor, Filigrana, IconoCategoria } from './Ornamentos'
-import TarjetaBebida from './TarjetaBebida'
-import TarjetaProducto from './TarjetaProducto'
-import { Boton, Etiqueta, Seccion } from './ui'
+import { grupoVisible, productosVisibles } from '../utils/catalogo'
 import { precioMXN } from '../utils/precio'
-import { grupoVisible, productosVisibles, variantesVisibles } from '../utils/catalogo'
+import AvisoDelDia from './AvisoDelDia'
+import { ESTILO_ESTADO, IconoCandado, PastillaEstado } from './EstadoDisponibilidad'
+import { CLASES_COLOR, Filigrana, IconoCategoria } from './Ornamentos'
+import TarjetaProducto from './TarjetaProducto'
+import TarjetaBebida from './TarjetaBebida'
+import { Boton, Seccion } from './ui'
 
-const FLECHA_IZQ = (
-  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
-    <path d="M15 5l-7 7 7 7" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-)
-
-/** Encabezado de grupo, con el doble trazo del menú impreso. */
-function TituloGrupo({ texto, color = 'turquesa', estado }) {
-  return (
-    <div className="relative mb-5 flex flex-wrap items-center gap-x-4 gap-y-2">
-      <h4 className="font-display text-[26px] uppercase leading-none tracking-[0.02em] text-crema sm:text-[34px]">
-        <span className="relative inline-block">
-          {texto}
-          <span
-            aria-hidden="true"
-            className={`absolute inset-0 -z-10 -translate-x-[3px] translate-y-[3px] ${CLASES_COLOR[color].texto} opacity-40`}
-          >
-            {texto}
-          </span>
-        </span>
-      </h4>
-      {estado && <PastillaEstado estado={estado} tamano="chico" />}
-      <span className="linea-degradada h-px min-w-[40px] flex-1 opacity-60" />
+function Grupo({ grupo, categoria, ahora }) {
+  const disponibilidad = ahora ? estadoGrupo(grupo.grupo, categoria, ahora) : null
+  return <section className="menu-grupo" aria-label={grupo.grupo}>
+    <div className="mb-4 flex flex-wrap items-center gap-3 border-b border-turquesa/30 pb-3">
+      <h4 className="font-alt text-2xl text-turquesa">{grupo.grupo}</h4>
+      {disponibilidad && <PastillaEstado estado={disponibilidad.estado} tamano="chico" />}
     </div>
-  )
-}
-
-/**
- * Qué se publica lo decide una sola regla, en src/utils/catalogo.js: hace falta
- * precio válido y no estar marcado como oculto. Aquí solo se consulta.
- */
-const visibles = productosVisibles
-
-/** Banda informativa de una promoción ligada a un grupo. Solo informa. */
-function BandaPromo({ promo }) {
-  return (
-    <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-xl border border-amarillo/30 bg-amarillo/[0.07] px-4 py-3">
-      <svg viewBox="0 0 48 48" className="h-6 w-6 shrink-0 text-amarillo" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
-        <path d="M10 18h22v16a8 8 0 01-8 8h-6a8 8 0 01-8-8z" strokeLinejoin="round" />
-        <path d="M32 22h5a5 5 0 010 10h-5" strokeLinejoin="round" />
-        <path d="M16 12c0-3 3-3 3-6M25 12c0-3 3-3 3-6" strokeLinecap="round" />
-      </svg>
-      <p className="min-w-0 text-[13px] leading-snug text-crema/85">
-        {promo.texto}{' '}
-        <strong className="font-display text-lg tabular-nums text-amarillo">
-          {precioMXN(promo.precio)}
-        </strong>
-      </p>
+    {disponibilidad && !disponibilidad.disponible && <p className="mb-4 text-sm text-amarillo">{disponibilidad.mensaje}</p>}
+    {grupo.nota && <p className="mb-4 text-sm leading-relaxed text-crema/75">{grupo.nota}</p>}
+    <div className={grupo.formato === 'bebidas' ? 'grid gap-4 sm:grid-cols-2 lg:grid-cols-3' : 'grid gap-5 md:grid-cols-2'}>
+      {productosVisibles(grupo).map(producto => grupo.formato === 'bebidas'
+        ? <TarjetaBebida key={producto.nombre} producto={producto} aviso={grupo.aviso} />
+        : <TarjetaProducto key={producto.nombre} producto={producto} disponible={disponibilidad?.disponible ?? true} />)}
     </div>
-  )
+    {grupo.promo && <p className="mt-5 rounded-xl border border-amarillo/40 bg-amarillo/10 p-4 text-sm leading-relaxed">{grupo.promo.texto} <strong className="precio text-xl">{precioMXN(grupo.promo.precio)}</strong></p>}
+  </section>
 }
 
-/** Encabezado de uno de los tres bloques de bebidas (sin alcohol / con alcohol / daños). */
-function TituloBloque({ texto }) {
-  return (
-    <div className="mb-8 text-center">
-      <h3 className="titulo-display texto-neon text-[clamp(1.7rem,6vw,2.6rem)]">{texto}</h3>
-      <Divisor className="mx-auto mt-3 max-w-xs" />
-    </div>
-  )
+function Contenido({ categoria, ahora }) {
+  const grupos = menu[categoria.id].filter(grupoVisible)
+  return <>{grupos.map((grupo, index) => <div key={grupo.grupo}>
+    {grupo.bloque && grupo.bloque !== grupos[index - 1]?.bloque && <p className="eyebrow mt-10 !text-amarillo">{grupo.bloque}</p>}
+    <Grupo grupo={grupo} categoria={categoria.id} ahora={ahora} />
+  </div>)}</>
 }
 
-/** Un grupo de bebidas: rejilla de tarjetas con precio, tamaños y sabores. */
-function GrupoBebidas({ grupo }) {
-  const productos = visibles(grupo)
-  if (!productos.length) return null
-
-  const color = grupo.color ?? 'turquesa'
-
-  return (
-    <section aria-label={grupo.grupo}>
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <h4
-          className={`font-alt text-xl uppercase tracking-[0.06em] sm:text-2xl ${CLASES_COLOR[color].texto}`}
-        >
-          {grupo.grupo}
-        </h4>
-        {grupo.sinAlcohol && <Etiqueta>Sin alcohol</Etiqueta>}
-        <span className="linea-degradada h-px min-w-[30px] flex-1 opacity-50" />
-      </div>
-
-      {grupo.nota && <p className="mt-2 text-[12.5px] text-crema/55">{grupo.nota}</p>}
-
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {productos.map((p) => (
-          <TarjetaBebida key={p.nombre} producto={p} aviso={grupo.aviso} />
-        ))}
-      </div>
-    </section>
-  )
-}
-
-/**
- * Bebidas agrupadas por bloque, respetando el orden del arreglo de datos:
- * sin alcohol primero, con alcohol después y los cargos por daños al final.
- */
-function BloquesBebidas({ grupos }) {
-  const bloques = []
-  grupos.forEach((g) => {
-    const ultimo = bloques[bloques.length - 1]
-    if (ultimo && ultimo.nombre === g.bloque) ultimo.grupos.push(g)
-    else bloques.push({ nombre: g.bloque, grupos: [g] })
-  })
-
-  return (
-    <div className="space-y-14">
-      {bloques.map((b) => (
-        <section key={b.nombre} aria-label={b.nombre}>
-          <TituloBloque texto={b.nombre} />
-          <div className="space-y-10">
-            {b.grupos.map((g) => (
-              <GrupoBebidas key={g.grupo} grupo={g} />
-            ))}
-          </div>
-        </section>
-      ))}
-    </div>
-  )
-}
-
-/**
- * Contenido de una categoría. Cada grupo puede tener su propia regla de
- * horario, así que se evalúa grupo por grupo.
- */
-function PanelCategoria({ grupos, color, idCategoria, ahora }) {
-  const bebidas = grupos.filter((g) => g.formato === 'bebidas')
-  const platillos = grupos.filter((g) => g.formato !== 'bebidas')
-
-  return (
-    <div className="panel-entra space-y-12">
-      {platillos.filter(grupoVisible).map((grupo) => {
-        const disp = estadoGrupo(grupo.grupo, idCategoria, ahora)
-        return (
-          <section key={grupo.grupo} aria-label={grupo.grupo}>
-            <TituloGrupo texto={grupo.grupo} color={color} estado={disp.estado} />
-
-            {!disp.disponible && (
-              <AvisoBloqueo titulo={grupo.grupo} disponibilidad={disp} className="mb-6" />
-            )}
-
-            {grupo.nota && (
-              <p className="mb-5 text-[13px] leading-relaxed text-crema/60">{grupo.nota}</p>
-            )}
-
-            <div className="grid gap-5 md:grid-cols-2">
-              {visibles(grupo).map((p, i) => (
-                <TarjetaProducto
-                  key={p.nombre}
-                  producto={p}
-                  indice={i}
-                  disponible={disp.disponible}
-                />
-              ))}
-            </div>
-
-            {grupo.promo && <BandaPromo promo={grupo.promo} />}
-          </section>
-        )
-      })}
-
-      {bebidas.length > 0 && <BloquesBebidas grupos={bebidas} />}
-    </div>
-  )
-}
-
-/** true durante el prerenderizado del build; false en el navegador. */
-const SIN_NAVEGADOR = typeof window === 'undefined'
-
-/**
- * Carta completa en HTML plano.
- *
- * Solo se dibuja al prerenderizar: deja los 140 platillos dentro del HTML que
- * descargan los buscadores y quien navegue sin JavaScript. Al arrancar, React
- * vacía #root y monta el menú interactivo, así que el visitante normal nunca ve
- * este bloque y no hay contenido duplicado en pantalla.
- */
-function MenuParaBuscadores() {
-  return (
-    <div className="mt-14 space-y-12 border-t border-white/10 pt-12">
-      {categorias.map((cat) => (
-        <section key={cat.id} aria-labelledby={`carta-${cat.id}`}>
-          <h3
-            id={`carta-${cat.id}`}
-            className="font-display text-2xl uppercase text-crema sm:text-3xl"
-          >
-            {REGLAS[cat.id].nombre}
-          </h3>
-          <p className="mt-1 text-sm text-crema/70">
-            {cat.descripcion} Horario: {REGLAS[cat.id].resumen}.
-          </p>
-
-          {menu[cat.id].filter(grupoVisible).map((grupo, i) => (
-            <div key={grupo.grupo} className="mt-5">
-              {/* Encabezado del bloque solo cuando cambia: deja el orden
-                  "sin alcohol → con alcohol → daños" visible también aquí. */}
-              {grupo.bloque && grupo.bloque !== menu[cat.id][i - 1]?.bloque && (
-                <h4 className="mb-3 mt-8 font-display text-xl uppercase text-crema sm:text-2xl">
-                  {grupo.bloque}
-                </h4>
-              )}
-              <h4 className="font-alt text-lg uppercase tracking-[0.06em] text-turquesa">
-                {grupo.grupo}
-              </h4>
-              <ul className="mt-2 space-y-1.5">
-                {visibles(grupo).map((p) => (
-                  <li key={p.nombre} className="text-[13.5px] leading-relaxed text-crema/75">
-                    <strong className="font-semibold text-crema">{p.nombre}</strong>
-                    {p.precio !== undefined ? ` ${precioMXN(p.precio)}` : ''}
-                    {variantesVisibles(p).length > 0
-                      ? ` — ${variantesVisibles(p)
-                          .map((v) => `${v.medida} ${precioMXN(v.precio)}`)
-                          .join(' · ')}`
-                      : ''}
-                    {p.descripcion ? ` — ${p.descripcion}` : ''}
-                    {p.sabores ? ` Sabores: ${p.sabores.map((s) => s.nombre).join(', ')}.` : ''}
-                    {p.etiqueta === 'Precio por pieza' ? ' (Precio por pieza)' : ''}
-                  </li>
-                ))}
-              </ul>
-
-              {grupo.promo && (
-                <p className="mt-2 text-[13px] leading-relaxed text-amarillo/90">
-                  {grupo.promo.texto} {precioMXN(grupo.promo.precio)}
-                </p>
-              )}
-            </div>
-          ))}
-        </section>
-      ))}
-    </div>
-  )
-}
-
-/**
- * Una de las seis opciones de la cuadrícula.
- * Bloqueada sigue visible y enfocable con el teclado, pero no abre nada: se
- * anuncia con aria-disabled y muestra su horario o próximo día disponible.
- */
 function TarjetaCategoria({ categoria, disponibilidad, abierta, onAbrir, refBoton }) {
-  const estilo = ESTILO_ESTADO[disponibilidad.estado.id] ?? ESTILO_ESTADO.noHoy
   const regla = REGLAS[categoria.id]
-  const bloqueada = !disponibilidad.disponible
-  const idAyuda = `estado-${categoria.id}`
-
-  // Con la categoría bloqueada mostramos cuándo vuelve; con el horario si abre hoy.
-  const pie = bloqueada
+  const bloqueada = !disponibilidad?.disponible
+  const estilo = ESTILO_ESTADO[disponibilidad?.estado.id ?? 'noHoy']
+  const pie = !disponibilidad ? regla.resumen : bloqueada
     ? regla.textoBloqueo || disponibilidad.textoProximo || regla.resumen
     : regla.resumen
 
-  return (
-    <button
-      type="button"
-      onClick={() => !bloqueada && onAbrir(categoria.id)}
-      ref={refBoton}
-      aria-disabled={bloqueada || undefined}
-      aria-expanded={abierta}
-      aria-controls={abierta ? `panel-${categoria.id}` : undefined}
-      aria-describedby={idAyuda}
-      className={`group relative flex h-full min-h-[112px] w-full flex-col items-start gap-1 overflow-hidden rounded-2xl border p-3 text-left transition-all duration-300 sm:min-h-[150px] sm:gap-2 sm:p-5 ${estilo.borde} ${
-        bloqueada
-          ? 'cursor-not-allowed bg-carbon/80 saturate-[.4]'
-          : 'bg-white/[0.045] hover:-translate-y-0.5 hover:bg-white/[0.09]'
-      } ${abierta ? 'ring-2 ring-amarillo ring-offset-2 ring-offset-carbon' : ''}`}
-    >
-      {/* Candado de las categorías bloqueadas */}
-      {bloqueada && (
-        <IconoCandado className="absolute right-2.5 top-2.5 h-4 w-4 text-crema/55 sm:right-4 sm:top-4 sm:h-5 sm:w-5" />
-      )}
-
-      <IconoCategoria
-        tipo={regla.icono}
-        color={categoria.color}
-        className={`h-6 w-6 shrink-0 transition-transform duration-300 sm:h-9 sm:w-9 ${
-          bloqueada ? 'opacity-50' : 'group-hover:scale-110'
-        }`}
-      />
-
-      <span
-        className={`font-alt text-[14px] uppercase leading-[1] tracking-[0.03em] [overflow-wrap:anywhere] sm:text-lg ${
-          bloqueada ? 'text-crema/75' : 'text-crema'
-        }`}
-      >
-        {regla.corto}
-      </span>
-
-      <span
-        id={idAyuda}
-        className={`flex items-start gap-1.5 text-[10.5px] font-semibold leading-tight sm:text-[11.5px] ${estilo.texto}`}
-      >
-        <span className={`mt-1 h-1.5 w-1.5 shrink-0 rounded-full sm:h-2 sm:w-2 ${estilo.punto}`} aria-hidden="true" />
-        {disponibilidad.estado.texto}
-      </span>
-
-      <span className="mt-auto text-[10px] leading-snug text-crema/65 [overflow-wrap:anywhere] sm:text-[12px]">
-        {pie}
-      </span>
-    </button>
-  )
+  return <button
+    id={'categoria-' + categoria.id}
+    ref={refBoton}
+    type="button"
+    onClick={() => !bloqueada && onAbrir(categoria.id)}
+    aria-disabled={bloqueada || undefined}
+    aria-expanded={abierta}
+    aria-controls={abierta ? 'panel-' + categoria.id : undefined}
+    aria-describedby={'estado-' + categoria.id + ' horario-' + categoria.id}
+    className={'categoria-tarjeta ' + estilo.borde + (bloqueada ? ' categoria-bloqueada' : ' categoria-disponible') + (abierta ? ' categoria-seleccionada' : '')}
+    style={{ '--acento-categoria': 'var(--' + categoria.color + ')' }}
+  >
+    {bloqueada && <IconoCandado className="absolute right-3 top-3 h-4 w-4 text-crema/75 sm:right-5 sm:top-5 sm:h-5 sm:w-5" />}
+    <IconoCategoria tipo={regla.icono} color={categoria.color} className="h-7 w-7 sm:h-9 sm:w-9" />
+    <span className="font-alt text-lg uppercase leading-tight text-crema sm:text-2xl">{regla.corto}</span>
+    <span id={'estado-' + categoria.id} className={'flex items-start gap-1.5 text-[11px] font-semibold leading-snug sm:text-xs ' + estilo.texto}>
+      <span aria-hidden="true" className={'mt-1 h-1.5 w-1.5 shrink-0 rounded-full ' + estilo.punto} />
+      {disponibilidad?.estado.texto ?? 'Consultando horario'}
+    </span>
+    <span id={'horario-' + categoria.id} className="mt-auto text-[11px] leading-snug text-crema/75 sm:text-xs">{pie}</span>
+  </button>
 }
 
 export default function MenuInteractivo() {
   const ahora = useAhora()
-  // Arranca sin nada abierto: así las seis opciones caben en la primera pantalla.
   const [abierta, setAbierta] = useState(null)
+  const enlaces = useRef({})
+  const titulo = useRef(null)
+  const regreso = useRef(null)
+  const categoria = categorias.find(cat => cat.id === abierta)
+  const disponibilidad = categoria && ahora ? estadoCategoria(categoria.id, ahora) : null
 
-  const refsBoton = useRef({})
-  const refPanel = useRef(null)
-  const refCuadricula = useRef(null)
-  // Tarjeta a la que hay que devolver el foco cuando se cierra el panel.
-  const refRegreso = useRef(null)
-
-  const categoria = categorias.find((c) => c.id === abierta) ?? null
-  const disponibilidad = categoria ? estadoCategoria(categoria.id, ahora) : null
+  const abrir = useCallback(id => {
+    if (!ahora || !estadoCategoria(id, ahora).disponible) return
+    setAbierta(id)
+  }, [ahora])
 
   const cerrar = useCallback(() => {
-    refRegreso.current = abierta
+    regreso.current = abierta
     setAbierta(null)
+    window.history.replaceState(null, '', window.location.pathname + window.location.search + '#menu')
   }, [abierta])
 
-  // Al abrir, el foco entra al encabezado del panel; al cerrar, vuelve a la
-  // tarjeta de origen. Va en un efecto para que corra ya con el DOM actualizado.
   useEffect(() => {
     if (abierta) {
-      refPanel.current?.focus()
-      return
+      titulo.current?.focus({ preventScroll: true })
+      document.getElementById('panel-' + abierta)?.scrollIntoView({ block: 'start' })
+    } else if (regreso.current) {
+      const id = regreso.current
+      regreso.current = null
+      document.getElementById('categorias')?.scrollIntoView({ block: 'start' })
+      enlaces.current[id]?.focus({ preventScroll: true })
     }
-    const id = refRegreso.current
-    if (!id) return
-    refRegreso.current = null
-    refCuadricula.current?.scrollIntoView({ block: 'start' })
-    refsBoton.current[id]?.focus({ preventScroll: true })
   }, [abierta])
 
-  // Escape cierra y regresa a las seis categorías.
   useEffect(() => {
-    if (!abierta) return undefined
-    const alTeclado = (e) => e.key === 'Escape' && cerrar()
-    window.addEventListener('keydown', alTeclado)
-    return () => window.removeEventListener('keydown', alTeclado)
+    const hash = () => {
+      const id = window.location.hash.replace(/^#(?:categoria-|panel-)/, '')
+      if (categorias.some(cat => cat.id === id)) abrir(id)
+    }
+    hash()
+    window.addEventListener('hashchange', hash)
+    return () => window.removeEventListener('hashchange', hash)
+  }, [abrir])
+
+  useEffect(() => {
+    if (!abierta) return
+    const teclado = e => { if (e.key === 'Escape') cerrar() }
+    window.addEventListener('keydown', teclado)
+    return () => window.removeEventListener('keydown', teclado)
   }, [abierta, cerrar])
 
-  // Si una categoría se cierra sola con el paso de las horas, se sale del panel.
   useEffect(() => {
-    if (abierta && !estadoCategoria(abierta, ahora).disponible) setAbierta(null)
-  }, [abierta, ahora])
+    if (abierta && ahora && !estadoCategoria(abierta, ahora).disponible) cerrar()
+  }, [abierta, ahora, cerrar])
 
-  return (
-    <Seccion
-      id="menu"
-      className="scroll-mt-[68px] !pb-10 !pt-6 sm:!py-16 lg:!py-24"
-      aria-label="Menú de La Exuberancia"
-    >
-      <div className="contenedor">
-        {/* Encabezado compacto: en el teléfono no debe robarle sitio a las tarjetas */}
-        <div className="text-center">
-          <p className="font-alt text-[13px] uppercase tracking-[0.4em] text-turquesa sm:text-base sm:tracking-[0.44em]">
-            Nuestro
-          </p>
-          <h2 className="titulo-display texto-neon text-[clamp(2.1rem,9vw,4.75rem)]">Menú</h2>
-          <p className="mx-auto mt-2 hidden max-w-2xl text-sm leading-relaxed text-crema/70 sm:block sm:text-base">
-            Cocina mexicana de todos los días. Cada categoría muestra si se está sirviendo ahora o
-            en qué horario la encuentras.
-          </p>
-        </div>
-
-        {/* Aviso dinámico: día, hora y qué se está sirviendo */}
-        <div className="mt-4 sm:mt-8">
-          <AvisoDelDia ahora={ahora} compacto />
-        </div>
-
-        {/* Seis opciones: 2x3 en teléfono, 3x2 en escritorio */}
-        <div
-          ref={refCuadricula}
-          className={`mt-4 scroll-mt-[76px] sm:mt-8 ${abierta ? 'hidden lg:block' : ''}`}
-        >
-          <ul className="grid grid-cols-2 gap-2.5 sm:gap-4 lg:grid-cols-3">
-            {categorias.map((cat) => (
-              <li key={cat.id} className="min-w-0">
-                <TarjetaCategoria
-                  categoria={cat}
-                  disponibilidad={estadoCategoria(cat.id, ahora)}
-                  abierta={cat.id === abierta}
-                  onAbrir={setAbierta}
-                  refBoton={(nodo) => {
-                    refsBoton.current[cat.id] = nodo
-                  }}
-                />
-              </li>
-            ))}
-          </ul>
-
-          <p className="mt-4 text-center text-[11px] leading-snug text-crema/50 sm:mt-6 sm:text-[12px]">
-            Toca una categoría disponible para ver sus platillos.
-          </p>
-        </div>
-
-        {/* Contenido de la categoría abierta */}
-        {categoria && (
-          <div
-            id={`panel-${categoria.id}`}
-            role="region"
-            aria-label={`${REGLAS[categoria.id].nombre} — contenido del menú`}
-            className="mt-6 scroll-mt-[76px] lg:mt-14"
-          >
-            {/* Barra de regreso: siempre visible mientras se recorre la categoría */}
-            <div className="sticky top-[68px] z-30 -mx-5 border-y border-white/10 bg-carbon/92 px-5 py-2.5 backdrop-blur-xl sm:-mx-7 sm:px-7 lg:-mx-10 lg:top-[80px] lg:px-10">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <Boton
-                  variante="fantasma"
-                  onClick={cerrar}
-                  className="px-4 py-2 text-[11px] sm:text-[12px]"
-                >
-                  {FLECHA_IZQ}
-                  Volver a las categorías
-                </Boton>
-                <PastillaEstado estado={disponibilidad.estado} tamano="chico" />
-              </div>
-            </div>
-
-            {/* Encabezado de la categoría */}
-            <div className="mt-7 flex flex-col items-center gap-3">
-              <div className="flex items-center justify-center gap-4">
-                <Filigrana
-                  className="hidden h-8 w-28 opacity-70 sm:block"
-                  color={categoria.color}
-                />
-                <h3
-                  ref={refPanel}
-                  tabIndex={-1}
-                  className="text-center font-display text-[26px] uppercase leading-none text-crema/90 outline-none sm:text-3xl"
-                >
-                  <span className={CLASES_COLOR[categoria.color].texto}>{categoria.kicker}</span>{' '}
-                  {categoria.titulo}
-                </h3>
-                <Filigrana
-                  className="hidden h-8 w-28 opacity-70 sm:block"
-                  color={categoria.color}
-                  espejo
-                />
-              </div>
-              {/* Foto de acento de la categoría, si la tiene: acompaña a la
-                  descripción sin taparla ni convertirse en portada. */}
-              <div className="flex max-w-xl flex-col items-center gap-3 sm:flex-row sm:items-center sm:gap-4">
-                {categoria.foto && (
-                  <img
-                    src={categoria.foto.src}
-                    srcSet={`${categoria.foto.chica} 160w, ${categoria.foto.src} 320w`}
-                    sizes="(min-width: 640px) 88px, 72px"
-                    alt={categoria.fotoAlt ?? ''}
-                    loading="lazy"
-                    decoding="async"
-                    width="320"
-                    height="320"
-                    className="h-[72px] w-[72px] shrink-0 rounded-xl object-cover ring-1 ring-white/15 sm:h-[88px] sm:w-[88px]"
-                  />
-                )}
-                <p className="text-center text-[13px] leading-relaxed text-crema/60 sm:text-left sm:text-sm">
-                  {categoria.descripcion}
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-8">
-              <PanelCategoria
-                grupos={menu[categoria.id]}
-                color={categoria.color}
-                idCategoria={categoria.id}
-                ahora={ahora}
-              />
-            </div>
-
-            <div className="mt-12 flex justify-center">
-              <Boton variante="amarillo" onClick={cerrar}>
-                {FLECHA_IZQ}
-                Volver a las categorías
-              </Boton>
-            </div>
-          </div>
-        )}
-
-        {SIN_NAVEGADOR && <MenuParaBuscadores />}
-
-        <p className="mt-10 text-center text-[11px] uppercase tracking-[0.14em] text-crema/40 sm:text-[12px]">
-          Consulta precios y disponibilidad con tu mesero
-        </p>
+  return <Seccion id="menu" className="!pt-8">
+    <div className="contenedor">
+      <div className="text-center">
+        <p className="font-alt text-sm uppercase tracking-[.4em] text-turquesa sm:text-base">Nuestro</p>
+        <h2 className="titulo-display texto-neon mt-2 text-[clamp(2.5rem,9vw,4.75rem)]">Menú</h2>
+        <p className="mx-auto mt-4 hidden max-w-2xl text-sm leading-relaxed text-crema/80 sm:block">Cocina mexicana de todos los días. Cada categoría muestra si se está sirviendo ahora o en qué horario la encuentras.</p>
       </div>
-    </Seccion>
-  )
+      <div className="mt-5 sm:mt-8"><AvisoDelDia ahora={ahora} compacto /></div>
+      <div id="categorias" className={'mt-5 scroll-mt-24 sm:mt-8 ' + (abierta ? 'hidden lg:block' : '')}>
+        <ul aria-label="Categorías del menú" className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
+          {categorias.map(cat => <li key={cat.id}>
+            <TarjetaCategoria categoria={cat} disponibilidad={ahora ? estadoCategoria(cat.id, ahora) : null} abierta={abierta === cat.id} onAbrir={abrir} refBoton={nodo => { enlaces.current[cat.id] = nodo }} />
+          </li>)}
+        </ul>
+        <p className="mt-4 text-center text-xs leading-relaxed text-crema/75">Toca una categoría disponible para ver sus platillos.</p>
+      </div>
+
+      {categoria && disponibilidad && <div id={'panel-' + categoria.id} role="region" aria-labelledby={'titulo-' + categoria.id} className="mt-7 scroll-mt-4 pb-6 lg:mt-12">
+        <div className="menu-volver">
+          <Boton variante="fantasma" onClick={cerrar}>← Volver a las categorías</Boton>
+          <PastillaEstado estado={disponibilidad.estado} tamano="chico" />
+        </div>
+        <div className="mt-7 text-center">
+          <div className="flex items-center justify-center gap-4">
+            <Filigrana className="hidden h-9 w-28 sm:block" color={categoria.color} />
+            <h3 id={'titulo-' + categoria.id} ref={titulo} tabIndex={-1} className="font-display text-3xl uppercase leading-tight">
+              <span className={CLASES_COLOR[categoria.color].texto}>{categoria.kicker}</span> {categoria.titulo}
+            </h3>
+            <Filigrana className="hidden h-9 w-28 sm:block" color={categoria.color} espejo />
+          </div>
+          <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-crema/80">{categoria.descripcion}</p>
+          {categoria.foto && <img src={categoria.foto.src} srcSet={categoria.foto.chica + ' 160w, ' + categoria.foto.src + ' 320w'} sizes="88px" alt={categoria.fotoAlt ?? ''} width="320" height="320" loading="lazy" className="mx-auto mt-4 h-[88px] w-[88px] rounded-xl object-cover" />}
+        </div>
+        <Contenido categoria={categoria} ahora={ahora} />
+        <div className="mt-8 flex justify-center"><Boton variante="amarillo" onClick={cerrar}>Volver a las categorías ↑</Boton></div>
+      </div>}
+
+      {/* Sin reloj del navegador, la carta estática conserva los horarios publicados.
+          El primer render es idéntico en servidor y cliente; no falsea disponibilidad. */}
+      {!ahora && <div id="carta-estatica" className="mt-8 space-y-5">
+        <p className="text-sm text-crema/80">Carta y horarios. La disponibilidad actual se consulta al cargar el reloj.</p>
+        {categorias.map(cat => <details key={cat.id} className="menu-categoria">
+          <summary><h3>{cat.etiqueta}</h3><span className="categoria-signo" aria-hidden="true">+</span></summary>
+          <p className="text-sm text-amarillo">{REGLAS[cat.id].resumen}</p>
+          <Contenido categoria={cat} />
+        </details>)}
+      </div>}
+      <p className="mt-8 text-center text-xs leading-relaxed text-crema/75">Precios en pesos mexicanos · Consulta precios y disponibilidad con tu mesero.</p>
+    </div>
+  </Seccion>
 }

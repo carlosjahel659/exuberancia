@@ -1,16 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 
 /**
- * Devuelve una ref y un booleano que se vuelve true la primera vez que el
- * elemento entra en pantalla. Si el usuario pidió menos movimiento, aparece
- * visible de inmediato.
+ * Anima una sola vez al entrar en pantalla, sin ocultar el HTML inicial.
+ * La animación no afecta a la hidratación ni a la lectura sin JavaScript.
  */
 export function useRevelar({ margen = '0px 0px -12% 0px', umbral = 0.15 } = {}) {
   const ref = useRef(null)
-  // En el prerenderizado no hay efectos ni IntersectionObserver: si arrancara
-  // oculto, el HTML que leen los buscadores quedaría con opacity 0. En el
-  // navegador el valor inicial sigue siendo false y la animación no cambia.
-  const [visible, setVisible] = useState(() => typeof window === 'undefined')
 
   useEffect(() => {
     const nodo = ref.current
@@ -21,14 +16,16 @@ export function useRevelar({ margen = '0px 0px -12% 0px', umbral = 0.15 } = {}) 
       window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
     if (sinMovimiento || typeof IntersectionObserver === 'undefined') {
-      setVisible(true)
       return
     }
 
     const observador = new IntersectionObserver(
       ([entrada]) => {
         if (entrada.isIntersecting) {
-          setVisible(true)
+          nodo.animate?.(
+            [{ transform: 'translateY(8px)' }, { transform: 'translateY(0)' }],
+            { duration: 300, easing: 'ease-out' },
+          )
           observador.disconnect()
         }
       },
@@ -39,7 +36,7 @@ export function useRevelar({ margen = '0px 0px -12% 0px', umbral = 0.15 } = {}) 
     return () => observador.disconnect()
   }, [margen, umbral])
 
-  return [ref, visible]
+  return ref
 }
 
 /** Marca la sección visible en el menú de navegación según el scroll. */

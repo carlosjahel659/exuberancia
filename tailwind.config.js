@@ -4,17 +4,15 @@ export default {
   theme: {
     extend: {
       colors: {
-        carbon: '#070909',
-        carbon2: '#0D1112',
-        carbon3: '#141A1B',
-        crema: '#F5F0DF',
-        turquesa: '#00A8A5',
-        rosa: '#E50058',
-        // Rosa aclarado para textos pequeños: el rosa de marca sobre carbón no
-        // llega al contraste AA (2.9:1); este queda en 8:1.
-        rosaClaro: '#FF7BA6',
-        amarillo: '#F0B323',
-        naranja: '#E87B3A',
+        carbon: 'rgb(var(--rgb-carbon) / <alpha-value>)',
+        carbon2: 'rgb(var(--rgb-carbon2) / <alpha-value>)',
+        carbon3: 'rgb(var(--rgb-carbon3) / <alpha-value>)',
+        crema: 'rgb(var(--rgb-crema) / <alpha-value>)',
+        turquesa: 'rgb(var(--rgb-turquesa) / <alpha-value>)',
+        rosa: 'rgb(var(--rgb-rosa) / <alpha-value>)',
+        rosaClaro: 'rgb(var(--rgb-rosa-claro) / <alpha-value>)',
+        amarillo: 'rgb(var(--rgb-amarillo) / <alpha-value>)',
+        naranja: 'rgb(var(--rgb-naranja) / <alpha-value>)',
       },
       fontFamily: {
         display: ['Anton', 'Oswald', 'Impact', 'sans-serif'],

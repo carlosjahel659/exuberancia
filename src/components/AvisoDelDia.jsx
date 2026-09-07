@@ -16,6 +16,7 @@ const RELOJ = (
  * menú quepan en la primera pantalla; en escritorio se ve completo.
  */
 export default function AvisoDelDia({ ahora, compacto = false }) {
+  if (!ahora) return <div className="aviso-dia">Consultando día y hora de Ciudad de México…</div>
   const aviso = avisoDelDia(ahora)
 
   return (
@@ -25,13 +26,13 @@ export default function AvisoDelDia({ ahora, compacto = false }) {
       }`}
     >
       <span aria-hidden="true" className="linea-degradada absolute inset-x-0 top-0 h-[2px]" />
-      <Chispa className="absolute right-4 top-4 hidden h-4 w-4 animate-pulseGlow sm:block" color="amarillo" />
+      <Chispa className="absolute right-4 top-4 hidden h-4 w-4  sm:block" color="amarillo" />
 
       <div
         className={`flex flex-col sm:flex-row sm:items-start sm:gap-6 ${
           compacto ? 'gap-1.5' : 'gap-4'
         }`}
-        aria-live="polite"
+        
       >
         <p className="flex shrink-0 items-center gap-2.5 text-turquesa">
           {RELOJ}
@@ -41,13 +42,13 @@ export default function AvisoDelDia({ ahora, compacto = false }) {
             }`}
           >
             {aviso.saludo}
-            <span className="ml-2 text-crema/55">{aviso.reloj}</span>
+            <span className="ml-2 text-crema/75">{aviso.reloj}</span>
           </span>
         </p>
 
         <p
           className={`leading-relaxed text-crema/85 sm:text-[15px] sm:line-clamp-none ${
-            compacto ? 'line-clamp-2 text-[12.5px]' : 'text-sm'
+            compacto ? 'text-[12.5px]' : 'text-sm'
           }`}
         >
           {aviso.texto}
@@ -60,7 +61,7 @@ export default function AvisoDelDia({ ahora, compacto = false }) {
             compacto ? 'hidden' : 'flex'
           }`}
         >
-          <span className="font-alt text-[12px] uppercase tracking-[0.2em] text-crema/45">
+          <span className="font-alt text-[12px] uppercase tracking-[0.2em] text-crema/75">
             Sirviendo ahora
           </span>
           {aviso.activas.map((nombre) => (

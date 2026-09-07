@@ -94,14 +94,14 @@ export default function Cumpleanos() {
           <div className="relative overflow-hidden rounded-[26px] border border-rosa/30 bg-rosa/[0.06] p-6 sm:p-9">
             <span aria-hidden="true" className="linea-degradada absolute inset-x-0 top-0 h-[2px]" />
             <EsquinaFloral
-              className="pointer-events-none absolute -left-5 -top-5 h-28 w-28 opacity-35 animate-sway"
+              className="pointer-events-none absolute -left-5 -top-5 h-28 w-28 opacity-35"
               color="rosa"
             />
             <EsquinaFloral
               className="pointer-events-none absolute -bottom-5 -right-5 h-28 w-28 -scale-100 opacity-30"
               color="amarillo"
             />
-            <Chispa className="absolute right-6 top-6 h-5 w-5 animate-pulseGlow" color="amarillo" />
+            <Chispa className="absolute right-6 top-6 h-5 w-5" color="amarillo" />
 
             <div className="relative grid items-center gap-8 lg:grid-cols-[1fr_1.15fr] lg:gap-12">
               {/* Ilustración */}

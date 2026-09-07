@@ -1,12 +1,7 @@
-# Cabeceras de seguridad.
-#
-# Vite copia todo public/ tal cual a la raíz de dist/, así que este archivo
-# termina en dist/_headers, que es donde lo lee Cloudflare Pages.
-#
-# OJO: GitHub Pages IGNORA este archivo — no permite cabeceras personalizadas en
-# ningún formato. Mientras el sitio se publique en carlosjahel659.github.io
-# estas reglas no se aplican; empiezan a funcionar solas al mover el sitio a
-# Cloudflare Pages.
+# Configuración para Cloudflare Pages y hosts compatibles con _headers.
+# GitHub Pages NO aplica este archivo. La CSP y referrer también se generan
+# como metaetiquetas en index.html. Frame-ancestors requiere cabecera HTTP.
+# https://developers.cloudflare.com/pages/configuration/headers/
 
 /*
   X-Frame-Options: SAMEORIGIN
@@ -14,8 +9,10 @@
   X-Content-Type-Options: nosniff
   Content-Security-Policy: frame-ancestors 'self';
   Permissions-Policy: geolocation=(), camera=(), microphone=(), payment=(), usb=()
-  Strict-Transport-Security: max-age=31536000
 
-# Los archivos con hash en el nombre nunca cambian: cache agresivo.
-/assets/*
-  Cache-Control: public, max-age=31536000, immutable
+# El build amplía la CSP anterior y añade caché solo para rutas exactas de
+# bundles JS/CSS con hash. Las fotografías conservan nombres actualizables.
+#
+# HSTS: habilitar esta cabecera solo tras comprobar HTTPS y su redirección
+# en el dominio definitivo. No tiene efecto en el hosting actual:
+#   Strict-Transport-Security: max-age=31536000

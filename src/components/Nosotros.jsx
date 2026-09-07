@@ -1,4 +1,4 @@
-import { site } from '../data/site'
+import { musicaEnVivo, site } from '../data/site'
 import { Agave, Chispa, Divisor, Filigrana } from './Ornamentos'
 import { Boton, Revelar, Seccion } from './ui'
 import { recurso } from '../utils/recurso'
@@ -16,7 +16,7 @@ const RASGOS = [
   },
   {
     titulo: 'Música en vivo',
-    texto: 'Viernes, sábado y domingo desde las 12:00 p.m., para toda la familia.',
+    texto: musicaEnVivo.texto,
     color: 'turquesa',
   },
 ]
@@ -31,7 +31,7 @@ export default function Nosotros() {
             <div className="relative mx-auto w-fit lg:mx-0">
               <Agave
                 aria-hidden="true"
-                className="absolute -top-6 left-1/2 h-16 w-24 -translate-x-1/2 opacity-40 animate-sway"
+                className="absolute -top-6 left-1/2 h-16 w-24 -translate-x-1/2 opacity-40"
               />
               <img
                 src={recurso('assets/logo-wordmark.webp')}

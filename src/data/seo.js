@@ -1,61 +1,50 @@
-// -----------------------------------------------------------------------------
-// Datos para buscadores y redes sociales.
-//
-// El JSON-LD NO se escribe a mano: se arma desde site.js y horarios.js, así que
-// cuando se completen la dirección, el teléfono y las redes, los datos
-// estructurados se actualizan solos. Lo que todavía es un marcador (`[ALGO]`)
-// simplemente no se publica: es preferible un JSON-LD incompleto a uno con
-// datos inventados.
-// -----------------------------------------------------------------------------
-
-import { CIERRE_DIARIO } from './horarios'
+import { CIERRE_DIARIO, REGLAS } from './horarios'
 import { horarioServicio, PENDIENTE, site } from './site'
+import { AVISOS, categorias, menu } from './menu'
+import { precioValido, productosVisibles, variantesVisibles } from '../utils/catalogo'
 
-/**
- * URL pública del sitio, con barra final. Es la única definición: de aquí salen
- * la canónica, Open Graph, Twitter, el JSON-LD, robots.txt y el sitemap.
- * Si el sitio se muda de dominio, se cambia aquí y en `base` de vite.config.js.
- */
+/** URL confirmada de GitHub Pages. Si cambia el dominio, ajustar también la base de Vite. */
 export const SITIO = 'https://carlosjahel659.github.io/exuberancia/'
-
-/** Convierte una ruta relativa de public/ en URL absoluta (la exigen OG y JSON-LD). */
-export const absoluta = (ruta) => SITIO + String(ruta).replace(/^\/+/, '')
-
+export const absoluta = (ruta) => new URL(ruta, SITIO).href
 export const IMAGEN_SOCIAL = absoluta('assets/og-exuberancia.jpg')
 
+/** El build utiliza estos datos para todas las etiquetas de buscadores y redes. */
 export const META = {
-  titulo: 'La Exuberancia | Restaurante mexicano familiar',
+  titulo: 'La Exuberancia | Menú de cocina mexicana',
   descripcion:
-    'La Exuberancia: restaurante mexicano familiar con desayunos, comida mexicana, menú de fin de semana, barbacoa dominical y bebidas.',
+    'Consulta el menú de La Exuberancia: desayunos, comida mexicana, barbacoa dominical, bebidas y promociones para compartir en familia.',
   descripcionSocial:
     'Desayunos, comida mexicana, menú de fin de semana, barbacoa dominical y bebidas.',
   imagenAlt: 'Platillos mexicanos de La Exuberancia',
 }
 
-/** 570 -> "09:30", en el formato de 24 h que pide schema.org. */
 const reloj24 = (minutos) =>
   `${String(Math.floor(minutos / 60)).padStart(2, '0')}:${String(minutos % 60).padStart(2, '0')}`
 
-/** Solo los valores ya definidos; los marcadores `[ALGO]` se descartan. */
-const real = (valor) => (typeof valor === 'string' && valor && !PENDIENTE(valor) ? valor : null)
+const real = (valor) =>
+  typeof valor === 'string' && valor.trim() && !PENDIENTE(valor) ? valor.trim() : null
 
-/**
- * Campos que el JSON-LD no puede publicar todavía porque en site.js siguen
- * siendo marcadores. Se usa en el build para avisarlo por consola.
- */
+const enlaceReal = (valor) => {
+  if (!real(valor)) return null
+  try {
+    const url = new URL(valor)
+    return ['https:', 'http:'].includes(url.protocol) ? url.href : null
+  } catch {
+    return null
+  }
+}
+
 export function datosPendientes() {
   const faltan = []
-  if (!real(site.direccion)) faltan.push('address (dirección completa)')
-  if (!real(site.telefono)) faltan.push('telephone')
-  if (!real(site.maps)) faltan.push('geo (latitud y longitud)')
-  if (![site.instagram, site.facebook, site.tiktok].some(real)) faltan.push('sameAs (redes)')
+  if (!real(site.direccion)) faltan.push('Dirección completa')
+  if (!real(site.telefono)) faltan.push('Teléfono')
+  if (!enlaceReal(site.maps)) faltan.push('Enlace de Google Maps')
+  if (![site.instagram, site.facebook, site.tiktok].some(enlaceReal)) faltan.push('Redes sociales')
   return faltan
 }
 
-/** Datos estructurados del restaurante, listos para serializar a JSON-LD. */
 export function restauranteJsonLd() {
-  const redes = [site.instagram, site.facebook, site.tiktok].filter(real)
-
+  const redes = [site.instagram, site.facebook, site.tiktok].map(enlaceReal).filter(Boolean)
   const datos = {
     '@context': 'https://schema.org',
     '@type': 'Restaurant',
@@ -64,28 +53,85 @@ export function restauranteJsonLd() {
     description: META.descripcion,
     url: SITIO,
     image: [IMAGEN_SOCIAL, absoluta('assets/fotos/molcajete-mexa.webp')],
+    logo: absoluta('assets/logo-exuberancia.webp'),
     slogan: site.lema,
-    priceRange: '$$',
     servesCuisine: ['Mexicana', 'Desayunos', 'Barbacoa'],
-    openingHoursSpecification: horarioServicio.map((h) => ({
+    openingHoursSpecification: horarioServicio.map((horario) => ({
       '@type': 'OpeningHoursSpecification',
-      dayOfWeek: h.diasSchema,
-      opens: reloj24(h.abre),
+      dayOfWeek: horario.diasSchema,
+      opens: reloj24(horario.abre),
       closes: reloj24(CIERRE_DIARIO),
     })),
-    hasMenu: `${SITIO}#menu`,
+    hasMenu: { '@id': `${SITIO}#menu` },
   }
 
-  // Solo se añaden si son datos verificables; nunca se inventan.
+  // No inferimos rango de precios, coordenadas ni dirección a partir de otros datos.
   if (real(site.telefono)) datos.telephone = site.telefono
   if (real(site.direccion)) {
-    datos.address = {
-      '@type': 'PostalAddress',
-      streetAddress: site.direccion,
-      addressCountry: 'MX',
-    }
+    datos.address = { '@type': 'PostalAddress', streetAddress: site.direccion }
   }
+  if (enlaceReal(site.maps)) datos.hasMap = enlaceReal(site.maps)
   if (redes.length) datos.sameAs = redes
-
   return datos
+}
+
+function productoJsonLd(producto) {
+  const datos = { '@type': 'MenuItem', name: producto.nombre }
+  if (producto.descripcion) datos.description = producto.descripcion
+  const imagen = producto.foto?.src ?? producto.imagen
+  if (imagen) datos.image = absoluta(imagen)
+
+  const precios = producto.variantes?.length
+    ? variantesVisibles(producto)
+        .filter((variante) => precioValido(variante.precio))
+        .map((variante) => ({
+          '@type': 'Offer',
+          name: variante.medida,
+          price: variante.precio,
+          priceCurrency: 'MXN',
+        }))
+    : precioValido(producto.precio)
+      ? [{ '@type': 'Offer', price: producto.precio, priceCurrency: 'MXN' }]
+      : []
+
+  // Un precio pendiente nunca se transforma en cero ni en una oferta inventada.
+  if (precios.length) datos.offers = precios
+  return datos
+}
+
+export function menuJsonLd() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Menu',
+    '@id': `${SITIO}#menu`,
+    name: `Menú de ${site.nombre}`,
+    url: `${SITIO}#menu`,
+    inLanguage: 'es-MX',
+    hasMenuSection: categorias.flatMap((categoria) => {
+      const grupos = (menu[categoria.id] ?? [])
+        // Las reposiciones por piezas rotas siguen en la interfaz; no son platillos.
+        .filter((grupo) => grupo.bloque !== AVISOS)
+        .map((grupo) => ({
+          '@type': 'MenuSection',
+          name: grupo.grupo,
+          ...(grupo.nota ? { description: grupo.nota } : {}),
+          hasMenuItem: productosVisibles(grupo).map(productoJsonLd),
+        }))
+        .filter((grupo) => grupo.hasMenuItem.length)
+      if (!grupos.length) return []
+      return [{
+        '@type': 'MenuSection',
+        name: categoria.etiqueta,
+        url: `${SITIO}#panel-${categoria.id}`,
+        description: [categoria.descripcion, REGLAS[categoria.id]?.resumen].filter(Boolean).join(' '),
+        hasMenuSection: grupos,
+      }]
+    }),
+  }
+}
+
+export function datosEstructurados() {
+  const grafo = [restauranteJsonLd(), menuJsonLd()]
+  grafo.forEach((datos) => { delete datos['@context'] })
+  return { '@context': 'https://schema.org', '@graph': grafo }
 }

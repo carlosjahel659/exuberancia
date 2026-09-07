@@ -1,51 +1,45 @@
-// -----------------------------------------------------------------------------
-// ÚNICA fuente de verdad de días y horarios de La Exuberancia.
-//
-// Ningún componente debe repetir estas reglas: todos preguntan aquí.
-// Todo se calcula en la zona horaria de Ciudad de México, sin importar el
-// reloj o la región del dispositivo del cliente.
-// -----------------------------------------------------------------------------
+// Fuente de verdad de días, horarios y disponibilidad.
+// La zona se normaliza a Ciudad de México; el instante sigue dependiendo del
+// reloj del dispositivo. Esto orienta la carta, no valida pedidos en un servidor.
 
 export const ZONA = 'America/Mexico_City'
 
 const DIAS_INTL = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-
 export const NOMBRE_DIA = [
-  'domingo',
-  'lunes',
-  'martes',
-  'miércoles',
-  'jueves',
-  'viernes',
-  'sábado',
+  'domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado',
 ]
-
 export const LUNES_A_VIERNES = [1, 2, 3, 4, 5]
 export const FIN_DE_SEMANA = [6, 0]
 export const TODOS_LOS_DIAS = [0, 1, 2, 3, 4, 5, 6]
 export const SOLO_DOMINGO = [0]
 
-/** Convierte una hora del reloj a minutos desde la medianoche. */
 const min = (hora, minuto = 0) => hora * 60 + minuto
-
-/**
- * Hora de cierre del restaurante, igual todos los días.
- * Ninguna categoría puede seguir disponible después de esta hora. Las que
- * cierran antes (desayunos, entradas, comida mexicana) conservan su propio
- * horario; las que se sirven "todo el día" terminan aquí.
- * Si cambia, actualiza también `site.horarios` en src/data/site.js.
- */
 export const CIERRE_DIARIO = min(19, 30)
 
-/** "sábado" -> "sabado", para comparar nombres de día escritos sin acentos. */
-const sinAcentos = (texto) =>
-  texto
-    .trim()
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
+/** Horarios de apertura ya declarados por el restaurante. También alimentan SEO. */
+export const APERTURAS_SERVICIO = [
+  {
+    dias: 'Lunes a viernes',
+    diasSemana: LUNES_A_VIERNES,
+    diasSchema: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+    abre: min(9),
+  },
+  {
+    dias: 'Sábado y domingo',
+    diasSemana: FIN_DE_SEMANA,
+    diasSchema: ['Saturday', 'Sunday'],
+    abre: min(7),
+  },
+]
 
-/** 540 -> "9:00 a. m."  ·  720 -> "12:00 p. m."  ·  1140 -> "7:00 p. m." */
+export function aperturaDelDia(dia) {
+  return APERTURAS_SERVICIO.find((horario) => horario.diasSemana.includes(dia))?.abre ?? null
+}
+
+const sinAcentos = (texto) =>
+  texto.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+
+/** Minutos desde medianoche → hora local legible. */
 export function formatoHora(minutos) {
   const h24 = Math.floor(minutos / 60) % 24
   const m = minutos % 60
@@ -54,9 +48,6 @@ export function formatoHora(minutos) {
   return `${h12}:${String(m).padStart(2, '0')} ${sufijo}`
 }
 
-// -----------------------------------------------------------------------------
-// Reglas por categoría del menú
-// -----------------------------------------------------------------------------
 export const REGLAS = {
   desayunos: {
     nombre: 'Desayunos',
@@ -65,11 +56,9 @@ export const REGLAS = {
     dias: TODOS_LOS_DIAS,
     desde: min(9),
     hasta: min(12),
-    resumen: 'Todos los días · 9:00 a 12:00',
-    // Mensaje cuando ya pasó su horario del día.
+    resumen: 'Todos los días · 9:00 a. m. a 12:00 p. m.',
     fueraDeHorario: 'Desayunos disponibles de 9:00 a. m. a 12:00 p. m.',
   },
-
   entradas: {
     nombre: 'Entradas',
     corto: 'Entradas',
@@ -77,10 +66,9 @@ export const REGLAS = {
     dias: TODOS_LOS_DIAS,
     desde: min(9),
     hasta: min(19),
-    resumen: 'Todos los días · 9:00 a 7:00',
+    resumen: 'Todos los días · 9:00 a. m. a 7:00 p. m.',
     fueraDeHorario: 'Entradas disponibles de 9:00 a. m. a 7:00 p. m.',
   },
-
   mexicana: {
     nombre: 'Comida mexicana',
     corto: 'Mexicana',
@@ -88,64 +76,50 @@ export const REGLAS = {
     dias: TODOS_LOS_DIAS,
     desde: min(12),
     hasta: min(19),
-    resumen: 'Todos los días · 12:00 a 7:00',
+    resumen: 'Todos los días · 12:00 p. m. a 7:00 p. m.',
     antesDeHorario: 'Disponible a partir de las 12:00 p. m.',
     fueraDeHorario: 'Comida mexicana disponible de 12:00 p. m. a 7:00 p. m.',
   },
-
   finde: {
     nombre: 'Fin de semana',
     corto: 'Fin de semana',
     icono: 'finde',
     dias: FIN_DE_SEMANA,
-    desde: min(0),
+    desde: min(7),
     hasta: CIERRE_DIARIO,
-    resumen: 'Sáb y dom · hasta 7:30 p. m.',
+    resumen: 'Sáb y dom · 7:00 a. m. a 7:30 p. m.',
     fueraDeHorario: 'El menú de fin de semana se sirve hasta las 7:30 p. m.',
     otroDia: 'Disponible sábados y domingos',
   },
-
-  // El sábado se abre "Fin de semana" pero la barbacoa sigue cerrada: es una
-  // categoría aparte justamente para que puedan desbloquearse por separado.
   barbacoa: {
     nombre: 'Barbacoa',
     corto: 'Barbacoa',
     icono: 'barbacoa',
     dias: SOLO_DOMINGO,
-    desde: min(0),
+    desde: min(7),
     hasta: CIERRE_DIARIO,
-    resumen: 'Domingos · hasta 7:30 p. m.',
+    resumen: 'Domingos · 7:00 a. m. a 7:30 p. m.',
     soloDomingos: true,
     fueraDeHorario: 'La barbacoa de hoy se sirvió hasta las 7:30 p. m.',
     otroDia: 'Disponible únicamente los domingos',
-    // Texto exacto que muestra la tarjeta mientras está bloqueada.
     textoBloqueo: 'Disponible únicamente los domingos',
   },
-
   bebidas: {
     nombre: 'Bebidas',
     corto: 'Bebidas',
     icono: 'bebidas',
     dias: TODOS_LOS_DIAS,
+    // La apertura efectiva depende del día, como el horario general de servicio.
     desde: min(0),
     hasta: CIERRE_DIARIO,
-    resumen: 'Todos los días · hasta 7:30 p. m.',
+    resumen: 'Todos los días · durante el horario de servicio',
     fueraDeHorario: 'Las bebidas se sirven hasta las 7:30 p. m.',
   },
 }
 
-/**
- * Reglas de grupos dentro de una categoría, por nombre de grupo tal como
- * aparece en `menu.js`. Sirve para cerrar un grupo suelto sin cerrar toda la
- * categoría; hoy ninguna lo necesita, porque la barbacoa ya es categoría
- * propia. Para usarlo, agrega aquí una entrada con la misma forma que REGLAS.
- */
+/** Las reglas propias de un grupo nunca pueden ampliar las de su categoría. */
 export const REGLAS_GRUPO = {}
 
-/**
- * Días propios de algunas promociones. Solo se registran los que la propia
- * promoción ya declara en el menú impreso; no se inventan horarios nuevos.
- */
 export const REGLAS_PROMO = {
   'Música en vivo': {
     nombre: 'Música en vivo',
@@ -159,86 +133,75 @@ export const REGLAS_PROMO = {
   },
 }
 
-// -----------------------------------------------------------------------------
-// Reloj de Ciudad de México (+ simulación para pruebas)
-// -----------------------------------------------------------------------------
+const relojCDMX = new Intl.DateTimeFormat('en-US', {
+  timeZone: ZONA,
+  weekday: 'short',
+  hour: '2-digit',
+  minute: '2-digit',
+  hourCycle: 'h23',
+})
 
-/**
- * Permite probar otros días y horas sin tocar el reloj del sistema:
- *   ?dia=domingo&hora=13:00
- *   ?dia=6&hora=09:00
- *   ?ahora=2026-09-06T13:00
- * Devuelve null cuando no hay simulación activa.
- */
-export function leerSimulacion(busqueda) {
-  const cadena =
-    busqueda ?? (typeof window !== 'undefined' ? window.location.search : '')
-  if (!cadena) return null
-
-  const params = new URLSearchParams(cadena)
-  const diaParam = params.get('dia')
-  const horaParam = params.get('hora')
-  const ahoraParam = params.get('ahora')
-
-  if (!diaParam && !horaParam && !ahoraParam) return null
-
-  const real = calcularAhora()
-  let dia = real.dia
-  let minutos = real.minutos
-
-  if (ahoraParam) {
-    const f = new Date(ahoraParam)
-    if (!Number.isNaN(f.getTime())) {
-      dia = f.getDay()
-      minutos = f.getHours() * 60 + f.getMinutes()
-    }
-  }
-
-  if (diaParam) {
-    const numero = Number(diaParam)
-    const indice = diaParam.trim() !== '' && Number.isInteger(numero)
-      ? ((numero % 7) + 7) % 7
-      : NOMBRE_DIA.map(sinAcentos).indexOf(sinAcentos(diaParam))
-    if (indice >= 0) dia = indice
-  }
-
-  if (horaParam) {
-    const [h, m = '0'] = horaParam.split(':')
-    const hora = Number(h)
-    const minuto = Number(m)
-    if (Number.isFinite(hora) && Number.isFinite(minuto)) {
-      minutos = (((hora % 24) + 24) % 24) * 60 + minuto
-    }
-  }
-
-  return { dia, minutos, simulado: true }
-}
-
-/** Día y hora reales en Ciudad de México. */
 function calcularAhora(base = new Date()) {
-  const partes = new Intl.DateTimeFormat('en-US', {
-    timeZone: ZONA,
-    weekday: 'short',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  }).formatToParts(base)
-
+  const partes = relojCDMX.formatToParts(base)
   const valor = (tipo) => partes.find((p) => p.type === tipo)?.value ?? ''
-  const dia = Math.max(0, DIAS_INTL.indexOf(valor('weekday')))
-  const hora = Number(valor('hour')) % 24
-  const minuto = Number(valor('minute'))
-
-  return { dia, minutos: hora * 60 + minuto, simulado: false }
+  return {
+    dia: DIAS_INTL.indexOf(valor('weekday')),
+    minutos: Number(valor('hour')) * 60 + Number(valor('minute')),
+    simulado: false,
+  }
 }
 
 /**
- * Momento actual que usa toda la página: hora real de Ciudad de México, o la
- * simulada si viene en la URL.
+ * Una fecha sin zona representa el reloj civil de CDMX, nunca la zona del
+ * navegador. Con Z o un desplazamiento explícito representa un instante.
  */
-export function ahoraEnCDMX(base = new Date()) {
-  const simulado = leerSimulacion()
-  const momento = simulado ?? calcularAhora(base)
+function leerFechaSimulada(valor) {
+  const partes = /^(\d{4})-(\d{2})-(\d{2})T([01]\d|2[0-3]):([0-5]\d)(?::([0-5]\d))?(Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)?$/.exec(valor ?? '')
+  if (!partes) return null
+  const [, anio, mes, diaMes, hora, minuto, segundo = '00', zona] = partes
+  const fecha = new Date(`${anio}-${mes}-${diaMes}T${hora}:${minuto}:${segundo}Z`)
+  if (
+    Number.isNaN(fecha.getTime()) ||
+    fecha.getUTCFullYear() !== Number(anio) ||
+    fecha.getUTCMonth() + 1 !== Number(mes) ||
+    fecha.getUTCDate() !== Number(diaMes)
+  ) return null
+
+  if (zona) {
+    const instante = new Date(`${anio}-${mes}-${diaMes}T${hora}:${minuto}:${segundo}${zona}`)
+    return Number.isNaN(instante.getTime()) ? null : calcularAhora(instante)
+  }
+  return { dia: fecha.getUTCDay(), minutos: Number(hora) * 60 + Number(minuto) }
+}
+
+/**
+ * Simulación visible para revisar la carta: ?dia=domingo&hora=13:00 o
+ * ?ahora=2026-09-06T13:00. Los parámetros inválidos se ignoran individualmente;
+ * si ninguno es válido, no se activa el modo de prueba.
+ */
+export function leerSimulacion(busqueda, base = new Date()) {
+  const cadena = busqueda ?? (typeof window !== 'undefined' ? window.location.search : '')
+  if (!cadena) return null
+  const params = new URLSearchParams(cadena)
+  const fecha = leerFechaSimulada(params.get('ahora'))
+  const diaParam = params.get('dia')?.trim() ?? ''
+  const horaParam = params.get('hora') ?? ''
+  const dia = /^[0-6]$/.test(diaParam)
+    ? Number(diaParam)
+    : NOMBRE_DIA.map(sinAcentos).indexOf(sinAcentos(diaParam))
+  const hora = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(horaParam)
+  if (!fecha && dia < 0 && !hora) return null
+
+  const momento = fecha ?? calcularAhora(base)
+  return {
+    dia: dia >= 0 ? dia : momento.dia,
+    minutos: hora ? Number(hora[1]) * 60 + Number(hora[2]) : momento.minutos,
+    simulado: true,
+  }
+}
+
+export function ahoraEnCDMX(base = new Date(), busqueda) {
+  const momento = leerSimulacion(busqueda, base) ?? calcularAhora(base)
   return {
     ...momento,
     nombreDia: NOMBRE_DIA[momento.dia],
@@ -248,10 +211,6 @@ export function ahoraEnCDMX(base = new Date()) {
   }
 }
 
-// -----------------------------------------------------------------------------
-// Estado de disponibilidad
-// -----------------------------------------------------------------------------
-
 export const ESTADOS = {
   ahora: { id: 'ahora', texto: 'Disponible ahora', color: 'turquesa' },
   masTarde: { id: 'masTarde', texto: 'Disponible más tarde', color: 'amarillo' },
@@ -259,7 +218,6 @@ export const ESTADOS = {
   soloDomingos: { id: 'soloDomingos', texto: 'Solo domingos', color: 'rosa' },
 }
 
-/** Próximo día (a partir de mañana) en que la regla vuelve a aplicar. */
 function proximoDia(regla, dia) {
   for (let salto = 1; salto <= 7; salto += 1) {
     const candidato = (dia + salto) % 7
@@ -270,194 +228,148 @@ function proximoDia(regla, dia) {
   return null
 }
 
-/**
- * Evalúa una regla (de categoría o de grupo) contra un momento dado.
- * Devuelve siempre el mismo objeto, para que la UI no tenga que decidir nada.
- */
+const noDisponible = () => ({
+  estado: ESTADOS.noHoy,
+  disponible: false,
+  mensaje: 'Disponibilidad no confirmada',
+  resumen: '',
+  proximo: null,
+  textoProximo: '',
+})
+
+/** Apertura y cierre generales limitan todas las reglas, sin ampliar ninguna. */
 export function evaluar(regla, ahora = ahoraEnCDMX()) {
-  if (!regla) {
-    return {
-      estado: ESTADOS.ahora,
-      disponible: true,
-      mensaje: '',
-      resumen: '',
-      proximo: null,
-    }
-  }
+  if (
+    !Array.isArray(regla?.dias) ||
+    !Number.isFinite(regla.desde) ||
+    !Number.isFinite(regla.hasta) ||
+    !Number.isInteger(ahora?.dia) || ahora.dia < 0 || ahora.dia > 6 ||
+    !Number.isInteger(ahora?.minutos) || ahora.minutos < 0 || ahora.minutos >= 1440
+  ) return noDisponible()
 
   const { dia, minutos } = ahora
-  const aplicaHoy = regla.dias.includes(dia)
+  const desde = Math.max(regla.desde, aperturaDelDia(dia))
+  const hasta = Math.min(regla.hasta, CIERRE_DIARIO)
   const siguiente = proximoDia(regla, dia)
   const textoProximo = siguiente
-    ? siguiente.salto === 1
-      ? `Vuelve mañana ${siguiente.nombre}`
-      : `Vuelve el ${siguiente.nombre}`
+    ? siguiente.salto === 1 ? `Vuelve mañana ${siguiente.nombre}` : `Vuelve el ${siguiente.nombre}`
     : ''
+  const comun = { resumen: regla.resumen ?? '', proximo: siguiente, textoProximo }
 
-  // No se sirve hoy.
-  if (!aplicaHoy) {
-    const estado = regla.soloDomingos ? ESTADOS.soloDomingos : ESTADOS.noHoy
+  if (!regla.dias.includes(dia)) {
     return {
-      estado,
+      ...comun,
+      estado: regla.soloDomingos ? ESTADOS.soloDomingos : ESTADOS.noHoy,
       disponible: false,
-      mensaje: regla.otroDia ?? `Disponible ${regla.resumen.toLowerCase()}`,
-      resumen: regla.resumen,
-      proximo: siguiente,
-      textoProximo,
+      mensaje: regla.otroDia ?? `Disponible ${comun.resumen.toLowerCase()}`,
     }
   }
+  if (desde >= hasta) return noDisponible()
 
-  // Es su día, pero todavía no abre.
-  if (minutos < regla.desde) {
+  if (minutos < desde) {
     return {
+      ...comun,
       estado: ESTADOS.masTarde,
       disponible: false,
-      mensaje: regla.antesDeHorario ?? `Disponible a partir de las ${formatoHora(regla.desde)}`,
-      resumen: regla.resumen,
-      proximo: siguiente,
-      textoProximo: `Hoy a partir de las ${formatoHora(regla.desde)}`,
-      abreHoyEn: regla.desde,
+      mensaje: desde === regla.desde && regla.antesDeHorario
+        ? regla.antesDeHorario : `Disponible a partir de las ${formatoHora(desde)}`,
+      textoProximo: `Hoy a partir de las ${formatoHora(desde)}`,
+      abreHoyEn: desde,
     }
   }
-
-  // Es su día, pero ya cerró.
-  if (minutos >= regla.hasta) {
+  if (minutos >= hasta) {
     return {
+      ...comun,
       estado: ESTADOS.noHoy,
       disponible: false,
-      mensaje: regla.fueraDeHorario ?? `Horario: ${regla.resumen}`,
-      resumen: regla.resumen,
-      proximo: siguiente,
-      textoProximo,
+      mensaje: hasta === regla.hasta && regla.fueraDeHorario
+        ? regla.fueraDeHorario : `Servicio hasta las ${formatoHora(hasta)}`,
     }
   }
-
-  // Disponible.
   return {
+    ...comun,
     estado: ESTADOS.ahora,
     disponible: true,
-    mensaje: regla.textoActivo ?? `Hasta las ${formatoHora(regla.hasta)}`,
-    resumen: regla.resumen,
-    proximo: siguiente,
+    mensaje: regla.textoActivo ?? `Hasta las ${formatoHora(hasta)}`,
     textoProximo: '',
-    cierraHoyEn: regla.hasta,
+    cierraHoyEn: hasta,
   }
 }
 
-/** Estado de una de las seis categorías del menú. */
 export function estadoCategoria(id, ahora = ahoraEnCDMX()) {
-  return evaluar(REGLAS[id], ahora)
+  return evaluar(Object.hasOwn(REGLAS, id) ? REGLAS[id] : null, ahora)
 }
 
-/** Estado de un grupo (p. ej. "Barbacoa"); si no tiene regla propia, hereda la de su categoría. */
 export function estadoGrupo(nombreGrupo, idCategoria, ahora = ahoraEnCDMX()) {
-  const propia = REGLAS_GRUPO[nombreGrupo]
-  if (propia) {
-    const estado = evaluar(propia, ahora)
-    const padre = evaluar(REGLAS[idCategoria], ahora)
-    // Un grupo no puede estar disponible si su categoría está cerrada.
-    return estado.disponible && !padre.disponible ? padre : estado
-  }
-  return evaluar(REGLAS[idCategoria], ahora)
+  const padre = estadoCategoria(idCategoria, ahora)
+  if (!padre.disponible) return padre
+  return Object.hasOwn(REGLAS_GRUPO, nombreGrupo)
+    ? evaluar(REGLAS_GRUPO[nombreGrupo], ahora)
+    : padre
 }
 
-/** Estado de una promoción que declara sus propios días (si no, siempre activa). */
+/** Las promociones sin regla propia son informativas, sin estado horario. */
 export function estadoPromo(nombrePromo, ahora = ahoraEnCDMX()) {
-  const regla = REGLAS_PROMO[nombrePromo]
-  return regla ? evaluar(regla, ahora) : null
+  return Object.hasOwn(REGLAS_PROMO, nombrePromo)
+    ? evaluar(REGLAS_PROMO[nombrePromo], ahora)
+    : null
 }
 
-/**
- * Guarda única para el carrito y para el backend cuando existan.
- * `grupo` es opcional y permite bloquear la barbacoa fuera del domingo.
- */
+/** Ayuda para una futura interfaz de pedidos; no sustituye validación en servidor. */
 export function puedeAgregarAlCarrito({ categoria, grupo } = {}, ahora = ahoraEnCDMX()) {
-  const cat = estadoCategoria(categoria, ahora)
-  if (!cat.disponible) {
-    return { permitido: false, motivo: cat.mensaje, estado: cat.estado.id }
+  const estado = grupo ? estadoGrupo(grupo, categoria, ahora) : estadoCategoria(categoria, ahora)
+  return {
+    permitido: estado.disponible,
+    motivo: estado.disponible ? '' : estado.mensaje,
+    estado: estado.estado.id,
   }
-  if (grupo) {
-    const g = estadoGrupo(grupo, categoria, ahora)
-    if (!g.disponible) {
-      return { permitido: false, motivo: g.mensaje, estado: g.estado.id }
-    }
-  }
-  return { permitido: true, motivo: '', estado: 'ahora' }
 }
 
-/**
- * Revisa una lista de artículos (formato { categoria, grupo, nombre }) y
- * devuelve los que ya no se pueden comprar. Pensada para avisar al cliente
- * antes de finalizar la compra, y para reutilizarse en el backend.
- */
 export function revisarDisponibilidad(articulos = [], ahora = ahoraEnCDMX()) {
   const noDisponibles = articulos
-    .map((art) => ({ articulo: art, ...puedeAgregarAlCarrito(art, ahora) }))
-    .filter((r) => !r.permitido)
-
+    .map((articulo) => ({ articulo, ...puedeAgregarAlCarrito(articulo, ahora) }))
+    .filter((resultado) => !resultado.permitido)
   return { todoDisponible: noDisponibles.length === 0, noDisponibles }
 }
 
-// -----------------------------------------------------------------------------
-// Aviso del día que se muestra encima del menú
-// -----------------------------------------------------------------------------
 export function avisoDelDia(ahora = ahoraEnCDMX()) {
-  const ids = Object.keys(REGLAS)
-  const evaluadas = ids.map((id) => ({ id, ...REGLAS[id], ...estadoCategoria(id, ahora) }))
-
-  const activas = evaluadas.filter((c) => c.disponible)
-  const masTarde = evaluadas.filter((c) => c.estado.id === ESTADOS.masTarde.id)
-
-  const cierre = formatoHora(CIERRE_DIARIO)
-  // formatoHora ya termina en punto ("7:30 p. m."): sin esto salen dos seguidos.
-  const punto = (texto) => (texto.endsWith('.') ? texto : `${texto}.`)
-
-  let crudo
+  const evaluadas = Object.entries(REGLAS)
+    .map(([id, regla]) => ({ id, ...regla, ...estadoCategoria(id, ahora) }))
+  const activas = evaluadas.filter((categoria) => categoria.disponible)
+  const masTarde = evaluadas.filter((categoria) => categoria.estado.id === ESTADOS.masTarde.id)
+  const punto = (texto) => texto.endsWith('.') ? texto : `${texto}.`
+  let texto
 
   if (!activas.length) {
-    // Nada disponible: o todavía no abrimos, o ya cerramos por hoy.
-    crudo = masTarde.length
-      ? punto(`Hoy empezamos a servir a las ${formatoHora(Math.min(...masTarde.map((c) => c.desde)))}`)
-      : punto(`Ya cerramos por hoy. Cerramos todos los días a las ${cierre}`)
+    texto = masTarde.length
+      ? punto(`Hoy empezamos a servir a las ${formatoHora(Math.min(...masTarde.map((categoria) => categoria.abreHoyEn)))}`)
+      : punto(`Ya cerramos por hoy. Cerramos todos los días a las ${formatoHora(CIERRE_DIARIO)}`)
   } else {
-    // Desayunos y comida mexicana se sirven los siete días, así que se anuncian
-    // siempre; lo del fin de semana se agrega encima como una frase extra.
-    const desayunos = evaluadas.find((c) => c.id === 'desayunos')
-    const mexicana = evaluadas.find((c) => c.id === 'mexicana')
-    const frases = []
-
-    // Cada una se menciona tanto si ya se está sirviendo como si abre más
-    // tarde, para que a las 8 de la mañana no parezca que solo hay bebidas.
-    if (desayunos.disponible) {
-      frases.push(`desayunos hasta las ${formatoHora(REGLAS.desayunos.hasta)}`)
-    } else if (desayunos.estado.id === ESTADOS.masTarde.id) {
-      frases.push(`desayunos a partir de las ${formatoHora(REGLAS.desayunos.desde)}`)
-    }
-    if (mexicana.disponible) {
-      frases.push(`comida mexicana hasta las ${formatoHora(REGLAS.mexicana.hasta)}`)
-    } else if (mexicana.estado.id === ESTADOS.masTarde.id) {
-      frases.push(`comida mexicana a partir de las ${formatoHora(REGLAS.mexicana.desde)}`)
-    }
-
-    crudo = frases.length
-      ? punto(`Servimos ${frases.join(' y ')}`)
-      : punto(`La cocina está fuera de horario, pero las bebidas siguen hasta las ${cierre}`)
-
-    if (ahora.esDomingo) {
-      crudo += ' Hoy también hay menú de fin de semana y barbacoa.'
-    } else if (ahora.esFinDeSemana) {
-      crudo += ' Hoy también hay menú de fin de semana; la barbacoa es solo los domingos.'
+    const cocina = activas.filter((categoria) => categoria.id !== 'bebidas')
+    if (cocina.length) {
+      const nombres = cocina.map((categoria) =>
+        categoria.id === 'finde' ? 'menú de fin de semana' : categoria.nombre.toLowerCase())
+      const lista = nombres.length === 1
+        ? nombres[0] : `${nombres.slice(0, -1).join(', ')} y ${nombres.at(-1)}`
+      texto = `Ahora servimos ${lista}.`
+      const proximas = masTarde.filter((categoria) => ['desayunos', 'mexicana'].includes(categoria.id))
+      proximas.forEach((categoria) => {
+        texto += ` ${punto(`${categoria.nombre} a partir de las ${formatoHora(categoria.abreHoyEn)}`)}`
+      })
+    } else {
+      texto = punto(`La cocina está fuera de horario. Servimos bebidas hasta las ${formatoHora(CIERRE_DIARIO)}`)
     }
   }
 
-  const texto = crudo.charAt(0).toUpperCase() + crudo.slice(1)
-
   return {
-    saludo: `Hoy es ${ahora.nombreDia}`,
-    reloj: ahora.reloj,
+    saludo: `Hoy es ${ahora.nombreDia ?? NOMBRE_DIA[ahora.dia]}`,
+    reloj: ahora.reloj ?? formatoHora(ahora.minutos),
     texto,
-    activas: activas.map((c) => c.nombre),
-    masTarde: masTarde.map((c) => ({ nombre: c.nombre, desde: formatoHora(c.desde) })),
-    simulado: ahora.simulado,
+    activas: activas.map((categoria) => categoria.nombre),
+    masTarde: masTarde.map((categoria) => ({
+      nombre: categoria.nombre,
+      desde: formatoHora(categoria.abreHoyEn),
+    })),
+    simulado: Boolean(ahora.simulado),
   }
 }

@@ -7,7 +7,8 @@ export default defineConfig({
   // compilado pediria /assets/... y GitHub Pages responderia 404.
   base: '/exuberancia/',
   plugins: [react()],
-  server: { host: true, port: 5173 },
+  server: { host: '127.0.0.1', port: 5173, strictPort: true },
+  preview: { host: '127.0.0.1', port: 4173, strictPort: true },
   build: {
     // Sin el polyfill, Vite no inyecta un <script> inline y la
     // Content-Security-Policy puede quedarse en script-src 'self'.

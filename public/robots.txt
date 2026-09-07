@@ -1,4 +1,5 @@
+# El build añade Sitemap desde SITIO, en src/data/seo.js.
+# Los buscadores solo aplican robots.txt desde la raíz del dominio.
+# En GitHub Pages /exuberancia/ este archivo no controla otros proyectos.
 User-agent: *
 Allow: /
-
-Sitemap: https://carlosjahel659.github.io/exuberancia/sitemap.xml

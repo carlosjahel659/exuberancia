@@ -1,7 +1,7 @@
 import { promocionesExuberantes } from '../data/menu'
-import { ETIQUETA_PENDIENTE, precioPendiente } from '../utils/catalogo'
+import { ETIQUETA_PENDIENTE, precioValido } from '../utils/catalogo'
 import { precioMXN } from '../utils/precio'
-import { Chispa, CLASES_COLOR, Divisor, PALETA } from './Ornamentos'
+import { CLASES_COLOR, PALETA } from './Ornamentos'
 import { Revelar, Seccion } from './ui'
 
 /**
@@ -88,106 +88,52 @@ function IconoPromo({ tipo, color = 'rosa', className = '' }) {
   )
 }
 
-/** Una promoción: nombre, qué incluye y precio (o "Precio por confirmar"). */
+/** Las promociones conservan sus condiciones y sus precios pendientes. */
 function TarjetaPromoExuberante({ promo }) {
-  const pendiente = precioPendiente(promo)
+  const colorTexto = promo.color === 'rosa' ? 'text-rosaClaro' : CLASES_COLOR[promo.color].texto
 
   return (
-    <article
-      className={`tarjeta group flex h-full flex-col p-5 transition-all duration-500 hover:-translate-y-1 hover:border-white/25 hover:bg-white/[0.06] ${CLASES_COLOR[promo.color].borde}`}
-    >
-      <span
-        aria-hidden="true"
-        className={`absolute inset-x-0 top-0 h-[2px] ${CLASES_COLOR[promo.color].fondo} opacity-60 transition-opacity duration-500 group-hover:opacity-100`}
-      />
-
-      <IconoPromo
-        tipo={promo.icono}
-        color={promo.color}
-        className="h-11 w-11 shrink-0 transition-transform duration-500 group-hover:scale-110"
-      />
-
-      <h3
-        className={`mt-3 font-alt text-[22px] uppercase leading-tight tracking-[0.04em] ${CLASES_COLOR[promo.color].texto}`}
-      >
-        {promo.nombre}
-      </h3>
-
-      <ul className="mt-3 flex-1 space-y-1.5">
+    <article className={`tarjeta flex h-full min-w-0 flex-col border-t-2 p-5 sm:p-6 ${CLASES_COLOR[promo.color].borde}`}>
+      <div className="flex items-center gap-4">
+        <IconoPromo tipo={promo.icono} color={promo.color} className="h-11 w-11 shrink-0" />
+        <h3 className={`min-w-0 font-alt text-2xl leading-tight tracking-wide ${colorTexto}`}>{promo.nombre}</h3>
+      </div>
+      <ul className="mt-5 flex-1 space-y-2.5">
         {promo.incluye.map((item) => (
-          <li key={item} className="flex items-start gap-2">
-            <span
-              aria-hidden="true"
-              className={`mt-[7px] block h-1.5 w-1.5 shrink-0 rounded-full ${CLASES_COLOR[promo.color].fondo}`}
-            />
-            <span className="min-w-0 text-[13px] leading-snug text-crema/80">{item}</span>
+          <li key={item} className="flex items-start gap-2.5">
+            <span aria-hidden="true" className={`mt-2 h-1.5 w-1.5 shrink-0 rounded-full ${CLASES_COLOR[promo.color].fondo}`} />
+            <span className="min-w-0 text-sm leading-relaxed text-crema/85">{item}</span>
           </li>
         ))}
       </ul>
-
-      {promo.detalle && (
-        <p
-          className={`mt-3 font-alt text-[13px] uppercase tracking-[0.14em] ${CLASES_COLOR[promo.color].texto}`}
-        >
-          {promo.detalle}
-        </p>
-      )}
-
-      <div className="mt-4 border-t border-white/10 pt-3">
-        {pendiente ? (
-          <span className="text-[12px] italic text-crema/55">{ETIQUETA_PENDIENTE}</span>
-        ) : (
-          <span className="font-display text-2xl tabular-nums text-amarillo">
-            {precioMXN(promo.precio)}
-          </span>
-        )}
-        {promo.restricciones && (
-          <p className="mt-1.5 text-[11px] uppercase tracking-[0.12em] text-crema/40">
-            Aplican restricciones
-          </p>
-        )}
+      {promo.detalle && <p className={`mt-4 text-sm font-semibold ${colorTexto}`}>{promo.detalle}</p>}
+      <div className="mt-5 border-t border-white/10 pt-4">
+        <span className={precioValido(promo.precio) ? 'precio text-2xl' : 'text-sm text-crema/80'}>
+          {precioValido(promo.precio) ? precioMXN(promo.precio) : ETIQUETA_PENDIENTE}
+        </span>
+        {promo.restricciones && <p className="mt-2 text-xs text-crema/75">Aplican restricciones</p>}
       </div>
     </article>
   )
 }
 
-/**
- * Promociones Exuberantes.
- *
- * Sección propia (#promociones), justo después del menú. NO es una séptima
- * categoría: no aparece en la cuadrícula de seis ni tiene reglas de horario.
- * Es informativa: no hay botones de compra ni de pedido.
- *
- * En vez de carrusel se usa una rejilla que se reacomoda (1 → 2 → 3 columnas).
- * Así no hay desplazamiento horizontal en ningún ancho ni hace falta indicador.
- */
 export default function PromocionesExuberantes() {
   return (
-    <Seccion id="promociones" aria-labelledby="promos-exuberantes" className="scroll-mt-24">
+    <Seccion id="promociones" aria-labelledby="promos-exuberantes">
       <div className="contenedor">
-        <div className="text-center">
-          <p className="font-alt text-[12px] uppercase tracking-[0.4em] text-amarillo sm:text-sm">
-            Para compartir
-          </p>
-          <h2
-            id="promos-exuberantes"
-            className="titulo-display texto-neon-rosa mt-1 text-[clamp(1.9rem,7vw,3.5rem)]"
-          >
-            Promociones Exuberantes
-          </h2>
-          <Divisor className="mx-auto mt-4 max-w-sm" />
-        </div>
+        <header className="max-w-3xl">
+          <p className="eyebrow text-amarillo">Para compartir</p>
+          <h2 id="promos-exuberantes" className="section-heading mt-2 text-crema">Promociones Exuberantes</h2>
+        </header>
 
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {promocionesExuberantes.map((promo, i) => (
-            <Revelar key={promo.id} retraso={i * 80}>
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {promocionesExuberantes.map((promo, indice) => (
+            <Revelar key={promo.id} retraso={indice * 40} className="h-full">
               <TarjetaPromoExuberante promo={promo} />
             </Revelar>
           ))}
         </div>
-
-        <p className="mt-8 flex items-center justify-center gap-2 text-center text-[12px] text-crema/50">
-          <Chispa className="h-3.5 w-3.5" color="amarillo" />
+        <p className="mt-6 text-sm leading-relaxed text-crema/80">
           Consulta disponibilidad y precios con tu mesero
         </p>
       </div>

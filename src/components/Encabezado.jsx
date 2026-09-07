@@ -1,168 +1,67 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { navegacion, site } from '../data/site'
 import { useSeccionActiva } from '../hooks/useRevelar'
-import { Boton } from './ui'
 import { recurso } from '../utils/recurso'
+import { Boton } from './ui'
 
-const IDS = navegacion.map((n) => n.id)
+const IDS = navegacion.map(n => n.id)
 
 export default function Encabezado() {
   const [abierto, setAbierto] = useState(false)
-  const [compacto, setCompacto] = useState(false)
   const activa = useSeccionActiva(IDS)
+  const boton = useRef(null)
+  const panel = useRef(null)
+  const cerrar = (devolver = false) => { setAbierto(false); if (devolver) boton.current?.focus() }
 
   useEffect(() => {
-    const alScroll = () => setCompacto(window.scrollY > 24)
-    alScroll()
-    window.addEventListener('scroll', alScroll, { passive: true })
-    return () => window.removeEventListener('scroll', alScroll)
+    const pantalla = window.matchMedia('(min-width: 1024px)')
+    const ajustar = () => { if (pantalla.matches) setAbierto(false) }
+    pantalla.addEventListener('change', ajustar)
+    return () => pantalla.removeEventListener('change', ajustar)
   }, [])
 
-  // Bloquea el scroll del fondo mientras el menú móvil está abierto.
   useEffect(() => {
-    document.body.style.overflow = abierto ? 'hidden' : ''
-    return () => {
-      document.body.style.overflow = ''
+    if (!abierto) return
+    const anterior = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    panel.current?.querySelector('a')?.focus()
+    const teclado = e => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        e.stopPropagation()
+        setAbierto(false)
+        boton.current?.focus()
+        return
+      }
+      if (e.key !== 'Tab') return
+      const controles = [boton.current, ...panel.current.querySelectorAll('a[href], button:not(:disabled)')]
+      const primero = controles[0], ultimo = controles[controles.length - 1]
+      if (e.shiftKey && document.activeElement === primero) { e.preventDefault(); ultimo.focus() }
+      else if (!e.shiftKey && document.activeElement === ultimo) { e.preventDefault(); primero.focus() }
     }
+    document.addEventListener('keydown', teclado)
+    return () => { document.body.style.overflow = anterior; document.removeEventListener('keydown', teclado) }
   }, [abierto])
 
-  useEffect(() => {
-    const alTeclado = (e) => e.key === 'Escape' && setAbierto(false)
-    window.addEventListener('keydown', alTeclado)
-    return () => window.removeEventListener('keydown', alTeclado)
-  }, [])
-
-  return (
-    <header
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
-        compacto || abierto
-          ? 'border-b border-white/10 bg-carbon/92 backdrop-blur-xl'
-          : 'border-b border-transparent bg-gradient-to-b from-carbon/85 to-transparent'
-      }`}
-    >
-      <div className="contenedor flex h-[68px] items-center justify-between gap-4 lg:h-[80px]">
-        <a
-          href="#inicio"
-          onClick={() => setAbierto(false)}
-          className="group flex items-center gap-3"
-          aria-label={`${site.nombre} — ir al inicio`}
-        >
-          <img
-            src={recurso('assets/logo-exuberancia.webp')}
-            alt=""
-            width="820"
-            height="820"
-            className="h-11 w-11 shrink-0 transition-transform duration-500 group-hover:rotate-[6deg] group-hover:scale-105 lg:h-[52px] lg:w-[52px]"
-          />
-          <span className="hidden leading-none xs:block">
-            <span className="block font-display text-lg uppercase tracking-wide text-crema lg:text-xl">
-              La Exuberancia
-            </span>
-            <span className="block font-alt text-[10px] uppercase tracking-[0.28em] text-turquesa lg:text-[11px]">
-              Restaurante mexicano
-            </span>
-          </span>
-        </a>
-
-        <nav aria-label="Principal" className="hidden lg:block">
-          <ul className="flex items-center gap-1">
-            {navegacion.map((item) => (
-              <li key={item.id}>
-                <a
-                  href={`#${item.id}`}
-                  aria-current={activa === item.id ? 'true' : undefined}
-                  className={`relative rounded-full px-4 py-2 font-alt text-[15px] uppercase tracking-[0.18em] transition-colors duration-300 ${
-                    activa === item.id ? 'text-amarillo' : 'text-crema/75 hover:text-crema'
-                  }`}
-                >
-                  {item.etiqueta}
-                  <span
-                    className={`absolute inset-x-4 -bottom-0.5 h-[2px] origin-left rounded bg-amarillo transition-transform duration-300 ${
-                      activa === item.id ? 'scale-x-100' : 'scale-x-0'
-                    }`}
-                  />
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        <div className="flex items-center gap-2">
-          <Boton
-            href={site.maps}
-            variante="primario"
-            brillo
-            className="hidden px-5 py-2.5 text-[11px] sm:inline-flex"
-          >
-            Cómo llegar
-          </Boton>
-
-          <button
-            type="button"
-            onClick={() => setAbierto((v) => !v)}
-            aria-expanded={abierto}
-            aria-controls="menu-movil"
-            aria-label={abierto ? 'Cerrar menú' : 'Abrir menú'}
-            className="relative grid h-11 w-11 place-items-center rounded-full border border-white/15 bg-white/5 lg:hidden"
-          >
-            <span className="sr-only">Menú</span>
-            <span
-              className={`absolute h-[2px] w-5 rounded bg-crema transition-all duration-300 ${
-                abierto ? 'rotate-45' : '-translate-y-[6px]'
-              }`}
-            />
-            <span
-              className={`absolute h-[2px] w-5 rounded bg-crema transition-all duration-200 ${
-                abierto ? 'scale-x-0 opacity-0' : ''
-              }`}
-            />
-            <span
-              className={`absolute h-[2px] w-5 rounded bg-crema transition-all duration-300 ${
-                abierto ? '-rotate-45' : 'translate-y-[6px]'
-              }`}
-            />
-          </button>
-        </div>
+  return <header className="encabezado">
+    <div className="contenedor encabezado-fila">
+      <a href="#inicio" className="marca" onClick={() => cerrar()} aria-label={site.nombre + ': inicio'}>
+        <img src={recurso('assets/logo-exuberancia.webp')} width="820" height="820" alt="" />
+        <span>La Exuberancia<small>Restaurante mexicano</small></span>
+      </a>
+      <nav aria-label="Principal" className="hidden lg:block">
+        <ul className="flex items-center gap-1">{navegacion.map(item => <li key={item.id}><a href={'#' + item.id} className="nav-enlace" aria-current={activa === item.id ? 'location' : undefined}>{item.etiqueta}</a></li>)}</ul>
+      </nav>
+      <div className="flex items-center gap-2">
+        <Boton href={site.maps} variante="contorno" className="hidden xl:inline-flex">Cómo llegar</Boton>
+        <button ref={boton} type="button" className="boton-menu lg:hidden" aria-expanded={abierto} aria-controls="menu-movil" aria-label={abierto ? 'Cerrar navegación' : 'Abrir navegación'} onClick={() => setAbierto(v => !v)}>
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">{abierto ? <path d="m6 6 12 12M6 18 18 6" /> : <path d="M4 6h16M4 12h16M4 18h16" />}</svg>
+        </button>
       </div>
-
-      {/* Menú móvil */}
-      <div
-        id="menu-movil"
-        className={`overflow-hidden border-t border-white/10 bg-carbon/97 backdrop-blur-xl transition-[max-height,opacity] duration-500 lg:hidden ${
-          abierto ? 'max-h-[520px] opacity-100' : 'max-h-0 opacity-0'
-        }`}
-      >
-        <nav aria-label="Principal móvil" className="contenedor py-5">
-          <ul className="flex flex-col gap-1">
-            {navegacion.map((item, i) => (
-              <li key={item.id}>
-                <a
-                  href={`#${item.id}`}
-                  onClick={() => setAbierto(false)}
-                  style={{ transitionDelay: `${abierto ? i * 45 : 0}ms` }}
-                  className={`flex items-center justify-between rounded-xl px-4 py-3.5 font-alt text-2xl uppercase tracking-[0.14em] transition-all duration-300 ${
-                    abierto ? 'translate-x-0 opacity-100' : '-translate-x-3 opacity-0'
-                  } ${activa === item.id ? 'bg-white/5 text-amarillo' : 'text-crema/85'}`}
-                >
-                  {item.etiqueta}
-                  <span aria-hidden="true" className="text-turquesa">
-                    →
-                  </span>
-                </a>
-              </li>
-            ))}
-          </ul>
-          <Boton
-            href={site.maps}
-            variante="primario"
-            brillo
-            className="mt-4 w-full"
-            onClick={() => setAbierto(false)}
-          >
-            Cómo llegar
-          </Boton>
-        </nav>
-      </div>
-    </header>
-  )
+    </div>
+    <nav ref={panel} id="menu-movil" aria-label="Principal móvil" hidden={!abierto} className="menu-movil lg:hidden">
+      <ul className="contenedor py-4">{navegacion.map(item => <li key={item.id}><a href={'#' + item.id} className="nav-enlace" aria-current={activa === item.id ? 'location' : undefined} onClick={() => cerrar()}>{item.etiqueta}<span aria-hidden="true">↗</span></a></li>)}</ul>
+      <div className="contenedor pb-6"><Boton href={site.maps} variante="amarillo">Cómo llegar</Boton></div>
+    </nav>
+  </header>
 }

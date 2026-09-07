@@ -1,28 +1,30 @@
-// -----------------------------------------------------------------------------
-// Entrada de prerenderizado (no se envía al navegador).
-//
-// El sitio es una SPA de React + Vite: sin esto, el HTML publicado llega vacío
-// salvo por <div id="root"></div>, y una auditoría o un buscador que no ejecute
-// JavaScript ve una página de cero palabras y sin H1.
-//
-// `scripts/prerender.mjs` ejecuta este render durante el build y mete el
-// resultado dentro de #root en dist/index.html. Al cargar la página, React
-// vacía ese contenedor y monta la app normal, así que el visitante no ve
-// contenido duplicado.
-// -----------------------------------------------------------------------------
-
 import { renderToString } from 'react-dom/server'
 import App from './App.jsx'
-import { datosPendientes, restauranteJsonLd } from './data/seo'
-import { menu } from './data/menu'
-import { catalogoPendiente, catalogoSinPrecio } from './utils/catalogo'
+import { datosEstructurados, datosPendientes, IMAGEN_SOCIAL, META, SITIO } from './data/seo'
+import { menu, promocionesExuberantes } from './data/menu'
+import { site } from './data/site'
+import {
+  catalogoPendiente,
+  catalogoSinPrecio,
+  esVisible,
+  precioPendiente,
+} from './utils/catalogo'
 
+/**
+ * La misma App se genera aquí y se hidrata en main.jsx. El primer render del
+ * reloj no depende del día del build, de modo que el HTML permanece estable.
+ */
 export function render() {
   return {
     html: renderToString(<App />),
-    jsonLd: restauranteJsonLd(),
+    jsonLd: datosEstructurados(),
+    meta: { ...META, sitio: SITIO, imagen: IMAGEN_SOCIAL, nombre: site.nombre },
     pendientes: datosPendientes(),
-    productosOcultos: catalogoPendiente(menu),
+    productosOcultos: catalogoPendiente(menu).filter((dato) => dato.tipo === 'producto'),
     preciosPendientes: catalogoSinPrecio(menu),
+    promocionesPendientes: promocionesExuberantes
+      .filter((promo) => esVisible(promo) && precioPendiente(promo))
+      .map((promo) => promo.nombre),
+    variantesOcultas: catalogoPendiente(menu).filter((dato) => dato.tipo === 'variante'),
   }
 }
