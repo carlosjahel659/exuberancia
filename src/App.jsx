@@ -27,10 +27,10 @@ export default function App() {
         <Portada />
         <MusicaEnVivo />
         <MenuInteractivo />
+        <PromocionesExuberantes />
         <Especialidades />
         <Bebidas />
         <Nosotros />
-        <PromocionesExuberantes />
         <Cumpleanos />
         <TiemposPreparacion />
         <Ubicacion />
