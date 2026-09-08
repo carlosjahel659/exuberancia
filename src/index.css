@@ -116,6 +116,8 @@
   .categoria-bloqueada { cursor: not-allowed; background: rgb(var(--rgb-carbon) / .82); }
   .categoria-bloqueada > svg:first-of-type ~ svg { opacity: .55; }
   .categoria-seleccionada { outline: 2px solid var(--amarillo); outline-offset: 3px; }
+  .menu-acceso-promos { display: flex; align-items: center; gap: .85rem; min-height: 96px; margin-top: 1rem; padding: 1.1rem; border: 1px solid rgb(var(--rgb-rosa) / .65); border-radius: 16px; background: linear-gradient(115deg, rgb(var(--rgb-rosa) / .17), rgb(var(--rgb-amarillo) / .05)), var(--superficie); box-shadow: 0 0 28px -17px var(--rosa); transition: border-color .2s, box-shadow .2s; }
+  .menu-acceso-promos:hover { border-color: var(--amarillo); box-shadow: 0 0 30px -14px var(--rosa); }
   #promociones h2 { text-shadow: 0 0 20px rgb(var(--rgb-rosa) / .6); }
   #bebidas h2, .section-heading h2 { text-shadow: 0 0 18px rgb(var(--rgb-turquesa) / .45); }
   #promociones .tarjeta { background: linear-gradient(135deg, rgb(var(--rgb-rosa) / .11), transparent 75%), var(--superficie); }

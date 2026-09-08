@@ -49,7 +49,7 @@ function TarjetaCategoria({ categoria, disponibilidad, abierta, onAbrir, refBoto
     id={'categoria-' + categoria.id}
     ref={refBoton}
     type="button"
-    onClick={() => !bloqueada && onAbrir(categoria.id)}
+    onClick={evento => !bloqueada && onAbrir(categoria.id, evento.detail === 0)}
     aria-disabled={bloqueada || undefined}
     aria-expanded={abierta}
     aria-controls={abierta ? 'panel-' + categoria.id : undefined}
@@ -74,11 +74,13 @@ export default function MenuInteractivo() {
   const enlaces = useRef({})
   const titulo = useRef(null)
   const regreso = useRef(null)
+  const navegarAlContenido = useRef(false)
   const categoria = categorias.find(cat => cat.id === abierta)
   const disponibilidad = categoria && ahora ? estadoCategoria(categoria.id, ahora) : null
 
-  const abrir = useCallback(id => {
+  const abrir = useCallback((id, moverFoco = false) => {
     if (!ahora || !estadoCategoria(id, ahora).disponible) return
+    navegarAlContenido.current = moverFoco
     setAbierta(id)
   }, [ahora])
 
@@ -89,7 +91,8 @@ export default function MenuInteractivo() {
   }, [abierta])
 
   useEffect(() => {
-    if (abierta) {
+    if (abierta && navegarAlContenido.current) {
+      navegarAlContenido.current = false
       titulo.current?.focus({ preventScroll: true })
       document.getElementById('panel-' + abierta)?.scrollIntoView({ block: 'start' })
     } else if (regreso.current) {
@@ -103,7 +106,7 @@ export default function MenuInteractivo() {
   useEffect(() => {
     const hash = () => {
       const id = window.location.hash.replace(/^#(?:categoria-|panel-)/, '')
-      if (categorias.some(cat => cat.id === id)) abrir(id)
+      if (categorias.some(cat => cat.id === id)) abrir(id, true)
     }
     hash()
     window.addEventListener('hashchange', hash)
@@ -129,18 +132,28 @@ export default function MenuInteractivo() {
         <p className="mx-auto mt-4 hidden max-w-2xl text-sm leading-relaxed text-crema/80 sm:block">Cocina mexicana de todos los días. Cada categoría muestra si se está sirviendo ahora o en qué horario la encuentras.</p>
       </div>
       <div className="mt-5 sm:mt-8"><AvisoDelDia ahora={ahora} compacto /></div>
-      <div id="categorias" className={'mt-5 scroll-mt-24 sm:mt-8 ' + (abierta ? 'hidden lg:block' : '')}>
+      <div id="categorias" className="mt-5 scroll-mt-4 sm:mt-8">
         <ul aria-label="Categorías del menú" className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
           {categorias.map(cat => <li key={cat.id}>
             <TarjetaCategoria categoria={cat} disponibilidad={ahora ? estadoCategoria(cat.id, ahora) : null} abierta={abierta === cat.id} onAbrir={abrir} refBoton={nodo => { enlaces.current[cat.id] = nodo }} />
           </li>)}
         </ul>
-        <p className="mt-4 text-center text-xs leading-relaxed text-crema/75">Toca una categoría disponible para ver sus platillos.</p>
+        <a href="#promociones" className="menu-acceso-promos" aria-labelledby="menu-promos-titulo" aria-describedby="menu-promos-descripcion">
+          <svg viewBox="0 0 32 32" className="h-9 w-9 shrink-0 text-amarillo" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+            <path d="M5 13h22v6H5zM8 19v10h16V19M16 13v16M16 13C4 13 7 1 13 6l3 7Zm0 0c12 0 9-12 3-7l-3 7Z" strokeLinejoin="round" />
+          </svg>
+          <span className="flex-1">
+            <span id="menu-promos-titulo" className="block font-alt text-2xl uppercase leading-tight text-rosaClaro sm:text-3xl">Promociones Exuberantes</span>
+            <span id="menu-promos-descripcion" className="mt-1 block text-xs leading-relaxed text-crema/80 sm:text-sm">Conoce nuestras promos para compartir</span>
+          </span>
+          <span aria-hidden="true" className="text-2xl text-amarillo">↓</span>
+        </a>
+        <p className="mt-4 text-center text-xs leading-relaxed text-crema/75">{categoria ? 'Puedes elegir otra categoría disponible. Sus platillos aparecen aquí abajo.' : 'Toca una categoría disponible para ver sus platillos aquí abajo.'}</p>
       </div>
 
       {categoria && disponibilidad && <div id={'panel-' + categoria.id} role="region" aria-labelledby={'titulo-' + categoria.id} className="mt-7 scroll-mt-4 pb-6 lg:mt-12">
         <div className="menu-volver">
-          <Boton variante="fantasma" onClick={cerrar}>← Volver a las categorías</Boton>
+          <Boton variante="fantasma" href="#categorias">↑ Cambiar categoría</Boton>
           <PastillaEstado estado={disponibilidad.estado} tamano="chico" />
         </div>
         <div className="mt-7 text-center">
@@ -155,7 +168,7 @@ export default function MenuInteractivo() {
           {categoria.foto && <img src={categoria.foto.src} srcSet={categoria.foto.chica + ' 160w, ' + categoria.foto.src + ' 320w'} sizes="88px" alt={categoria.fotoAlt ?? ''} width="320" height="320" loading="lazy" className="mx-auto mt-4 h-[88px] w-[88px] rounded-xl object-cover" />}
         </div>
         <Contenido categoria={categoria} ahora={ahora} />
-        <div className="mt-8 flex justify-center"><Boton variante="amarillo" onClick={cerrar}>Volver a las categorías ↑</Boton></div>
+        <div className="mt-8 flex justify-center"><Boton variante="amarillo" href="#categorias">Elegir otra categoría ↑</Boton></div>
       </div>}
 
       {/* Sin reloj del navegador, la carta estática conserva los horarios publicados.
