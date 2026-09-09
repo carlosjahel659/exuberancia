@@ -2,10 +2,8 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
-  // El sitio se publica en https://carlosjahel659.github.io/exuberancia/,
-  // en un subdirectorio y no en la raiz del dominio. Sin esta base, el HTML
-  // compilado pediria /assets/... y GitHub Pages responderia 404.
-  base: '/exuberancia/',
+  // El dominio personalizado sirve el sitio desde la raíz y los recursos en /assets/.
+  base: '/',
   plugins: [react()],
   server: { host: '127.0.0.1', port: 5173, strictPort: true },
   preview: { host: '127.0.0.1', port: 4173, strictPort: true },

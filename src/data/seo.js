@@ -3,8 +3,8 @@ import { horarioServicio, PENDIENTE, site } from './site'
 import { AVISOS, categorias, menu } from './menu'
 import { precioValido, productosVisibles, variantesVisibles } from '../utils/catalogo'
 
-/** URL confirmada de GitHub Pages. Si cambia el dominio, ajustar también la base de Vite. */
-export const SITIO = 'https://carlosjahel659.github.io/exuberancia/'
+/** Dominio personalizado de GitHub Pages, servido desde la raíz configurada en Vite. */
+export const SITIO = 'https://menuexuberancia.com/'
 export const absoluta = (ruta) => new URL(ruta, SITIO).href
 export const IMAGEN_SOCIAL = absoluta('assets/og-exuberancia.jpg')
 

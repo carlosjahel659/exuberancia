@@ -1,6 +1,6 @@
 # La Exuberancia — menú digital
 
-Sitio de restaurante mexicano familiar con **React 18, Vite 7 y Tailwind CSS 3**. Se publica como archivos estáticos en GitHub Pages bajo `/exuberancia/`. No hay backend, base de datos, carrito, pagos, buscador ni cuentas.
+Sitio de restaurante mexicano familiar con **React 18, Vite 7 y Tailwind CSS 3**. Se publica como archivos estáticos en GitHub Pages con el dominio personalizado `https://menuexuberancia.com/`, desde la raíz `/`. No hay backend, base de datos, carrito, pagos, buscador ni cuentas.
 
 ## Iniciar y verificar
 
@@ -11,9 +11,9 @@ npm ci
 npm run dev
 ```
 
-- Desarrollo: http://127.0.0.1:5173/exuberancia/
+- Desarrollo: http://127.0.0.1:5173/
 - `npm run build`: genera `dist/`, prerenderiza la carta y agrega SEO y CSP.
-- `npm run preview`: http://127.0.0.1:4173/exuberancia/
+- `npm run preview`: http://127.0.0.1:4173/
 - `npm test`: pruebas de horarios, catálogo y enlaces.
 - `npm run test:browser`: prueba la compilación existente con Playwright y axe.
 
@@ -35,11 +35,11 @@ El servidor de desarrollo escucha únicamente en la computadora local. Para prob
 | `src/utils/catalogo.js` | Regla única de publicación y reportes de pendientes. |
 | `src/utils/precio.js` | Precios en pesos mexicanos. |
 | `src/utils/enlaces.js` | Valida destinos y descarta marcadores o protocolos inseguros. |
-| `src/utils/recurso.js` | Rutas compatibles con el subdirectorio de Vite. |
+| `src/utils/recurso.js` | Rutas de recursos derivadas de la base de Vite. |
 | `src/index.css` | Variables de color, disposición, componentes visuales y animaciones. |
 | `tailwind.config.js` | Utilidades conectadas a las variables CSS y tipografías. |
 | `src/entrada-servidor.jsx` y `scripts/prerender.mjs` | HTML y SEO durante la compilación, sin servidor en producción. |
-| `public/` | Recursos originales, PDF y plantillas de publicación. |
+| `public/` | Recursos originales, PDF, `CNAME` y plantillas de publicación. |
 | `tests/` | Pruebas de lógica e interfaz. |
 | `.github/workflows/deploy.yml` | Compila y verifica antes de publicar en GitHub Pages. |
 
@@ -74,10 +74,10 @@ El reloj usa la fecha del dispositivo convertida a `America/Mexico_City`; no con
 ### Simular días
 
 ```text
-/exuberancia/?dia=lunes&hora=10:00
-/exuberancia/?dia=sabado&hora=13:00
-/exuberancia/?dia=domingo&hora=19:30
-/exuberancia/?ahora=2026-09-06T13:00
+/?dia=lunes&hora=10:00
+/?dia=sabado&hora=13:00
+/?dia=domingo&hora=19:30
+/?ahora=2026-09-06T13:00
 ```
 
 La interfaz identifica la simulación y ofrece volver a la hora real. Acepta días 0–6 o nombres, reloj 00:00–23:59 y fechas válidas. Una fecha sin zona se interpreta como hora civil de Ciudad de México. Los valores inválidos se ignoran.
@@ -118,12 +118,14 @@ Los enlaces externos que abren otra pestaña incluyen `noopener noreferrer`. Los
 
 ### GitHub Pages, hosting actual
 
-- Conserva `base: '/exuberancia/'` y la URL confirmada en `SITIO`.
+- Conserva `base: '/'` en `vite.config.js` y `SITIO = 'https://menuexuberancia.com/'` en `src/data/seo.js`.
+- `public/CNAME` contiene únicamente `menuexuberancia.com`; Vite lo copia a `dist/CNAME` durante el build.
 - En Settings → Pages, utiliza GitHub Actions como origen.
+- El workflow compila, verifica y publica `dist` al subir cambios a `main`; el dominio personalizado de Pages debe ser `menuexuberancia.com`.
 - Verifica y activa **Enforce HTTPS** cuando GitHub lo permita.
 - GitHub Pages ignora `_headers`. No se afirma que X-Frame-Options, Permissions-Policy, HSTS o la política frame-ancestors preparada estén activos.
 - La CSP y Referrer-Policy mediante meta sí están incluidas en el HTML.
-- El robots.txt de un subdirectorio no controla la raíz del dominio. El sitemap puede enviarse directamente a Search Console.
+- El build genera `/robots.txt` y `/sitemap.xml` con el dominio personalizado. El sitemap puede enviarse directamente a Search Console.
 - No se publicó esta actualización automáticamente desde el trabajo local.
 
 ### Si se migra a Cloudflare Pages
@@ -152,3 +154,5 @@ Archivos modificados, agrupados por responsabilidad:
 Verificación local del 7 de septiembre de 2026: compilación correcta, 19 pruebas unitarias y 12 pruebas de navegador aprobadas. Chrome se verificó a 320, 375, 390, 768, 1024, 1440 y 1920 px, sin desbordamiento horizontal. Se comprobaron categorías persistentes, acceso a promociones debajo de la cuadrícula, bloqueos de horario, consola, variantes, seis promociones, teclado, áreas táctiles, enlaces, HTML sin JavaScript, metadatos y recursos bajo `/exuberancia/`. Axe no detectó infracciones WCAG A/AA en portada, desayunos, bebidas y barbacoa. Se inspeccionaron capturas de escritorio y móvil; no equivale a probar Safari ni dispositivos físicos.
 
 La auditoría npm con acceso a la red reportó cero vulnerabilidades después de actualizar Vite. Tras los ajustes de colores y navegación, la compilación genera aproximadamente 34.40 kB de CSS y 229.54 kB de JavaScript sin comprimir. Estos tamaños no son una medición de tiempo de carga en red móvil. `src/data/menu.js`, las imágenes y el PDF no tienen cambios.
+
+Verificación del dominio personalizado, 9 de septiembre de 2026: `npm run build` correcto, 19 pruebas unitarias y 12 pruebas de navegador aprobadas. Se usó un preview nuevo en un puerto libre porque los servidores locales existentes conservaban la base anterior. El resultado no contiene rutas del subdirectorio anterior ni el dominio de github.io: CSS, JavaScript, favicon e imágenes se sirven desde `/assets/`; canonical, Open Graph, Twitter Card, JSON-LD, robots y sitemap usan `https://menuexuberancia.com/`. `dist/CNAME` contiene exactamente `menuexuberancia.com`. El CSS compilado es idéntico al anterior y el HTML del menú solo cambia en la base de sus recursos. El workflow conserva la compilación, las pruebas y el despliegue de `dist` al subir a `main`.

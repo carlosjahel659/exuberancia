@@ -1,5 +1,5 @@
 # El build añade Sitemap desde SITIO, en src/data/seo.js.
 # Los buscadores solo aplican robots.txt desde la raíz del dominio.
-# En GitHub Pages /exuberancia/ este archivo no controla otros proyectos.
+# El dominio personalizado publica este archivo en /robots.txt.
 User-agent: *
 Allow: /

@@ -1,9 +1,8 @@
 // -----------------------------------------------------------------------------
 // Rutas a los archivos de public/.
-// El sitio se publica en GitHub Pages bajo /exuberancia/, no en la raíz del
-// dominio, así que toda ruta absoluta ("/assets/x.webp") apuntaría fuera del
-// proyecto. import.meta.env.BASE_URL contiene la base configurada en
-// vite.config.js y ya incluye la barra final.
+// import.meta.env.BASE_URL contiene la base configurada en vite.config.js
+// y ya incluye la barra final. En menuexuberancia.com es "/", por lo que
+// los recursos se resuelven desde /assets/ en la raíz del dominio.
 // -----------------------------------------------------------------------------
 
 export const recurso = (ruta) => `${import.meta.env.BASE_URL}${String(ruta).replace(/^\/+/, '')}`

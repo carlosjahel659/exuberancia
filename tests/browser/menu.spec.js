@@ -103,19 +103,54 @@ test('accesibilidad WCAG AA en portada y categorías con mayor contenido', async
   }
 })
 
-test('HTML sin JavaScript, SEO y recursos del subdirectorio', async ({ browser, request }) => {
-  const context = await browser.newContext({ javaScriptEnabled: false })
+test('HTML sin JavaScript, SEO y recursos del dominio personalizado', async ({ browser, request, baseURL }) => {
+  const sitio = 'https://menuexuberancia.com/'
+  const context = await browser.newContext({ javaScriptEnabled: false, baseURL })
   const page = await context.newPage()
-  await page.goto('http://127.0.0.1:4173/exuberancia/')
+  await page.goto('/')
   const carta = page.locator('#carta-estatica details').filter({ has: page.getByRole('heading', { name: 'Barbacoa', exact: true }) })
   await carta.locator('summary').click()
   await expect(carta).toContainText('Precio por confirmar')
   const json = JSON.parse(await page.locator('script[type="application/ld+json"]').textContent())
   expect(JSON.stringify(json)).toContain('Restaurant')
   expect(JSON.stringify(json)).toContain('MenuItem')
+  expect(json['@graph'].find(item => item['@type'] === 'Restaurant')).toMatchObject({ '@id': sitio + '#restaurant', url: sitio, logo: sitio + 'assets/logo-exuberancia.webp' })
+  expect(json['@graph'].find(item => item['@type'] === 'Menu')).toMatchObject({ '@id': sitio + '#menu', url: sitio + '#menu' })
   expect((await page.locator('meta[name="description"]').getAttribute('content')).length).toBeLessThanOrEqual(160)
-  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://carlosjahel659.github.io/exuberancia/')
-  for (const resource of ['sitemap.xml', 'robots.txt', 'assets/favicon.png', 'assets/og-exuberancia.jpg']) expect((await request.get(resource)).status()).toBe(200)
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', sitio)
+  await expect(page.locator('meta[property="og:url"]')).toHaveAttribute('content', sitio)
+  for (const selector of ['meta[property="og:image"]', 'meta[name="twitter:image"]']) {
+    await expect(page.locator(selector)).toHaveAttribute('content', sitio + 'assets/og-exuberancia.jpg')
+  }
+  expect(await page.content()).not.toMatch(/carlosjahel659\.github\.io|\/exuberancia\/assets\//)
+
+  const recursos = await page.locator('script[src], link[rel="stylesheet"], link[rel="icon"], img').evaluateAll(nodos => [...new Set(nodos.flatMap(nodo => [
+    nodo.getAttribute('src') ?? nodo.getAttribute('href'),
+    ...(nodo.getAttribute('srcset') ?? '').split(',').map(variante => variante.trim().split(/\s+/)[0]),
+  ]).filter(ruta => ruta && !/^https?:\/\//.test(ruta)))])
+  recursos.push('/assets/og-exuberancia.jpg')
+  expect(recursos.some(ruta => ruta.endsWith('.js'))).toBe(true)
+  expect(recursos.some(ruta => ruta.endsWith('.css'))).toBe(true)
+  for (const ruta of recursos) {
+    expect(ruta).toMatch(/^\/assets\//)
+    const respuesta = await request.get(ruta)
+    expect(respuesta.status(), ruta).toBe(200)
+    const tipo = ruta.endsWith('.js') ? /(?:java|ecma)script/ : ruta.endsWith('.css') ? /text\/css/ : /^image\//
+    expect(respuesta.headers()['content-type'], ruta).toMatch(tipo)
+    expect((await respuesta.body()).length, ruta).toBeGreaterThan(0)
+  }
+  for (const [ruta, contenido] of [
+    ['/CNAME', 'menuexuberancia.com'],
+    ['/sitemap.xml', '<loc>' + sitio + '</loc>'],
+    ['/robots.txt', 'Sitemap: ' + sitio + 'sitemap.xml'],
+  ]) {
+    const respuesta = await request.get(ruta)
+    expect(respuesta.status(), ruta).toBe(200)
+    const texto = await respuesta.text()
+    if (ruta === '/CNAME') expect(texto).toBe(contenido)
+    else expect(texto).toContain(contenido)
+    expect(texto).not.toMatch(/carlosjahel659\.github\.io|\/exuberancia\//)
+  }
   await context.close()
 })
 

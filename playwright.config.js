@@ -7,7 +7,7 @@ export default defineConfig({
   timeout: 60000,
   reporter: 'list',
   use: {
-    baseURL: 'http://127.0.0.1:4173/exuberancia/',
+    baseURL: 'http://127.0.0.1:4173/',
     browserName: 'chromium',
     channel: process.platform === 'win32' ? 'chrome' : undefined,
     headless: true,
@@ -17,7 +17,7 @@ export default defineConfig({
   },
   webServer: {
     command: 'npm run preview',
-    url: 'http://127.0.0.1:4173/exuberancia/',
+    url: 'http://127.0.0.1:4173/',
     reuseExistingServer: !process.env.CI,
   },
 })
