@@ -14,6 +14,7 @@
 // -----------------------------------------------------------------------------
 
 import { recurso } from '../utils/recurso'
+import { esVisible } from '../utils/catalogo'
 
 /**
  * Fotografías reales del restaurante (public/assets/fotos/).
@@ -650,7 +651,6 @@ export const menu = {
           nombre: 'Taco tradicional a la parrilla',
           descripcion: 'Dos tortillas hechas a mano con 170 g de proteína a la brasa.',
           detalles: [{ etiqueta: 'Elige tu proteína', opciones: BRASA }],
-          precioPendiente: true,
           precio: null,
         },
         {
@@ -658,7 +658,6 @@ export const menu = {
           descripcion: 'Cuatro tortillas empalmadas a lo largo con 350 g de proteína a la brasa.',
           detalles: [{ etiqueta: 'Elige tu proteína', opciones: BRASA }],
           etiqueta: 'Exuberante',
-          precioPendiente: true,
           precio: null,
         },
       ],
@@ -688,6 +687,7 @@ export const menu = {
 
   // ----------------------------------------------------------------- Barbacoa
   // La categoría sigue desbloqueándose solo los domingos (src/data/horarios.js).
+  // Es la única sección que publica productos con precio pendiente.
   barbacoa: [
     {
       grupo: 'Por orden',
@@ -723,7 +723,8 @@ export const menu = {
           nombre: 'Orden de barbacoa',
           descripcion: 'Tres tacos de barbacoa acompañados con consomé.',
           etiqueta: 'Especialidad',
-          visible: false,
+          precio: null,
+          precioPendiente: true,
         },
       ],
     },
@@ -1125,8 +1126,7 @@ export const bebidasBarril = [
 export const especialidades = [
   {
     kicker: 'Solo los domingos',
-    // Esta vitrina debe destacar algo que sí esté publicado en el menú: la
-    // "Orden de barbacoa" sigue oculta por falta de precio.
+    // Esta vitrina destaca el taco individual publicado en el menú.
     nombre: 'Taco de barbacoa',
     texto:
       'Pieza de 80 g servida en tortilla hecha a mano. También por torta, orden de flautas, medio kilo y kilo.',
@@ -1158,9 +1158,8 @@ export const especialidades = [
 // Promociones Exuberantes (sección propia, debajo de las seis categorías).
 //
 // NO son una séptima categoría del menú: viven aparte y no tienen horario.
-// Ninguna trae precio todavía; se publican con `precioPendiente: true` para que
-// muestren "Precio por confirmar". Para publicar el precio real basta cambiar
-// `precio: null` por el número — la etiqueta desaparece sola.
+// Sin precio confirmado permanecen ocultas. Para publicarlas basta cambiar
+// `precio: null` por un número válido; se conservan todas sus condiciones.
 //
 // Los tamaños que el restaurante no especificó (por ejemplo, de qué tamaño es
 // el consomé del Combo Pareja) se dejan sin decir a propósito.
@@ -1174,7 +1173,6 @@ export const promocionesExuberantes = [
     incluye: ['4 tacos de barbacoa', '1 consomé', '2 cantaritos chicos de 355 ml'],
     detalle: 'Disponible solo los fines de semana',
     precio: null,
-    precioPendiente: true,
   },
   {
     id: 'familia',
@@ -1184,7 +1182,6 @@ export const promocionesExuberantes = [
     incluye: ['1 kilo de barbacoa', '5 consomés', '1 cantarito de 5 litros'],
     detalle: 'Disponible solo los fines de semana',
     precio: null,
-    precioPendiente: true,
   },
   {
     id: 'carnitas',
@@ -1194,7 +1191,6 @@ export const promocionesExuberantes = [
     incluye: ['2 tacos de carnitas', '1 cantarito de 1 litro'],
     detalle: 'Disponible solo los fines de semana',
     precio: null,
-    precioPendiente: true,
   },
   {
     id: 'cruda',
@@ -1204,7 +1200,6 @@ export const promocionesExuberantes = [
     incluye: ['1 aguachile', '1 cantarito chico de 355 ml'],
     detalle: 'Disponible solo los fines de semana',
     precio: null,
-    precioPendiente: true,
   },
   {
     id: 'ejecutivo',
@@ -1215,7 +1210,6 @@ export const promocionesExuberantes = [
     detalle: 'Disponible solo de lunes a viernes',
     restricciones: true,
     precio: null,
-    precioPendiente: true,
   },
   {
     id: 'conbeber',
@@ -1226,6 +1220,8 @@ export const promocionesExuberantes = [
     detalle: 'Disponible solo los fines de semana',
     restricciones: true,
     precio: null,
-    precioPendiente: true,
   },
 ]
+
+// La sección y sus enlaces usan la misma lista para evitar accesos vacíos.
+export const promocionesVisibles = promocionesExuberantes.filter(esVisible)

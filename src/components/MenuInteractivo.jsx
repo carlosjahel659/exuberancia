@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { categorias, menu } from '../data/menu'
+import { categorias, menu, promocionesVisibles } from '../data/menu'
 import { REGLAS, estadoCategoria, estadoGrupo } from '../data/horarios'
 import { useAhora } from '../hooks/useAhora'
 import { grupoVisible, productosVisibles } from '../utils/catalogo'
@@ -138,7 +138,7 @@ export default function MenuInteractivo() {
             <TarjetaCategoria categoria={cat} disponibilidad={ahora ? estadoCategoria(cat.id, ahora) : null} abierta={abierta === cat.id} onAbrir={abrir} refBoton={nodo => { enlaces.current[cat.id] = nodo }} />
           </li>)}
         </ul>
-        <a href="#promociones" className="menu-acceso-promos" aria-labelledby="menu-promos-titulo" aria-describedby="menu-promos-descripcion">
+        {promocionesVisibles.length > 0 && <a href="#promociones" className="menu-acceso-promos" aria-labelledby="menu-promos-titulo" aria-describedby="menu-promos-descripcion">
           <svg viewBox="0 0 32 32" className="h-9 w-9 shrink-0 text-amarillo" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
             <path d="M5 13h22v6H5zM8 19v10h16V19M16 13v16M16 13C4 13 7 1 13 6l3 7Zm0 0c12 0 9-12 3-7l-3 7Z" strokeLinejoin="round" />
           </svg>
@@ -147,7 +147,7 @@ export default function MenuInteractivo() {
             <span id="menu-promos-descripcion" className="mt-1 block text-xs leading-relaxed text-crema/80 sm:text-sm">Conoce nuestras promos para compartir</span>
           </span>
           <span aria-hidden="true" className="text-2xl text-amarillo">↓</span>
-        </a>
+        </a>}
         <p className="mt-4 text-center text-xs leading-relaxed text-crema/75">{categoria ? 'Puedes elegir otra categoría disponible. Sus platillos aparecen aquí abajo.' : 'Toca una categoría disponible para ver sus platillos aquí abajo.'}</p>
       </div>
 

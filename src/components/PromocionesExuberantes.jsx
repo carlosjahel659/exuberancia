@@ -1,4 +1,4 @@
-import { promocionesExuberantes } from '../data/menu'
+import { promocionesVisibles } from '../data/menu'
 import { ETIQUETA_PENDIENTE, precioValido } from '../utils/catalogo'
 import { precioMXN } from '../utils/precio'
 import { CLASES_COLOR, PALETA } from './Ornamentos'
@@ -118,6 +118,8 @@ function TarjetaPromoExuberante({ promo }) {
 }
 
 export default function PromocionesExuberantes() {
+  if (!promocionesVisibles.length) return null
+
   return (
     <Seccion id="promociones" aria-labelledby="promos-exuberantes">
       <div className="contenedor">
@@ -127,7 +129,7 @@ export default function PromocionesExuberantes() {
         </header>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {promocionesExuberantes.map((promo, indice) => (
+          {promocionesVisibles.map((promo, indice) => (
             <Revelar key={promo.id} retraso={indice * 40} className="h-full">
               <TarjetaPromoExuberante promo={promo} />
             </Revelar>

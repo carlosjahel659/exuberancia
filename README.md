@@ -51,7 +51,7 @@ Las seis categorías se conservan: Desayunos, Entradas, Comida mexicana, Fin de 
 
 El aviso de día y hora recupera su presentación anterior, con estados «Disponible ahora», «Disponible más tarde», «No disponible hoy» y «Solo domingos». Sin JavaScript se conserva una carta estática desplegable con horarios publicados; no se anuncia disponibilidad en tiempo real. El primer render es idéntico en servidor y cliente para mantener la hidratación.
 
-Las seis categorías permanecen visibles al seleccionar una: los platillos se muestran debajo y se puede cambiar directamente entre categorías disponibles. Al tocar una tarjeta se conserva la posición de la página; con teclado o enlace directo, el foco pasa al título del contenido. El acceso horizontal a Promociones Exuberantes ocupa todo el ancho debajo de la cuadrícula y lleva a `#promociones`. La barra dentro de los platillos permite subir a elegir otra categoría sin cerrar el panel. La navegación móvil cerrada no deja enlaces invisibles en el recorrido del teclado. Los controles tienen áreas táctiles de al menos 44 px. Las animaciones respetan `prefers-reduced-motion`.
+Las seis categorías permanecen visibles al seleccionar una: los platillos se muestran debajo y se puede cambiar directamente entre categorías disponibles. Al tocar una tarjeta se conserva la posición de la página; con teclado o enlace directo, el foco pasa al título del contenido. El acceso horizontal a Promociones Exuberantes ocupa todo el ancho debajo de la cuadrícula y lleva a `#promociones` cuando hay promociones publicadas. La sección y sus enlaces se ocultan mientras no haya ninguna. La barra dentro de los platillos permite subir a elegir otra categoría sin cerrar el panel. La navegación móvil cerrada no deja enlaces invisibles en el recorrido del teclado. Los controles tienen áreas táctiles de al menos 44 px. Las animaciones respetan `prefers-reduced-motion`.
 
 ## Horarios
 
@@ -86,19 +86,19 @@ La interfaz identifica la simulación y ofrece volver a la hora real. Acepta dí
 
 La carta original proviene de `public/menu-exuberancia.pdf`. Los precios y promociones incorporados posteriormente viven en `menu.js`: **ese archivo es la referencia de la interfaz actual**, no el PDF de respaldo. Sus comentarios históricos sobre ausencia de precios no describen todos los datos actuales.
 
-El rediseño conserva el archivo del catálogo y los recursos originales. Hay 116 registros, incluidos cargos por roturas: 98 publicables, 18 ocultos, tres variantes adicionales ocultas y cuatro productos publicables con precios pendientes. Las seis promociones están aparte y tienen precio pendiente.
+El catálogo conserva 116 registros, incluidos cargos por roturas: 97 publicables, 19 ocultos y tres variantes adicionales ocultas. Solo Barbacoa conserva precios pendientes visibles: la orden, los paquetes de 6 y 12 tacos y el consomé chico, mediano y grande. Sus ocho productos permanecen publicados, sujetos al horario habitual. Las seis promociones están aparte y ocultas hasta tener precio confirmado.
 
 - Guarda `precio` como número, nunca como texto con `$`.
 - Usa `variantes: [{ medida, precio }]` para presentaciones, sin duplicar productos.
 - Usa `sabores` para sabores y sus ingredientes.
 - `visible: false` u `oculto: true` conserva el producto sin publicarlo.
-- Sin precio válido no se publica, excepto con `precioPendiente: true`.
+- Sin precio válido no se publica. La excepción `precioPendiente: true` se utiliza actualmente solo en Barbacoa.
 - Para publicarlo, completa el precio y retira la marca de oculto.
 - `formato: 'bebidas'` activa las tarjetas de bebida.
 - `bloque` organiza bebidas sin alcohol, con alcohol y cargos por roturas.
 - El build reporta productos ocultos, variantes ocultas, importes pendientes y promociones por separado.
 
-Las promociones son informativas y no calculan pedidos ni descuentos. No se deducen precios de los productos individuales. El beneficio de cumpleaños continúa pendiente; sus requisitos sí están definidos en `site.js`.
+Las promociones son informativas y no calculan pedidos ni descuentos. No se deducen precios de los productos individuales. `promocionesVisibles` comparte el filtro de publicación con la sección, el acceso del menú y la navegación. Agregar un precio válido a una promoción conservada permite publicarla sin rehacer la interfaz. El beneficio de cumpleaños continúa pendiente; sus requisitos sí están definidos en `site.js`.
 
 Los molcajetes permanecen en Entradas, conforme a la decisión existente del proyecto. Barbacoa mantiene una categoría independiente del fin de semana.
 

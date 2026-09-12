@@ -39,14 +39,15 @@ for (const width of [320, 375, 390, 768, 1024, 1440, 1920]) {
   })
 }
 
-test('variantes, promociones, enlaces y navegación por teclado', async ({ page }) => {
+test('variantes, enlaces y navegación por teclado', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('?dia=domingo&hora=13:00#categoria-bebidas')
   const cantarito = page.locator('#panel-bebidas article').filter({ has: page.getByRole('heading', { name: 'Cantarito', exact: true }) })
   await expect(cantarito).toContainText('$85')
   await cantarito.getByRole('button', { name: /^5 litros/ }).click()
   await expect(cantarito.locator('[aria-live]')).toHaveText('$649')
-  await expect(page.locator('#promociones article')).toHaveCount(6)
+  await expect(page.locator('#promociones')).toHaveCount(0)
+  await expect(page.locator('a[href="#promociones"]')).toHaveCount(0)
   await expect(page.locator('a[href*="["]')).toHaveCount(0)
   expect(await page.locator('a[target="_blank"]').evaluateAll(links => links.every(link => link.rel.includes('noopener') && link.rel.includes('noreferrer')))).toBe(true)
   await page.getByRole('button', { name: 'Abrir navegación', exact: true }).click()
@@ -61,7 +62,7 @@ test('variantes, promociones, enlaces y navegación por teclado', async ({ page 
   expect(pequenos).toEqual([])
 })
 
-test('categorías persistentes y acceso a promociones debajo de la cuadrícula', async ({ page }) => {
+test('categorías persistentes sin accesos a promociones ocultas', async ({ page }) => {
   for (const width of [320, 390, 1440]) {
     await page.setViewportSize({ width, height: 1000 })
     await page.goto('?dia=domingo&hora=13:00#categorias')
@@ -78,20 +79,59 @@ test('categorías persistentes y acceso a promociones debajo de la cuadrícula',
     await expect(page.locator('#panel-mexicana')).toHaveCount(0)
     await expect(page.locator('#categoria-bebidas')).toHaveAttribute('aria-expanded', 'true')
     await expect(mexicana).toHaveAttribute('aria-expanded', 'false')
-    const promo = page.locator('#categorias').getByRole('link', { name: 'Promociones Exuberantes', exact: true })
-    const grid = await page.locator('#categorias ul').boundingBox()
-    const acceso = await promo.boundingBox()
-    expect(acceso.y).toBeGreaterThanOrEqual(grid.y + grid.height)
-    expect(Math.abs(acceso.width - grid.width)).toBeLessThan(1)
+    await expect(page.locator('a[href="#promociones"]')).toHaveCount(0)
     await page.locator('#panel-bebidas').getByRole('link', { name: '↑ Cambiar categoría', exact: true }).click()
     await expect(page.locator('#categoria-bebidas')).toBeInViewport()
     await expect(page.locator('#panel-bebidas')).toBeVisible()
-    await promo.click()
-    await expect(page).toHaveURL(/#promociones$/)
-    await expect(page.locator('#promos-exuberantes')).toBeInViewport()
     await sinDesbordamiento(page)
   }
 })
+
+for (const javaScriptEnabled of [true, false]) {
+  test('solo barbacoa conserva productos sin precio, ' + (javaScriptEnabled ? 'con JavaScript' : 'sin JavaScript'), async ({ browser, baseURL }) => {
+    const context = await browser.newContext({ baseURL, javaScriptEnabled })
+    try {
+      const page = await context.newPage()
+      await page.goto('/?dia=domingo&hora=13:00')
+      await expect(page.locator('#promociones, a[href="#promociones"]')).toHaveCount(0)
+      for (const nombre of ['Combo Pareja', 'Promo Familia', 'Promo Carnitas', 'Promo Cruda', 'Desayuno Ejecutivo', 'Promo Conbeber']) {
+        await expect(page.getByRole('heading', { name: nombre, exact: true })).toHaveCount(0)
+      }
+      for (const id of ['finde', 'barbacoa']) {
+        let panel
+        if (javaScriptEnabled) {
+          const boton = page.locator('#categoria-' + id)
+          await expect(boton).not.toHaveAttribute('aria-disabled', 'true')
+          await boton.click()
+          panel = page.locator('#panel-' + id)
+        } else {
+          panel = page.locator('#carta-estatica details').filter({ has: page.getByRole('heading', { name: id === 'finde' ? 'Fin de semana' : 'Barbacoa', exact: true }) })
+          await panel.locator('summary').click()
+        }
+        await expect(panel).toBeVisible()
+        if (id === 'finde') {
+          await expect(panel).not.toContainText('Precio por confirmar')
+          for (const nombre of ['Taco tradicional a la parrilla', 'Taco Exuberante a la parrilla']) {
+            await expect(panel.getByRole('heading', { name: nombre, exact: true })).toHaveCount(0)
+          }
+          await expect(panel).toContainText('Arrachera tampiqueña')
+          await expect(panel).toContainText('$249')
+        } else {
+          await expect(panel.locator('article')).toHaveCount(8)
+          await expect(panel.getByRole('heading', { name: 'Orden de barbacoa', exact: true })).toBeVisible()
+          const paquete = panel.locator('article').filter({ has: page.getByRole('heading', { name: 'Paquete de tacos de barbacoa', exact: true }) })
+          for (const medida of ['6 tacos', '12 tacos', 'Precio por confirmar']) await expect(paquete).toContainText(medida)
+          const consome = panel.locator('article').filter({ has: page.getByRole('heading', { name: 'Consomé', exact: true }) })
+          for (const medida of ['Chico', 'Mediano', 'Grande', 'Precio por confirmar']) await expect(consome).toContainText(medida)
+          await expect(panel).toContainText('$415')
+          await expect(panel).toContainText('$789')
+        }
+      }
+    } finally {
+      await context.close()
+    }
+  })
+}
 
 test('accesibilidad WCAG AA en portada y categorías con mayor contenido', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })

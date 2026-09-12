@@ -5,6 +5,7 @@
 // -----------------------------------------------------------------------------
 
 import { APERTURAS_SERVICIO, REGLAS_PROMO, CIERRE_DIARIO, formatoHora } from './horarios'
+import { promocionesVisibles } from './menu'
 
 export const PENDIENTE = (valor) => typeof valor === 'string' && valor.startsWith('[')
 
@@ -81,7 +82,7 @@ export const navegacion = [
   { id: 'promociones', etiqueta: 'Promociones' },
   { id: 'nosotros', etiqueta: 'Nosotros' },
   { id: 'ubicacion', etiqueta: 'Ubicación' },
-]
+].filter(enlace => enlace.id !== 'promociones' || promocionesVisibles.length > 0)
 
 /**
  * El pie enlaza además a #contacto (el bloque de datos dentro de Ubicación).
