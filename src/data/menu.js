@@ -544,8 +544,8 @@ export const menu = {
           descripcion: 'Acompañadas de tortillas hechas a mano.',
           detalles: [{ etiqueta: 'Elige tu corte', opciones: CORTES_CARNITAS }],
           variantes: [
-            { medida: 'Medio kilo', precio: 250 },
-            { medida: 'Un kilo', precio: 400 },
+            { medida: 'Medio kilo', precio: 190 },
+            { medida: 'Un kilo', precio: 380 },
           ],
         },
         {
@@ -557,7 +557,7 @@ export const menu = {
           nombre: 'Taco de carnitas',
           descripcion: 'Servido en tortilla hecha a mano.',
           detalles: [{ etiqueta: 'Elige tu corte', opciones: CORTES_CARNITAS }],
-          visible: false,
+          precio: 35,
         },
         {
           nombre: 'Torta de carnitas',
@@ -694,7 +694,7 @@ export const menu = {
       productos: [
         {
           nombre: 'Taco de barbacoa',
-          precio: 59,
+          precio: 49,
           descripcion: 'Pieza de 80 g servida en tortilla hecha a mano.',
           imagen: IMG.barbacoa,
         },
@@ -707,17 +707,6 @@ export const menu = {
           nombre: 'Torta de barbacoa',
           precio: 79,
           descripcion: 'Bolillo normal relleno de barbacoa.',
-        },
-        {
-          // Presentaciones nuevas. El precio NO se calcula multiplicando el
-          // taco suelto: pueden llevar precio promocional.
-          nombre: 'Paquete de tacos de barbacoa',
-          descripcion: 'Servidos en tortillas hechas a mano.',
-          precioPendiente: true,
-          variantes: [
-            { medida: '6 tacos', precio: null },
-            { medida: '12 tacos', precio: null },
-          ],
         },
         {
           nombre: 'Orden de barbacoa',
@@ -735,8 +724,8 @@ export const menu = {
           nombre: 'Barbacoa por peso',
           descripcion: 'Acompañada con tortillas hechas a mano.',
           variantes: [
-            { medida: 'Medio kilo', precio: 415 },
-            { medida: 'Un kilo', precio: 789 },
+            { medida: 'Medio kilo', precio: 490 },
+            { medida: 'Un kilo', precio: 850 },
           ],
           etiqueta: 'Especialidad',
         },
@@ -750,9 +739,8 @@ export const menu = {
           descripcion: 'Caldo de la casa, servido bien caliente.',
           precioPendiente: true,
           variantes: [
-            { medida: 'Chico', precio: null },
-            { medida: 'Mediano', precio: null },
-            { medida: 'Grande', precio: null },
+            { medida: 'Chico', precio: 39 },
+            { medida: 'Grande', precio: 49 },
           ],
         },
       ],

@@ -86,7 +86,7 @@ La interfaz identifica la simulación y ofrece volver a la hora real. Acepta dí
 
 La carta original proviene de `public/menu-exuberancia.pdf`. Los precios y promociones incorporados posteriormente viven en `menu.js`: **ese archivo es la referencia de la interfaz actual**, no el PDF de respaldo. Sus comentarios históricos sobre ausencia de precios no describen todos los datos actuales.
 
-El catálogo conserva 116 registros, incluidos cargos por roturas: 97 publicables, 19 ocultos y tres variantes adicionales ocultas. Solo Barbacoa conserva precios pendientes visibles: la orden, los paquetes de 6 y 12 tacos y el consomé chico, mediano y grande. Sus ocho productos permanecen publicados, sujetos al horario habitual. Las seis promociones están aparte y ocultas hasta tener precio confirmado.
+El catálogo conserva 115 registros, incluidos cargos por roturas: 97 publicables, 18 ocultos y tres variantes adicionales ocultas. Solo la orden de Barbacoa conserva precio pendiente visible. Los siete productos de Barbacoa permanecen publicados, sujetos al horario habitual; los paquetes de 6 y 12 tacos se retiraron y se conserva el taco individual. El consomé se ofrece en tamaño chico y grande. El taco de carnitas está publicado con precio confirmado. Las seis promociones están aparte y ocultas hasta tener precio confirmado.
 
 - Guarda `precio` como número, nunca como texto con `$`.
 - Usa `variantes: [{ medida, precio }]` para presentaciones, sin duplicar productos.
@@ -134,7 +134,7 @@ No es el hosting configurado actualmente. El build prepara `dist/_headers` con C
 
 ## Datos que faltan
 
-En `src/data/site.js`: dirección, teléfono, WhatsApp, Google Maps, enlace para reseñas e Instagram. Facebook y TikTok conservan sus URLs existentes.
+En `src/data/site.js`: dirección escrita, teléfono, WhatsApp, enlace para reseñas e Instagram. El enlace de Google Maps ya está configurado y habilita los botones «Cómo llegar». Facebook y TikTok conservan sus URLs existentes.
 
 La sección de ubicación muestra estos pendientes con botones deshabilitados; no representa un mapa ficticio ni promete que agregar una URL incruste uno. La reseña requiere su propio enlace confirmado.
 

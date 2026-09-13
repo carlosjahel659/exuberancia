@@ -116,15 +116,32 @@ for (const javaScriptEnabled of [true, false]) {
           }
           await expect(panel).toContainText('Arrachera tampiqueña')
           await expect(panel).toContainText('$249')
+          const taco = panel.locator('article').filter({ has: page.getByRole('heading', { name: 'Taco de carnitas', exact: true }) })
+          await expect(taco).toHaveCount(1)
+          await expect(taco).toContainText('$35')
+          const carnitas = panel.locator('article').filter({ has: page.getByRole('heading', { name: 'Carnitas por peso', exact: true }) })
+          for (const [medida, precio] of [['Medio kilo', '$190'], ['Un kilo', '$380']]) {
+            await expect(carnitas.locator('li').filter({ hasText: medida })).toContainText(precio)
+          }
         } else {
-          await expect(panel.locator('article')).toHaveCount(8)
+          await expect(panel.locator('article')).toHaveCount(7)
           await expect(panel.getByRole('heading', { name: 'Orden de barbacoa', exact: true })).toBeVisible()
-          const paquete = panel.locator('article').filter({ has: page.getByRole('heading', { name: 'Paquete de tacos de barbacoa', exact: true }) })
-          for (const medida of ['6 tacos', '12 tacos', 'Precio por confirmar']) await expect(paquete).toContainText(medida)
+          await expect(panel.getByRole('heading', { name: 'Paquete de tacos de barbacoa', exact: true })).toHaveCount(0)
+          await expect(panel).not.toContainText('6 tacos')
+          await expect(panel).not.toContainText('12 tacos')
+          const taco = panel.locator('article').filter({ has: page.getByRole('heading', { name: 'Taco de barbacoa', exact: true }) })
+          await expect(taco).toHaveCount(1)
+          await expect(taco).toContainText('$49')
           const consome = panel.locator('article').filter({ has: page.getByRole('heading', { name: 'Consomé', exact: true }) })
-          for (const medida of ['Chico', 'Mediano', 'Grande', 'Precio por confirmar']) await expect(consome).toContainText(medida)
-          await expect(panel).toContainText('$415')
-          await expect(panel).toContainText('$789')
+          await expect(consome).not.toContainText('Mediano')
+          await expect(consome).not.toContainText('Precio por confirmar')
+          for (const [medida, precio] of [['Chico', '$39'], ['Grande', '$49']]) {
+            await expect(consome.locator('li').filter({ hasText: medida })).toContainText(precio)
+          }
+          const barbacoa = panel.locator('article').filter({ has: page.getByRole('heading', { name: 'Barbacoa por peso', exact: true }) })
+          for (const [medida, precio] of [['Medio kilo', '$490'], ['Un kilo', '$850']]) {
+            await expect(barbacoa.locator('li').filter({ hasText: medida })).toContainText(precio)
+          }
         }
       }
     } finally {
@@ -156,6 +173,14 @@ test('HTML sin JavaScript, SEO y recursos del dominio personalizado', async ({ b
   expect(JSON.stringify(json)).toContain('MenuItem')
   expect(json['@graph'].find(item => item['@type'] === 'Restaurant')).toMatchObject({ '@id': sitio + '#restaurant', url: sitio, logo: sitio + 'assets/logo-exuberancia.webp' })
   expect(json['@graph'].find(item => item['@type'] === 'Menu')).toMatchObject({ '@id': sitio + '#menu', url: sitio + '#menu' })
+  const maps = 'https://maps.app.goo.gl/uz9weW4euEgtEUPUA?g_st=ic'
+  expect(json['@graph'].find(item => item['@type'] === 'Restaurant').hasMap).toBe(maps)
+  const enlacesMaps = page.getByRole('link', { name: /Cómo llegar/ })
+  expect(await enlacesMaps.count()).toBeGreaterThan(0)
+  for (const enlace of await enlacesMaps.all()) {
+    await expect(enlace).toHaveAttribute('href', maps)
+    await expect(enlace).toHaveAttribute('target', '_blank')
+  }
   expect((await page.locator('meta[name="description"]').getAttribute('content')).length).toBeLessThanOrEqual(160)
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', sitio)
   await expect(page.locator('meta[property="og:url"]')).toHaveAttribute('content', sitio)

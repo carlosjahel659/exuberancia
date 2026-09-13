@@ -29,7 +29,7 @@ export const site = {
   direccion: '[DIRECCIÓN]',
   telefono: '[TELÉFONO]',
   whatsapp: '[WHATSAPP_LINK]',
-  maps: '[GOOGLE_MAPS_URL]',
+  maps: 'https://maps.app.goo.gl/uz9weW4euEgtEUPUA?g_st=ic',
   resenas: '[GOOGLE_REVIEW_URL]',
   instagram: '[INSTAGRAM_URL]',
   // Enlaces limpios: se quitaron los parámetros de rastreo que agrega el botón
