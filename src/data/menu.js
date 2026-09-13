@@ -687,7 +687,6 @@ export const menu = {
 
   // ----------------------------------------------------------------- Barbacoa
   // La categoría sigue desbloqueándose solo los domingos (src/data/horarios.js).
-  // Es la única sección que publica productos con precio pendiente.
   barbacoa: [
     {
       grupo: 'Por orden',
@@ -702,11 +701,13 @@ export const menu = {
           nombre: 'Orden de flautas de barbacoa',
           precio: 189,
           descripcion: 'Tres flautas de barbacoa acompañadas con consomé.',
+          visible: false,
         },
         {
           nombre: 'Torta de barbacoa',
           precio: 79,
           descripcion: 'Bolillo normal relleno de barbacoa.',
+          visible: false,
         },
         {
           nombre: 'Orden de barbacoa',
@@ -714,6 +715,7 @@ export const menu = {
           etiqueta: 'Especialidad',
           precio: null,
           precioPendiente: true,
+          visible: false,
         },
       ],
     },
@@ -1117,7 +1119,7 @@ export const especialidades = [
     // Esta vitrina destaca el taco individual publicado en el menú.
     nombre: 'Taco de barbacoa',
     texto:
-      'Pieza de 80 g servida en tortilla hecha a mano. También por torta, orden de flautas, medio kilo y kilo.',
+      'Pieza de 80 g servida en tortilla hecha a mano. También por medio kilo y kilo.',
     etiqueta: 'Especialidad',
     imagen: IMG.barbacoa,
     color: 'rosa',

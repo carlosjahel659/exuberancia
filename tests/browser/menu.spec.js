@@ -88,7 +88,7 @@ test('categorías persistentes sin accesos a promociones ocultas', async ({ page
 })
 
 for (const javaScriptEnabled of [true, false]) {
-  test('solo barbacoa conserva productos sin precio, ' + (javaScriptEnabled ? 'con JavaScript' : 'sin JavaScript'), async ({ browser, baseURL }) => {
+  test('barbacoa conserva precios y respeta productos ocultos, ' + (javaScriptEnabled ? 'con JavaScript' : 'sin JavaScript'), async ({ browser, baseURL }) => {
     const context = await browser.newContext({ baseURL, javaScriptEnabled })
     try {
       const page = await context.newPage()
@@ -124,8 +124,13 @@ for (const javaScriptEnabled of [true, false]) {
             await expect(carnitas.locator('li').filter({ hasText: medida })).toContainText(precio)
           }
         } else {
-          await expect(panel.locator('article')).toHaveCount(7)
-          await expect(panel.getByRole('heading', { name: 'Orden de barbacoa', exact: true })).toBeVisible()
+          await expect(panel.locator('article')).toHaveCount(4)
+          for (const nombre of ['Orden de flautas de barbacoa', 'Torta de barbacoa', 'Orden de barbacoa']) {
+            await expect(page.getByRole('heading', { name: nombre, exact: true })).toHaveCount(0)
+          }
+          await expect(panel).not.toContainText('Precio por confirmar')
+          await expect(page.locator('#especialidades')).not.toContainText('orden de flautas')
+          await expect(page.locator('#especialidades')).not.toContainText('por torta')
           await expect(panel.getByRole('heading', { name: 'Paquete de tacos de barbacoa', exact: true })).toHaveCount(0)
           await expect(panel).not.toContainText('6 tacos')
           await expect(panel).not.toContainText('12 tacos')
@@ -167,7 +172,7 @@ test('HTML sin JavaScript, SEO y recursos del dominio personalizado', async ({ b
   await page.goto('/')
   const carta = page.locator('#carta-estatica details').filter({ has: page.getByRole('heading', { name: 'Barbacoa', exact: true }) })
   await carta.locator('summary').click()
-  await expect(carta).toContainText('Precio por confirmar')
+  await expect(carta).not.toContainText('Precio por confirmar')
   const json = JSON.parse(await page.locator('script[type="application/ld+json"]').textContent())
   expect(JSON.stringify(json)).toContain('Restaurant')
   expect(JSON.stringify(json)).toContain('MenuItem')
