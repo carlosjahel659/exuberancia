@@ -71,6 +71,8 @@ No se amplió el desayuno a las 7:00. Las reglas generales prevalecen sobre los 
 
 El reloj usa la fecha del dispositivo convertida a `America/Mexico_City`; no consulta un servidor de hora. Se actualiza cada 30 segundos y al volver a la pestaña. Las funciones de futura validación de carrito no constituyen un backend.
 
+El **13 de septiembre de 2026**, `CIERRES_POR_FECHA` bloquea Desayunos, Entradas y Comida mexicana durante todo el día, conservando sus tarjetas visibles. Fin de semana, Barbacoa y Bebidas mantienen sus horarios. El 14 de septiembre la excepción deja de aplicarse automáticamente y vuelve el horario habitual. El bloqueo se aplica al menú interactivo, incluidos enlaces directos y grupos; la carta estática sin JavaScript sigue siendo informativa.
+
 ### Simular días
 
 ```text
@@ -81,6 +83,8 @@ El reloj usa la fecha del dispositivo convertida a `America/Mexico_City`; no con
 ```
 
 La interfaz identifica la simulación y ofrece volver a la hora real. Acepta días 0–6 o nombres, reloj 00:00–23:59 y fechas válidas. Una fecha sin zona se interpreta como hora civil de Ciudad de México. Los valores inválidos se ignoran.
+
+Para revisar excepciones por fecha, usa `/?ahora=2026-09-13T10:00`. La simulación con solo `dia` consulta el horario semanal habitual; con solo `hora` conserva la fecha real de CDMX.
 
 ## Mantener el catálogo
 

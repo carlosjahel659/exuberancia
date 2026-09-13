@@ -9,6 +9,49 @@ import {
 const instanteReal = new Date('2026-09-07T16:15:00Z')
 const momento = (dia, hora, minuto = 0) => ({ dia, minutos: hora * 60 + minuto })
 
+test('cierre del 13 de septiembre bloquea tres categorías todo el día y sus grupos', () => {
+  for (let minutos = 0; minutos < 1440; minutos += 1) {
+    const ahora = { fecha: '2026-09-13', dia: 0, minutos }
+    for (const id of ['desayunos', 'entradas', 'mexicana']) {
+      assert.equal(estadoCategoria(id, ahora).estado.id, 'noHoy')
+      assert.equal(estadoGrupo('Sin regla', id, ahora).disponible, false)
+      assert.equal(puedeAgregarAlCarrito({ categoria: id }, ahora).permitido, false)
+    }
+    for (const id of ['finde', 'barbacoa', 'bebidas']) {
+      assert.equal(estadoCategoria(id, ahora).disponible, minutos >= 420 && minutos < 1170)
+    }
+  }
+  const hoy = ahoraEnCDMX(new Date('2026-09-13T16:00:00Z'), '')
+  assert.deepEqual(avisoDelDia(hoy).activas, ['Fin de semana', 'Barbacoa', 'Bebidas'])
+  assert.deepEqual(avisoDelDia(hoy).masTarde, [])
+})
+
+test('excepción empieza y vence a medianoche CDMX, no UTC, sin afectar otros días', () => {
+  for (const [instante, fecha, excepcional] of [
+    ['2026-09-13T05:59:59Z', '2026-09-12', false],
+    ['2026-09-13T06:00:00Z', '2026-09-13', true],
+    ['2026-09-14T05:59:59Z', '2026-09-13', true],
+    ['2026-09-14T06:00:00Z', '2026-09-14', false],
+  ]) {
+    const ahora = ahoraEnCDMX(new Date(instante), '')
+    assert.equal(ahora.fecha, fecha)
+    assert.equal(estadoCategoria('entradas', ahora).mensaje.includes('No disponible hoy.'), excepcional)
+  }
+  for (const fecha of ['2026-09-12', '2026-09-14', '2026-09-20']) {
+    for (const [id, hora] of [['desayunos', '10:00'], ['entradas', '10:00'], ['mexicana', '13:00']]) {
+      assert.equal(estadoCategoria(id, ahoraEnCDMX(instanteReal, `?ahora=${fecha}T${hora}`)).disponible, true)
+    }
+  }
+})
+
+test('simulación fechada y por hora respetan el cierre; día semanal revisa horario habitual', () => {
+  const hoy = new Date('2026-09-13T16:00:00Z')
+  for (const consulta of ['', '?hora=10:00', '?ahora=2026-09-13T10:00', '?ahora=2026-09-13T16:00Z']) {
+    assert.equal(estadoCategoria('entradas', ahoraEnCDMX(hoy, consulta)).disponible, false)
+  }
+  assert.equal(estadoCategoria('entradas', ahoraEnCDMX(hoy, '?dia=domingo&hora=10:00')).disponible, true)
+})
+
 test('apertura unificada: 9 entre semana y 7 el fin de semana', () => {
   assert.equal(APERTURAS_SERVICIO.length, 2)
   for (let dia = 0; dia < 7; dia += 1) {
@@ -96,7 +139,7 @@ test('música respeta reglas existentes y promociones informativas no inventan h
 
 test('simulación acepta únicamente días y reloj válidos', () => {
   assert.deepEqual(leerSimulacion('?dia=domingo&hora=13:00', instanteReal), {
-    dia: 0, minutos: 780, simulado: true,
+    fecha: null, dia: 0, minutos: 780, simulado: true,
   })
   assert.equal(leerSimulacion('?dia=MIÉRCOLES&hora=09:00', instanteReal).dia, 3)
   assert.equal(leerSimulacion('?dia=6&hora=09:00', instanteReal).dia, 6)
@@ -114,22 +157,22 @@ test('simulación acepta únicamente días y reloj válidos', () => {
 
 test('parámetros válidos sobreviven a otros inválidos sin normalizar basura', () => {
   assert.deepEqual(leerSimulacion('?dia=7&hora=13:00', instanteReal), {
-    dia: 1, minutos: 780, simulado: true,
+    fecha: '2026-09-07', dia: 1, minutos: 780, simulado: true,
   })
   assert.deepEqual(leerSimulacion('?dia=domingo&hora=25:00', instanteReal), {
-    dia: 0, minutos: 615, simulado: true,
+    fecha: null, dia: 0, minutos: 615, simulado: true,
   })
 })
 
 test('fecha de simulación sin zona es civil CDMX y fecha con zona se convierte', () => {
   assert.deepEqual(leerSimulacion('?ahora=2026-09-06T13:00', instanteReal), {
-    dia: 0, minutos: 780, simulado: true,
+    fecha: '2026-09-06', dia: 0, minutos: 780, simulado: true,
   })
   assert.deepEqual(leerSimulacion('?ahora=2026-09-07T01:00Z', instanteReal), {
-    dia: 0, minutos: 1140, simulado: true,
+    fecha: '2026-09-06', dia: 0, minutos: 1140, simulado: true,
   })
   assert.deepEqual(leerSimulacion('?ahora=2026-09-06T13:00-06:00', instanteReal), {
-    dia: 0, minutos: 780, simulado: true,
+    fecha: '2026-09-06', dia: 0, minutos: 780, simulado: true,
   })
   assert.equal(leerSimulacion('?ahora=2024-02-29T12:00', instanteReal).dia, 4)
   assert.equal(ahoraEnCDMX(instanteReal, '?hora=invalida').simulado, false)

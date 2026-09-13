@@ -3,6 +3,57 @@ import AxeBuilder from '@axe-core/playwright'
 
 const categorias = ['desayunos', 'entradas', 'mexicana', 'finde', 'barbacoa', 'bebidas']
 
+test('cierre de hoy conserva categorías visibles y bloquea clic, teclado y enlaces directos', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-09-13T16:00:00Z'))
+  await page.goto('/')
+  for (const id of ['desayunos', 'entradas', 'mexicana']) {
+    const boton = page.locator('#categoria-' + id)
+    await expect(boton).toBeVisible()
+    await expect(boton).toHaveAttribute('aria-disabled', 'true')
+    await expect(boton).toContainText('No disponible hoy')
+    await expect(boton).toContainText('Mañana en horario habitual')
+    await boton.click({ force: true })
+    await expect(page.locator('#panel-' + id)).toHaveCount(0)
+    await boton.focus()
+    for (const tecla of ['Enter', 'Space']) {
+      await page.keyboard.press(tecla)
+      await expect(page.locator('#panel-' + id)).toHaveCount(0)
+    }
+    for (const prefijo of ['categoria-', 'panel-']) {
+      await page.goto('/#' + prefijo + id)
+      await expect(boton).toHaveAttribute('aria-disabled', 'true')
+      await expect(page.locator('#panel-' + id)).toHaveCount(0)
+    }
+  }
+  for (const id of ['finde', 'barbacoa', 'bebidas']) {
+    await page.locator('#categoria-' + id).click()
+    await expect(page.locator('#panel-' + id)).toBeVisible()
+    for (const otra of categorias) await expect(page.locator('#categoria-' + otra)).toBeVisible()
+  }
+})
+
+test('el reloj cierra un panel al entrar al día excepcional y mañana vuelve al horario habitual', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-09-12T16:00:00Z') })
+  await page.goto('/#categoria-entradas')
+  await expect(page.locator('#panel-entradas')).toBeVisible()
+  await page.clock.setSystemTime(new Date('2026-09-13T16:00:00Z'))
+  await page.clock.runFor(30000)
+  await expect(page.locator('#categoria-entradas')).toHaveAttribute('aria-disabled', 'true')
+  await expect(page.locator('#panel-entradas')).toHaveCount(0)
+  await expect(page.locator('#categoria-entradas')).toBeFocused()
+  await page.clock.setSystemTime(new Date('2026-09-14T16:00:00Z'))
+  await page.clock.runFor(30000)
+  for (const id of ['desayunos', 'entradas']) {
+    await expect(page.locator('#categoria-' + id)).not.toHaveAttribute('aria-disabled', 'true')
+    await page.locator('#categoria-' + id).click()
+    await expect(page.locator('#panel-' + id)).toBeVisible()
+  }
+  await page.clock.setSystemTime(new Date('2026-09-14T19:00:00Z'))
+  await page.clock.runFor(30000)
+  await page.locator('#categoria-mexicana').click()
+  await expect(page.locator('#panel-mexicana')).toBeVisible()
+})
+
 async function sinDesbordamiento(page) {
   const overflow = await page.evaluate(() => ({ ancho: innerWidth, contenido: document.documentElement.scrollWidth }))
   expect(overflow.contenido).toBeLessThanOrEqual(overflow.ancho + 1)

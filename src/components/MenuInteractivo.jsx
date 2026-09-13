@@ -151,7 +151,7 @@ export default function MenuInteractivo() {
         <p className="mt-4 text-center text-xs leading-relaxed text-crema/75">{categoria ? 'Puedes elegir otra categoría disponible. Sus platillos aparecen aquí abajo.' : 'Toca una categoría disponible para ver sus platillos aquí abajo.'}</p>
       </div>
 
-      {categoria && disponibilidad && <div id={'panel-' + categoria.id} role="region" aria-labelledby={'titulo-' + categoria.id} className="mt-7 scroll-mt-4 pb-6 lg:mt-12">
+      {categoria && disponibilidad?.disponible && <div id={'panel-' + categoria.id} role="region" aria-labelledby={'titulo-' + categoria.id} className="mt-7 scroll-mt-4 pb-6 lg:mt-12">
         <div className="menu-volver">
           <Boton variante="fantasma" href="#categorias">↑ Cambiar categoría</Boton>
           <PastillaEstado estado={disponibilidad.estado} tamano="chico" />

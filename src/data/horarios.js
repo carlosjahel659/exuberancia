@@ -13,6 +13,11 @@ export const FIN_DE_SEMANA = [6, 0]
 export const TODOS_LOS_DIAS = [0, 1, 2, 3, 4, 5, 6]
 export const SOLO_DOMINGO = [0]
 
+// Excepción de servicio por fecha civil de Ciudad de México; vence sin otro build.
+const CIERRES_POR_FECHA = {
+  '2026-09-13': ['desayunos', 'entradas', 'mexicana'],
+}
+
 const min = (hora, minuto = 0) => hora * 60 + minuto
 export const CIERRE_DIARIO = min(19, 30)
 
@@ -136,6 +141,9 @@ export const REGLAS_PROMO = {
 const relojCDMX = new Intl.DateTimeFormat('en-US', {
   timeZone: ZONA,
   weekday: 'short',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
   hour: '2-digit',
   minute: '2-digit',
   hourCycle: 'h23',
@@ -145,6 +153,7 @@ function calcularAhora(base = new Date()) {
   const partes = relojCDMX.formatToParts(base)
   const valor = (tipo) => partes.find((p) => p.type === tipo)?.value ?? ''
   return {
+    fecha: `${valor('year')}-${valor('month')}-${valor('day')}`,
     dia: DIAS_INTL.indexOf(valor('weekday')),
     minutos: Number(valor('hour')) * 60 + Number(valor('minute')),
     simulado: false,
@@ -171,7 +180,7 @@ function leerFechaSimulada(valor) {
     const instante = new Date(`${anio}-${mes}-${diaMes}T${hora}:${minuto}:${segundo}${zona}`)
     return Number.isNaN(instante.getTime()) ? null : calcularAhora(instante)
   }
-  return { dia: fecha.getUTCDay(), minutos: Number(hora) * 60 + Number(minuto) }
+  return { fecha: `${anio}-${mes}-${diaMes}`, dia: fecha.getUTCDay(), minutos: Number(hora) * 60 + Number(minuto) }
 }
 
 /**
@@ -194,6 +203,8 @@ export function leerSimulacion(busqueda, base = new Date()) {
 
   const momento = fecha ?? calcularAhora(base)
   return {
+    // Un día semanal sin fecha revisa el horario habitual, sin excepciones fechadas.
+    fecha: fecha?.fecha ?? (dia >= 0 ? null : momento.fecha),
     dia: dia >= 0 ? dia : momento.dia,
     minutos: hora ? Number(hora[1]) * 60 + Number(hora[2]) : momento.minutos,
     simulado: true,
@@ -297,6 +308,17 @@ export function evaluar(regla, ahora = ahoraEnCDMX()) {
 }
 
 export function estadoCategoria(id, ahora = ahoraEnCDMX()) {
+  if (CIERRES_POR_FECHA[ahora?.fecha]?.includes(id)) {
+    const siguiente = proximoDia(REGLAS[id], ahora.dia)
+    return {
+      estado: ESTADOS.noHoy,
+      disponible: false,
+      mensaje: 'No disponible hoy. Mañana volvemos en nuestro horario habitual.',
+      resumen: REGLAS[id].resumen,
+      proximo: siguiente,
+      textoProximo: 'Mañana en horario habitual',
+    }
+  }
   return evaluar(Object.hasOwn(REGLAS, id) ? REGLAS[id] : null, ahora)
 }
 
