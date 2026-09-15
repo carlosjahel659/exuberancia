@@ -902,8 +902,9 @@ export const menu = {
           nombre: 'Piña colada',
           descripcion: 'Ron, preparado de piña colada y jugo de piña.',
           variantes: [
-            { medida: '500 ml', precio: 110 },
-            { medida: '1 litro', precio: 199 },
+            { medida: '250 ml', precio: 99 },
+            { medida: '500 ml', precio: 150 },
+            { medida: '1 litro', precio: 220 },
           ],
         },
         {
