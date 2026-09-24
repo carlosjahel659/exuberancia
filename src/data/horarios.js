@@ -18,6 +18,13 @@ const CIERRES_POR_FECHA = {
   '2026-09-13': ['desayunos', 'entradas', 'mexicana'],
 }
 
+// Modo vista previa: ignora horarios, días y cierres por fecha para que el
+// cliente pueda revisar todo el menú sin importar cuándo entre. Las reglas de
+// abajo (REGLAS, APERTURAS_SERVICIO, CIERRES_POR_FECHA, etc.) NO se tocan; solo
+// se deja de aplicarlas mientras esta bandera esté en `true`.
+// Para volver al horario normal: cambia esta constante a `false`.
+const MOSTRAR_TODO_SIEMPRE = true
+
 const min = (hora, minuto = 0) => hora * 60 + minuto
 export const CIERRE_DIARIO = min(19, 30)
 
@@ -250,6 +257,16 @@ const noDisponible = () => ({
 
 /** Apertura y cierre generales limitan todas las reglas, sin ampliar ninguna. */
 export function evaluar(regla, ahora = ahoraEnCDMX()) {
+  if (MOSTRAR_TODO_SIEMPRE) {
+    return {
+      estado: ESTADOS.ahora,
+      disponible: true,
+      mensaje: regla?.textoActivo ?? 'Disponible ahora',
+      resumen: regla?.resumen ?? '',
+      proximo: null,
+      textoProximo: '',
+    }
+  }
   if (
     !Array.isArray(regla?.dias) ||
     !Number.isFinite(regla.desde) ||
@@ -308,7 +325,7 @@ export function evaluar(regla, ahora = ahoraEnCDMX()) {
 }
 
 export function estadoCategoria(id, ahora = ahoraEnCDMX()) {
-  if (CIERRES_POR_FECHA[ahora?.fecha]?.includes(id)) {
+  if (!MOSTRAR_TODO_SIEMPRE && CIERRES_POR_FECHA[ahora?.fecha]?.includes(id)) {
     const siguiente = proximoDia(REGLAS[id], ahora.dia)
     return {
       estado: ESTADOS.noHoy,
