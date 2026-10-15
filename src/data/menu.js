@@ -470,36 +470,26 @@ export const menu = {
       ],
     },
     {
-      grupo: 'Quesadillas y gorditas',
+      grupo: 'Quesadillas',
       productos: [
         {
           nombre: 'Quesadilla',
           descripcion: 'Preparada con queso y acompañada de frijoles y salsa.',
           etiqueta: 'Precio por pieza',
           variantes: [
-            { medida: 'De chicharrón', precio: 35 },
-            { medida: 'De queso Oaxaca', precio: 35 },
-            { medida: 'De tinga de pollo', precio: 35 },
+            { medida: 'De queso', precio: 45 },
+            { medida: 'De tinga', precio: 45 },
             // Chorizo y chistorra todavía no tienen precio por pieza.
             { medida: 'De chorizo o chistorra', precio: null },
           ],
           imagen: IMG.quesadillas,
         },
-        { nombre: 'Quesadilla combinada', precio: 45, etiqueta: 'Precio por pieza' },
-        { nombre: 'Quesadilla de carnitas', precio: 45, etiqueta: 'Precio por pieza' },
         {
           nombre: 'Quesadilla Exuberante',
           precio: 69,
           descripcion: 'Con queso, frijoles y salsa.',
           etiqueta: 'Precio por pieza',
           detalles: [{ etiqueta: 'Incluye', tipo: 'incluye', opciones: PROTEINAS }],
-        },
-        { nombre: 'Gordita de chicharrón', precio: 40, etiqueta: 'Precio por pieza' },
-        {
-          nombre: 'Gordita de carnitas',
-          precio: 49,
-          descripcion: 'Lleva 100 g de carnitas surtidas.',
-          etiqueta: 'Precio por pieza',
         },
       ],
     },
@@ -589,6 +579,30 @@ export const menu = {
           descripcion: 'Preparada en bolillo normal.',
           detalles: [{ etiqueta: 'Elige tu corte', opciones: CORTES_CARNITAS }],
           visible: false,
+        },
+      ],
+    },
+    {
+      // Quesadillas y gorditas de fin de semana; las diarias siguen en `mexicana`.
+      grupo: 'Quesadillas y gorditas',
+      productos: [
+        {
+          nombre: 'Quesadilla de fin de semana',
+          etiqueta: 'Precio por pieza',
+          variantes: [
+            { medida: 'De chicharrón', precio: 35 },
+            { medida: 'De queso Oaxaca', precio: 35 },
+            { medida: 'De tinga de pollo', precio: 35 },
+          ],
+        },
+        { nombre: 'Quesadilla combinada', precio: 45, etiqueta: 'Precio por pieza' },
+        { nombre: 'Quesadilla de carnitas', precio: 45, etiqueta: 'Precio por pieza' },
+        { nombre: 'Gordita de chicharrón', precio: 40, etiqueta: 'Precio por pieza' },
+        {
+          nombre: 'Gordita de carnitas',
+          precio: 49,
+          descripcion: 'Lleva 100 g de carnitas surtidas.',
+          etiqueta: 'Precio por pieza',
         },
       ],
     },
@@ -758,7 +772,7 @@ export const menu = {
         {
           nombre: 'Orden de flautas de barbacoa',
           precio: 109,
-          descripcion: 'Orden de 3 flautas.',
+          descripcion: 'Orden de 3 flautas acompañadas con consomé.',
         },
         {
           nombre: 'Torta de barbacoa',
