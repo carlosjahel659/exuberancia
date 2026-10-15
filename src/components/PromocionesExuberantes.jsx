@@ -79,6 +79,16 @@ function IconoPromo({ tipo, color = 'rosa', className = '' }) {
         <circle cx="30" cy="13" r="1.9" fill={PALETA.amarillo} />
       </>
     ),
+    // Pastel con vela
+    pastel: (
+      <>
+        <path d="M8 42h32V30H8z" {...t} />
+        <path d="M12 30v-8h24v8" {...t} stroke={PALETA.turquesa} />
+        <path d="M8 35c4-3 6 2 10-1s6 2 10-1 6 2 12 0" {...t} strokeWidth="1.8" />
+        <path d="M24 22v-7" {...t} stroke={PALETA.crema} />
+        <ellipse cx="24" cy="10" rx="2.6" ry="3.6" fill={PALETA.amarillo} />
+      </>
+    ),
   }
 
   return (
@@ -107,12 +117,24 @@ function TarjetaPromoExuberante({ promo }) {
         ))}
       </ul>
       {promo.detalle && <p className={`mt-4 text-sm font-semibold ${colorTexto}`}>{promo.detalle}</p>}
-      <div className="mt-5 border-t border-white/10 pt-4">
-        <span className={precioValido(promo.precio) ? 'precio text-2xl' : 'text-sm text-crema/80'}>
-          {precioValido(promo.precio) ? precioMXN(promo.precio) : ETIQUETA_PENDIENTE}
-        </span>
-        {promo.restricciones && <p className="mt-2 text-xs text-crema/75">Aplican restricciones</p>}
-      </div>
+      {promo.condiciones?.length > 0 && (
+        <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.035] p-3.5">
+          <p className="text-xs font-semibold text-amarillo">Condiciones</p>
+          <ul className="mt-2 space-y-1.5">
+            {promo.condiciones.map((condicion) => (
+              <li key={condicion} className="text-sm leading-relaxed text-crema/85">{condicion}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {!promo.cortesia && (
+        <div className="mt-5 border-t border-white/10 pt-4">
+          <span className={precioValido(promo.precio) ? 'precio text-2xl' : 'text-sm text-crema/80'}>
+            {precioValido(promo.precio) ? precioMXN(promo.precio) : ETIQUETA_PENDIENTE}
+          </span>
+          {promo.restricciones && <p className="mt-2 text-xs text-crema/75">Aplican restricciones</p>}
+        </div>
+      )}
     </article>
   )
 }

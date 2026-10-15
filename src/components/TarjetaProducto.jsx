@@ -27,11 +27,15 @@ function Detalle({ detalle }) {
         {detalle.etiqueta}
       </p>
       <ul className="mt-2 flex flex-wrap gap-1.5">
-        {detalle.opciones.map((opcion) => (
-          <li key={opcion} className="rounded-lg border border-white/10 bg-white/[0.035] px-2.5 py-1.5 text-xs leading-relaxed text-crema/85">
-            {opcion}
-          </li>
-        ))}
+        {detalle.opciones.map((opcion) => {
+          const { texto, distintivo } = typeof opcion === 'string' ? { texto: opcion } : opcion
+          return (
+            <li key={texto} className={`rounded-lg border px-2.5 py-1.5 text-xs leading-relaxed text-crema/85 ${distintivo ? 'border-amarillo/40 bg-amarillo/[0.06]' : 'border-white/10 bg-white/[0.035]'}`}>
+              {texto}
+              {distintivo && <span className="ml-1.5 text-[11px] italic text-amarillo">· {distintivo}</span>}
+            </li>
+          )
+        })}
       </ul>
     </div>
   )

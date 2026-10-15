@@ -97,8 +97,8 @@ test('variantes, enlaces y navegación por teclado', async ({ page }) => {
   await expect(cantarito).toContainText('$85')
   await cantarito.getByRole('button', { name: /^5 litros/ }).click()
   await expect(cantarito.locator('[aria-live]')).toHaveText('$649')
-  await expect(page.locator('#promociones')).toHaveCount(0)
-  await expect(page.locator('a[href="#promociones"]')).toHaveCount(0)
+  await expect(page.locator('#promociones')).toHaveCount(1)
+  await expect(page.locator('a.menu-acceso-promos[href="#promociones"]')).toHaveCount(1)
   await expect(page.locator('a[href*="["]')).toHaveCount(0)
   expect(await page.locator('a[target="_blank"]').evaluateAll(links => links.every(link => link.rel.includes('noopener') && link.rel.includes('noreferrer')))).toBe(true)
   await page.getByRole('button', { name: 'Abrir navegación', exact: true }).click()
@@ -113,7 +113,7 @@ test('variantes, enlaces y navegación por teclado', async ({ page }) => {
   expect(pequenos).toEqual([])
 })
 
-test('categorías persistentes sin accesos a promociones ocultas', async ({ page }) => {
+test('categorías persistentes con acceso a promociones publicadas', async ({ page }) => {
   for (const width of [320, 390, 1440]) {
     await page.setViewportSize({ width, height: 1000 })
     await page.goto('?dia=domingo&hora=13:00#categorias')
@@ -130,7 +130,7 @@ test('categorías persistentes sin accesos a promociones ocultas', async ({ page
     await expect(page.locator('#panel-mexicana')).toHaveCount(0)
     await expect(page.locator('#categoria-bebidas')).toHaveAttribute('aria-expanded', 'true')
     await expect(mexicana).toHaveAttribute('aria-expanded', 'false')
-    await expect(page.locator('a[href="#promociones"]')).toHaveCount(0)
+    await expect(page.locator('a.menu-acceso-promos[href="#promociones"]')).toHaveCount(1)
     await page.locator('#panel-bebidas').getByRole('link', { name: '↑ Cambiar categoría', exact: true }).click()
     await expect(page.locator('#categoria-bebidas')).toBeInViewport()
     await expect(page.locator('#panel-bebidas')).toBeVisible()
@@ -144,7 +144,10 @@ for (const javaScriptEnabled of [true, false]) {
     try {
       const page = await context.newPage()
       await page.goto('/?dia=domingo&hora=13:00')
-      await expect(page.locator('#promociones, a[href="#promociones"]')).toHaveCount(0)
+      await expect(page.locator('#promociones')).toHaveCount(1)
+      for (const nombre of ['Viernes pozolero', 'Promo cumpleaños', 'Promo Baja Cruda', 'Promo Sabadrink']) {
+        await expect(page.getByRole('heading', { name: nombre, exact: true })).toHaveCount(1)
+      }
       for (const nombre of ['Combo Pareja', 'Promo Familia', 'Promo Carnitas', 'Promo Cruda', 'Desayuno Ejecutivo', 'Promo Conbeber']) {
         await expect(page.getByRole('heading', { name: nombre, exact: true })).toHaveCount(0)
       }
@@ -169,14 +172,15 @@ for (const javaScriptEnabled of [true, false]) {
           await expect(panel).toContainText('$249')
           const taco = panel.locator('article').filter({ has: page.getByRole('heading', { name: 'Taco de carnitas', exact: true }) })
           await expect(taco).toHaveCount(1)
-          await expect(taco).toContainText('$35')
+          await expect(taco).toContainText('$39')
           const carnitas = panel.locator('article').filter({ has: page.getByRole('heading', { name: 'Carnitas por peso', exact: true }) })
           for (const [medida, precio] of [['Medio kilo', '$190'], ['Un kilo', '$380']]) {
             await expect(carnitas.locator('li').filter({ hasText: medida })).toContainText(precio)
           }
         } else {
-          await expect(panel.locator('article')).toHaveCount(4)
-          for (const nombre of ['Orden de flautas de barbacoa', 'Torta de barbacoa', 'Orden de barbacoa']) {
+          // Con JavaScript el panel suma la Orden de tortillas compartida.
+          await expect(panel.locator('article')).toHaveCount(javaScriptEnabled ? 5 : 4)
+          for (const nombre of ['Torta de barbacoa', 'Orden de barbacoa']) {
             await expect(page.getByRole('heading', { name: nombre, exact: true })).toHaveCount(0)
           }
           await expect(panel).not.toContainText('Precio por confirmar')
@@ -187,7 +191,7 @@ for (const javaScriptEnabled of [true, false]) {
           await expect(panel).not.toContainText('12 tacos')
           const taco = panel.locator('article').filter({ has: page.getByRole('heading', { name: 'Taco de barbacoa', exact: true }) })
           await expect(taco).toHaveCount(1)
-          await expect(taco).toContainText('$49')
+          await expect(taco).toContainText('$59')
           const consome = panel.locator('article').filter({ has: page.getByRole('heading', { name: 'Consomé', exact: true }) })
           await expect(consome).not.toContainText('Mediano')
           await expect(consome).not.toContainText('Precio por confirmar')

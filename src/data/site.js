@@ -5,7 +5,7 @@
 // -----------------------------------------------------------------------------
 
 import { APERTURAS_SERVICIO, REGLAS_PROMO, CIERRE_DIARIO, formatoHora } from './horarios'
-import { promocionesVisibles } from './menu'
+import { promoCumpleanos, promocionesVisibles } from './menu'
 
 export const PENDIENTE = (valor) => typeof valor === 'string' && valor.startsWith('[')
 
@@ -54,26 +54,25 @@ export const site = {
 }
 
 /**
- * Requisitos del apartado de cumpleañeros.
- * El beneficio todavía NO está definido por el restaurante: por eso el texto de
- * cierre es neutral y no promete pastel, bebida ni descuento. Cuando lo
- * definan, cámbialo en `beneficio` (y solo ahí).
+ * Apartado de cumpleañeros. Beneficio y condiciones salen de la Promo
+ * cumpleaños (menu.js) para que la sección y la tarjeta de promociones no se
+ * contradigan. Solo se pide mostrar la identificación; el sitio no la recibe.
  */
 export const cumpleanos = {
   titulo: '¿Es tu cumpleaños? ¡Celebra con nosotros!',
-  requisitos: [
-    'Cumplir años el mismo día de la visita.',
-    'Presentar INE o CURP para comprobar la fecha.',
-    'Ir acompañado de al menos tres personas.',
-    'La mesa debe tener un consumo mínimo de $750.',
-  ],
-  beneficio: 'Cumple los requisitos y consulta con nuestro personal el beneficio para cumpleañeros.',
+  requisitos: promoCumpleanos.condiciones,
+  beneficio: `Tu regalo: ${promoCumpleanos.incluye.join(', ').replace(/, ([^,]*)$/, ' y $1').toLowerCase()}.`,
 }
 
-/** Anuncio de música en vivo. Los días y la hora también viven en horarios.js. */
+/** Anuncio de música en vivo. Los días también viven en horarios.js. */
 export const musicaEnVivo = {
   titulo: 'Música en vivo',
   texto: REGLAS_PROMO['Música en vivo'].resumen,
+  presentaciones: [
+    { dia: 'Sábado', hora: '4:30 p. m.', genero: 'Sierreño o norteño banda' },
+    { dia: 'Domingo', hora: '10:30 a. m.', genero: 'Solista' },
+    { dia: 'Domingo', hora: '3:00 p. m.', genero: 'Banda de tierra caliente o sierreño' },
+  ],
 }
 
 export const navegacion = [

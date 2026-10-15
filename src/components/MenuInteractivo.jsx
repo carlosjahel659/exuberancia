@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { categorias, menu, promocionesVisibles } from '../data/menu'
+import { categorias, menu, ordenTortillas, promocionesVisibles } from '../data/menu'
 import { REGLAS, estadoCategoria, estadoGrupo } from '../data/horarios'
 import { useAhora } from '../hooks/useAhora'
 import { grupoVisible, productosVisibles } from '../utils/catalogo'
@@ -35,6 +35,18 @@ function Contenido({ categoria, ahora }) {
     {grupo.bloque && grupo.bloque !== grupos[index - 1]?.bloque && <p className="eyebrow mt-10 !text-amarillo">{grupo.bloque}</p>}
     <Grupo grupo={grupo} categoria={categoria.id} ahora={ahora} />
   </div>)}</>
+}
+
+/** Un solo producto, visible debajo de cualquier categoría abierta. */
+function OrdenTortillas() {
+  return <section className="menu-grupo" aria-label="Para acompañar">
+    <div className="mb-4 border-b border-turquesa/30 pb-3">
+      <h4 className="font-alt text-2xl text-turquesa">Para acompañar</h4>
+    </div>
+    <div className="grid gap-5 md:grid-cols-2">
+      <TarjetaProducto producto={ordenTortillas} />
+    </div>
+  </section>
 }
 
 function TarjetaCategoria({ categoria, disponibilidad, abierta, onAbrir, refBoton }) {
@@ -168,6 +180,7 @@ export default function MenuInteractivo() {
           {categoria.foto && <img src={categoria.foto.src} srcSet={categoria.foto.chica + ' 160w, ' + categoria.foto.src + ' 320w'} sizes="88px" alt={categoria.fotoAlt ?? ''} width="320" height="320" loading="lazy" className="mx-auto mt-4 h-[88px] w-[88px] rounded-xl object-cover" />}
         </div>
         <Contenido categoria={categoria} ahora={ahora} />
+        <OrdenTortillas />
         <div className="mt-8 flex justify-center"><Boton variante="amarillo" href="#categorias">Elegir otra categoría ↑</Boton></div>
       </div>}
 
@@ -180,6 +193,7 @@ export default function MenuInteractivo() {
           <p className="text-sm text-amarillo">{REGLAS[cat.id].resumen}</p>
           <Contenido categoria={cat} />
         </details>)}
+        <OrdenTortillas />
       </div>}
       <p className="mt-8 text-center text-xs leading-relaxed text-crema/75">Precios en pesos mexicanos · Consulta precios y disponibilidad con tu mesero.</p>
     </div>

@@ -83,8 +83,8 @@ const CHECK = (
 
 /**
  * Apartado de cumpleañeros.
- * Los requisitos y el texto de cierre viven en `cumpleanos` (src/data/site.js).
- * A propósito NO se promete ningún regalo: el beneficio aún no está definido.
+ * Los requisitos y el beneficio salen de la Promo cumpleaños (src/data/menu.js)
+ * a través de `cumpleanos` (src/data/site.js).
  */
 export default function Cumpleanos() {
   return (

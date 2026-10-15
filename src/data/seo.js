@@ -1,6 +1,6 @@
 import { CIERRE_DIARIO, REGLAS } from './horarios'
 import { horarioServicio, PENDIENTE, site } from './site'
-import { AVISOS, categorias, menu } from './menu'
+import { AVISOS, categorias, menu, ordenTortillas } from './menu'
 import { precioValido, productosVisibles, variantesVisibles } from '../utils/catalogo'
 
 /** Dominio personalizado de GitHub Pages, servido desde la raíz configurada en Vite. */
@@ -126,6 +126,10 @@ export function menuJsonLd() {
         description: [categoria.descripcion, REGLAS[categoria.id]?.resumen].filter(Boolean).join(' '),
         hasMenuSection: grupos,
       }]
+    }).concat({
+      '@type': 'MenuSection',
+      name: 'Para acompañar',
+      hasMenuItem: [productoJsonLd(ordenTortillas)],
     }),
   }
 }

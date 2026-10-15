@@ -138,10 +138,11 @@ export const REGLAS_PROMO = {
     dias: FIN_DE_SEMANA,
     desde: min(10),
     hasta: CIERRE_DIARIO,
-    resumen: 'Sábados y domingos desde las 10:00 a. m.',
+    // Las horas de cada presentación viven en musicaEnVivo (src/data/site.js).
+    resumen: 'Sábado y domingo',
     textoActivo: 'Hay música en vivo hoy',
-    antesDeHorario: 'Hoy a partir de las 10:00 a. m.',
-    otroDia: 'Sábados y domingos desde las 10:00 a. m.',
+    antesDeHorario: 'Hoy hay música en vivo',
+    otroDia: 'Sábado y domingo',
   },
 }
 

@@ -136,7 +136,26 @@ const PROTEINAS = ['Pollo', 'Chorizo', 'Chistorra', 'Arrachera', 'Costilla']
 const SALSAS = ['Verde', 'Roja']
 const TEQUILAS = ['Supremo', 'José Cuervo', 'Centenario']
 const CORTES_CARNITAS = ['Chamorro', 'Cuerito', 'Costilla', 'Surtida']
+// Variedades del taco de carnitas; las órdenes por peso conservan sus cortes.
+const VARIEDADES_TACO_CARNITAS = [
+  'Chamorro', 'Cuero', 'Barriga', 'Buche', 'Costilla', 'Surtida', 'Maciza', 'Lengua', 'Oreja',
+]
 const BRASA = ['Arrachera', 'Pollo', 'Chorizo', 'Chistorra', 'Costilla']
+
+/**
+ * Orden de tortillas hechas a mano. Es un solo producto que la carta muestra
+ * debajo de cualquier categoría abierta (MenuInteractivo), sin duplicarlo en
+ * cada arreglo de `menu`.
+ */
+export const ordenTortillas = {
+  nombre: 'Orden de tortillas',
+  descripcion: 'Tortillas hechas a mano.',
+  variantes: [
+    { medida: '5 tortillas', precio: 19 },
+    { medida: '10 tortillas', precio: 37 },
+    { medida: '30 tortillas', precio: 99 },
+  ],
+}
 
 export const menu = {
   // ---------------------------------------------------------------- Desayunos
@@ -451,26 +470,36 @@ export const menu = {
       ],
     },
     {
-      grupo: 'Quesadillas',
+      grupo: 'Quesadillas y gorditas',
       productos: [
         {
           nombre: 'Quesadilla',
           descripcion: 'Preparada con queso y acompañada de frijoles y salsa.',
           etiqueta: 'Precio por pieza',
           variantes: [
-            { medida: 'De queso', precio: 45 },
-            { medida: 'De tinga', precio: 45 },
+            { medida: 'De chicharrón', precio: 35 },
+            { medida: 'De queso Oaxaca', precio: 35 },
+            { medida: 'De tinga de pollo', precio: 35 },
             // Chorizo y chistorra todavía no tienen precio por pieza.
             { medida: 'De chorizo o chistorra', precio: null },
           ],
           imagen: IMG.quesadillas,
         },
+        { nombre: 'Quesadilla combinada', precio: 45, etiqueta: 'Precio por pieza' },
+        { nombre: 'Quesadilla de carnitas', precio: 45, etiqueta: 'Precio por pieza' },
         {
           nombre: 'Quesadilla Exuberante',
           precio: 69,
           descripcion: 'Con queso, frijoles y salsa.',
           etiqueta: 'Precio por pieza',
           detalles: [{ etiqueta: 'Incluye', tipo: 'incluye', opciones: PROTEINAS }],
+        },
+        { nombre: 'Gordita de chicharrón', precio: 40, etiqueta: 'Precio por pieza' },
+        {
+          nombre: 'Gordita de carnitas',
+          precio: 49,
+          descripcion: 'Lleva 100 g de carnitas surtidas.',
+          etiqueta: 'Precio por pieza',
         },
       ],
     },
@@ -549,15 +578,11 @@ export const menu = {
           ],
         },
         {
-          nombre: 'Un kilogramo de tortillas hechas a mano',
-          precio: 45,
-          descripcion: 'Para acompañar cualquier orden por peso.',
-        },
-        {
           nombre: 'Taco de carnitas',
-          descripcion: 'Servido en tortilla hecha a mano.',
-          detalles: [{ etiqueta: 'Elige tu corte', opciones: CORTES_CARNITAS }],
-          precio: 35,
+          descripcion: 'Cada taco lleva 85 g de carne y una tortilla hecha a mano de 50 g.',
+          detalles: [{ etiqueta: 'Elige tu variedad', opciones: VARIEDADES_TACO_CARNITAS }],
+          precio: 39,
+          etiqueta: 'Precio por pieza',
         },
         {
           nombre: 'Torta de carnitas',
@@ -571,8 +596,8 @@ export const menu = {
       grupo: 'Caldos',
       productos: [
         {
-          nombre: 'Pozole rojo',
-          descripcion: 'Estilo norteño, con lechuga, rábano, cebolla y tostadas.',
+          nombre: 'Pozole rojo de puerco',
+          descripcion: 'Estilo norteño. Incluye lechuga, rábano, cebolla, 5 tostadas y crema.',
           variantes: [
             { medida: 'Mediano', precio: 109 },
             { medida: 'Grande', precio: 145 },
@@ -582,7 +607,7 @@ export const menu = {
         },
         {
           nombre: 'Pancita',
-          descripcion: 'Servida con sus acompañamientos.',
+          descripcion: 'Incluye tortillas hechas a mano y sus acompañamientos.',
           variantes: [
             { medida: 'Mediana', precio: 105 },
             { medida: 'Grande', precio: 145 },
@@ -643,6 +668,35 @@ export const menu = {
       ],
     },
     {
+      grupo: 'Tacos de la casa',
+      productos: [
+        {
+          nombre: 'Taco exuberante',
+          precio: 40,
+          etiqueta: 'Precio por pieza',
+          detalles: [
+            {
+              etiqueta: 'Elige tu variedad',
+              // `distintivo` se pinta como una marca discreta junto a la opción.
+              opciones: [
+                { texto: 'Arrachera', distintivo: 'El favorito' },
+                'Chistorra',
+                'Bistec de res',
+                { texto: 'Costilla de res', distintivo: 'El más pedido' },
+                'Chorizo argentino',
+                'Chuleta',
+              ],
+            },
+          ],
+        },
+        {
+          nombre: 'Taco de chicharrón norteño',
+          precio: 55,
+          descripcion: 'Lleva chicharrón norteño y guacamole.',
+        },
+      ],
+    },
+    {
       // El encabezado dice "Tacos a la parrilla"; la descripción conserva el
       // término "a la brasa" con el que venían en la carta impresa.
       grupo: 'Tacos a la parrilla',
@@ -683,6 +737,10 @@ export const menu = {
         },
       ],
     },
+    {
+      grupo: 'Pan',
+      productos: [{ nombre: 'Pan', precio: 16 }],
+    },
   ],
 
   // ----------------------------------------------------------------- Barbacoa
@@ -693,15 +751,14 @@ export const menu = {
       productos: [
         {
           nombre: 'Taco de barbacoa',
-          precio: 49,
-          descripcion: 'Pieza de 80 g servida en tortilla hecha a mano.',
+          precio: 59,
+          descripcion: '105 g de carne en tortilla hecha a mano de 50 g.',
           imagen: IMG.barbacoa,
         },
         {
           nombre: 'Orden de flautas de barbacoa',
-          precio: 189,
-          descripcion: 'Tres flautas de barbacoa acompañadas con consomé.',
-          visible: false,
+          precio: 109,
+          descripcion: 'Orden de 3 flautas.',
         },
         {
           nombre: 'Torta de barbacoa',
@@ -730,11 +787,6 @@ export const menu = {
             { medida: 'Un kilo', precio: 850 },
           ],
           etiqueta: 'Especialidad',
-        },
-        {
-          nombre: 'Un kilogramo de tortillas hechas a mano',
-          precio: 45,
-          descripcion: 'Para acompañar cualquier orden por peso.',
         },
         {
           nombre: 'Consomé',
@@ -772,9 +824,27 @@ export const menu = {
         {
           nombre: 'Agua de sabor',
           variantes: [
-            { medida: '1 litro', precio: 40 },
-            { medida: '1/2 litro', precio: 29 },
+            { medida: '1/2 litro', precio: 35 },
+            { medida: '1 litro', precio: 50 },
           ],
+          sabores: [
+            { nombre: 'Alfalfa' },
+            { nombre: 'Jamaica' },
+            { nombre: 'Tamarindo' },
+            { nombre: 'Guayaba' },
+            { nombre: 'Pepino con limón' },
+          ],
+        },
+        {
+          // Solo se publica el litro: no hay precio de 1/2 litro confirmado.
+          nombre: 'Horchata 1 litro',
+          precio: 59,
+          descripcion: 'Disponible solo fines de semana.',
+        },
+        {
+          // Distinta de la piña colada con alcohol (bloque CON_ALCOHOL, grupo Ron).
+          nombre: 'Piña colada sin alcohol 500 ml',
+          precio: 65,
         },
         { nombre: 'Limonada 500 ml', precio: 55 },
         { nombre: 'Naranjada 500 ml', precio: 55 },
@@ -798,7 +868,7 @@ export const menu = {
       color: 'turquesa',
       sinAlcohol: true,
       productos: [
-        { nombre: 'Coca-Cola familiar 3 litros', precio: 149 },
+        { nombre: 'Coca-Cola familiar 3 litros', precio: 175 },
         { nombre: 'Jarra de limonada 1.9 litros', precio: 149 },
         { nombre: 'Jarra de limonada de frutos rojos 1.9 litros', precio: 169 },
         { nombre: 'Jarra de agua de sabor 1.9 litros', precio: 139 },
@@ -833,16 +903,14 @@ export const menu = {
           sabores: [{ nombre: 'Mango' }, { nombre: 'Tamarindo' }, { nombre: 'Cubana' }],
         },
         {
-          nombre: 'Marina',
-          descripcion: 'Camarón pacotilla, Clamato, cubano de la casa, salsas negras y ostiones.',
+          // Antes "Marina". Solo se publican las dos presentaciones confirmadas.
+          nombre: 'Camaronera',
+          descripcion: '13 piezas de camarón pacotilla, preparado cubano con salsas negras y Clamato.',
           variantes: [
-            { medida: 'Barril 1 litro', precio: 180 },
-            { medida: 'Barril 1/2 litro', precio: 100 },
-            { medida: 'Mega 1 litro', precio: 195 },
-            { medida: 'Mega 1/2 litro', precio: 110 },
+            { medida: 'Mega', precio: 195 },
+            { medida: 'Barril', precio: 180 },
           ],
         },
-        { nombre: 'Venenosa', precio: 135, descripcion: 'Corona o Victoria.' },
         { nombre: 'Cerveza 355 ml', precio: 55, descripcion: 'Indio, Tecate o XX Lager.' },
         {
           nombre: 'Tarro extra',
@@ -884,10 +952,8 @@ export const menu = {
           sabores: [
             { nombre: 'Clásico' },
             { nombre: 'Frutos rojos' },
-            { nombre: 'Pepino', ingredientes: 'Azúcar, hierbabuena, limón y pepino.' },
-            { nombre: 'Blueberry', ingredientes: 'Moras, hierbabuena, ron azul, azúcar y limón.' },
-            { nombre: 'Mango' },
             { nombre: 'Fresa' },
+            { nombre: 'Maracuyá' },
           ],
         },
       ],
@@ -902,9 +968,9 @@ export const menu = {
           nombre: 'Piña colada',
           descripcion: 'Ron, preparado de piña colada y jugo de piña.',
           variantes: [
-            { medida: '250 ml', precio: 99 },
-            { medida: '500 ml', precio: 150 },
-            { medida: '1 litro', precio: 220 },
+            { medida: '250 ml', precio: 85 },
+            { medida: '1/2 litro', precio: 120 },
+            { medida: '1 litro', precio: 199 },
           ],
         },
         {
@@ -958,6 +1024,7 @@ export const menu = {
           variantes: [
             { medida: '250 ml', precio: 99 },
             { medida: '500 ml', precio: 135 },
+            { medida: '1 litro', precio: 165 },
           ],
           opciones: { etiqueta: 'Elige tu tequila', valores: TEQUILAS },
         },
@@ -1094,9 +1161,9 @@ export const bebidasBarril = [
     color: 'rosa',
   },
   {
-    nombre: 'Marina de barril',
-    descripcion: 'Camarón pacotilla, Clamato, cubano de la casa, salsas negras y ostiones.',
-    medidas: ['1 litro', '1/2 litro', 'Mega 1 litro'],
+    nombre: 'Camaronera',
+    descripcion: '13 piezas de camarón pacotilla, preparado cubano con salsas negras y Clamato.',
+    medidas: ['Mega', 'Barril'],
     ilustracion: 'marina',
     color: 'turquesa',
     destacado: true,
@@ -1120,7 +1187,7 @@ export const especialidades = [
     // Esta vitrina destaca el taco individual publicado en el menú.
     nombre: 'Taco de barbacoa',
     texto:
-      'Pieza de 80 g servida en tortilla hecha a mano. También por medio kilo y kilo.',
+      '105 g de carne en tortilla hecha a mano de 50 g. También por medio kilo y kilo.',
     etiqueta: 'Especialidad',
     imagen: IMG.barbacoa,
     color: 'rosa',
@@ -1156,6 +1223,49 @@ export const especialidades = [
 // el consomé del Combo Pareja) se dejan sin decir a propósito.
 // -----------------------------------------------------------------------------
 export const promocionesExuberantes = [
+  {
+    id: 'viernes-pozolero',
+    nombre: 'Viernes pozolero',
+    icono: 'carnitas',
+    color: 'naranja',
+    incluye: ['2 pozoles medianos', '2 cocas'],
+    detalle: 'Disponible los viernes',
+    precio: 299,
+  },
+  {
+    // Promoción sin precio: sus beneficios son gratis bajo las condiciones.
+    // `cortesia` permite publicarla; la sección de cumpleaños lee estos datos.
+    id: 'cumpleanos',
+    nombre: 'Promo cumpleaños',
+    icono: 'pastel',
+    color: 'rosa',
+    incluye: ['1 taco exuberante gratis', '1 bebida gratis', 'Show por parte del personal'],
+    condiciones: [
+      'Válida únicamente el día de tu cumpleaños.',
+      'Muestra tu CURP o INE al personal.',
+      'Se requieren 2 acompañantes.',
+      'Cada acompañante debe tener un consumo mínimo de $250.',
+    ],
+    cortesia: true,
+    precio: null,
+  },
+  {
+    id: 'baja-cruda',
+    nombre: 'Promo Baja Cruda',
+    icono: 'cantarito',
+    color: 'turquesa',
+    incluye: ['1 cántaro de 1 litro', '1 consomé chico', '2 tacos de barbacoa'],
+    precio: 239,
+  },
+  {
+    id: 'sabadrink',
+    nombre: 'Promo Sabadrink',
+    icono: 'aguachile',
+    color: 'amarillo',
+    incluye: ['3 cántaros de 1 litro', '3 aguachiles de 5 piezas'],
+    detalle: 'Disponible los sábados',
+    precio: 829,
+  },
   {
     id: 'pareja',
     nombre: 'Combo Pareja',
@@ -1215,4 +1325,8 @@ export const promocionesExuberantes = [
 ]
 
 // La sección y sus enlaces usan la misma lista para evitar accesos vacíos.
-export const promocionesVisibles = promocionesExuberantes.filter(esVisible)
+export const promocionesVisibles = promocionesExuberantes.filter(
+  (promo) => promo.cortesia || esVisible(promo),
+)
+
+export const promoCumpleanos = promocionesExuberantes.find((promo) => promo.id === 'cumpleanos')
